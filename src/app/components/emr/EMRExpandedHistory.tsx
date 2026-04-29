@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import Masonry from "react-responsive-masonry";
 import type { HistoryDx, HistoryRx } from "./chartTypes";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -130,7 +131,7 @@ const sColor = (s: "N" | "H" | "L") =>
 const sArrow = (s: "N" | "H" | "L") =>
   s === "H" ? " ↑" : s === "L" ? " ↓" : "";
 
-const PRESC_COLS = "1fr 20px 18px 20px 28px 44px 52px";
+const PRESC_COLS = "1fr 22px 22px 24px 50px";
 const DX_COLS    = "18px 60px 1fr 52px";
 
 // ── Chip ──────────────────────────────────────────────────────────────────────
@@ -209,6 +210,7 @@ interface Props {
   onRepeatDx: (items: HistoryDx[]) => void;
   onRepeatRx: (items: HistoryRx[]) => void;
   onRepeatAll: (dxItems: HistoryDx[], rxItems: HistoryRx[]) => void;
+  onAddSymptom: (text: string) => void;
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -217,7 +219,7 @@ export function EMRExpandedHistory({
   starredDates, onToggleStar, filterFavorite, setFilterFavorite,
   filterPrescTypes, togglePrescType, filterDiagnoses, applyDiagnoses,
   resetFilters, hasActiveFilters, onClose,
-  onRepeatDx, onRepeatRx, onRepeatAll,
+  onRepeatDx, onRepeatRx, onRepeatAll, onAddSymptom,
 }: Props) {
   const [show,         setShow]         = useState(false);
   const [miniMin,      setMiniMin]      = useState(false);
@@ -226,6 +228,17 @@ export function EMRExpandedHistory({
   const [filterVisType, setFilterVisType] = useState<"전체" | "초진" | "재진">("전체");
   const [filterClaim,   setFilterClaim]   = useState<"전체" | "청구" | "비청구">("전체");
   const [filterIns,     setFilterIns]     = useState<Set<string>>(new Set());
+
+  // View modes — 내원일 카드 내부 어떤 섹션을 보여줄지 (다중선택)
+  const VIEW_KEYS = ["증상", "진단", "처방", "이미지", "메모"] as const;
+  type ViewKey = typeof VIEW_KEYS[number];
+  const [viewModes, setViewModes] = useState<Set<ViewKey>>(new Set(VIEW_KEYS));
+  const toggleViewMode = (k: ViewKey) => setViewModes(prev => {
+    const next = new Set(prev);
+    next.has(k) ? next.delete(k) : next.add(k);
+    return next;
+  });
+  const allViewsActive = VIEW_KEYS.every(k => viewModes.has(k));
 
   const gridRef  = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -304,7 +317,11 @@ export function EMRExpandedHistory({
             <rect x="9" y="9" width="6" height="6" rx="1" stroke="#453EDC" strokeWidth="1.3"/>
           </svg>
           <span className="text-[13px] font-bold text-[#292A2D]">내원이력 펼쳐보기</span>
-          <span className="text-[11px] text-[#989BA2]">황미진 · {localFiltered.length}건 표시 중</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[11px] font-medium text-[#989BA2]">100236</span>
+            <span className="text-[13px] font-bold text-[#171719]">황미진</span>
+            <span className="text-[11px] text-[#70737C]">여 · 45세</span>
+          </div>
           {allFiltersActive && (
             <span className="text-[10px] bg-[#ECEEFF] text-[#453EDC] border border-[#453EDC]/30 rounded-full px-2 py-0.5">필터 적용 중</span>
           )}
@@ -328,6 +345,39 @@ export function EMRExpandedHistory({
 
         {/* ══ Left Sidebar ══ */}
         <div className="w-[200px] flex-shrink-0 border-r border-[#DBDCDF] flex flex-col bg-[#F9F9FC] overflow-hidden">
+
+          {/* ── 보기 설정 (내원일 카드에서 어떤 섹션을 보여줄지) ── */}
+          <div className="px-2.5 pt-2 pb-2 border-b border-[#DBDCDF] bg-[#FBFBFE] flex-shrink-0">
+            <span className="text-[10px] font-medium text-[#989BA2] block mb-1.5">보기</span>
+            <div className="flex flex-wrap gap-1">
+              <button
+                onClick={() => setViewModes(new Set(VIEW_KEYS))}
+                className={`text-[10px] rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
+                  allViewsActive
+                    ? "bg-[#453EDC] text-white border-[#453EDC] font-bold"
+                    : "bg-white text-[#70737C] border-[#DBDCDF]"
+                }`}
+              >
+                전체
+              </button>
+              {VIEW_KEYS.map(k => {
+                const active = viewModes.has(k);
+                return (
+                  <button
+                    key={k}
+                    onClick={() => toggleViewMode(k)}
+                    className={`text-[10px] rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
+                      active
+                        ? "bg-[#ECEEFF] text-[#453EDC] border-[#453EDC]"
+                        : "bg-white text-[#70737C] border-[#DBDCDF]"
+                    }`}
+                  >
+                    {active ? "✓" : ""} {k}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Filters — scrollable, max 58% */}
           <div className="overflow-y-auto flex-shrink-0" style={{ maxHeight: "58%" }}>
@@ -488,7 +538,8 @@ export function EMRExpandedHistory({
               <button onClick={clearAll} className="text-[11px] text-[#453EDC] underline">필터 초기화</button>
             </div>
           ) : (
-            <div className="grid gap-2 p-2 bg-[#F3F4F8]" style={{ gridTemplateColumns: "repeat(2, 1fr)" }}>
+            <div className="p-2 bg-[#F3F4F8]">
+              <Masonry columnsCount={2} gutter="8px">
               {localFiltered.map(v => {
                 const isActive  = activeDate === v.id;
                 const labs      = LAB_BY_PRESC[v.id] ?? {};
@@ -499,10 +550,18 @@ export function EMRExpandedHistory({
                     className="flex flex-col bg-white rounded-[10px] overflow-hidden shadow-sm border border-[#E8E8EC]"
                     onClick={() => setActiveDate(v.id)}>
 
-                    {/* Card Header */}
-                    <div className={`flex items-center pl-3 pr-2 gap-1 h-9 border-b flex-shrink-0 relative overflow-hidden ${
-                      isActive ? "bg-[#F7F8FD] border-[#E5E6F2]" : "bg-[#F5F5F8] border-[#EBEBEE]"
-                    }`}>
+                    {/* Card Header — 클릭 시 전체 내원 추가 (증상+진단+처방) */}
+                    <div
+                      onClick={e => {
+                        e.stopPropagation();
+                        setActiveDate(v.id);
+                        onAddSymptom(v.symptom);
+                        onRepeatAll(v.diagnoses, v.prescriptions);
+                      }}
+                      title="클릭하면 이 내원의 증상·진단·처방을 모두 추가"
+                      className={`flex items-center pl-3 pr-2 gap-1 h-9 border-b flex-shrink-0 relative overflow-hidden cursor-pointer hover:brightness-95 ${
+                        isActive ? "bg-[#F7F8FD] border-[#E5E6F2]" : "bg-[#F5F5F8] border-[#EBEBEE]"
+                      }`}>
                       {isActive && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#453EDC]" />}
                       <span className="text-[10px] font-bold text-[#292A2D] flex-shrink-0">{v.date}</span>
                       {v.time && <span className="text-[9px] text-[#989BA2] flex-shrink-0">{v.time}</span>}
@@ -512,7 +571,7 @@ export function EMRExpandedHistory({
                       {v.prescTypes.map(pt => (
                         <span key={pt} className={`text-[8px] font-bold rounded-[2px] px-1 py-0.5 flex-shrink-0 ${PT_BADGE[pt].cls}`}>{PT_BADGE[pt].label[0]}</span>
                       ))}
-                      {v.imageCount && v.imageCount > 0 ? (
+                      {viewModes.has("이미지") && v.imageCount && v.imageCount > 0 ? (
                         <span className="text-[9px] text-[#6B7BB0] bg-[#F0F2F8] border border-[#D0D4E8] rounded-[3px] px-1 py-0.5 flex-shrink-0">📷 {v.imageCount}</span>
                       ) : null}
                       <div className="flex-1 min-w-0" />
@@ -523,12 +582,19 @@ export function EMRExpandedHistory({
                       </button>
                     </div>
 
-                    {/* Symptom */}
-                    <div className="px-3 py-1.5 border-b border-[#F2F2F4]">
-                      <p className="text-[11px] text-[#46474C] leading-[16px]">{v.symptom}</p>
-                    </div>
+                    {/* Symptom — 클릭 시 증상 텍스트 추가 */}
+                    {viewModes.has("증상") && (
+                      <div
+                        onClick={e => { e.stopPropagation(); onAddSymptom(v.symptom); }}
+                        title="클릭하면 증상에 추가"
+                        className="px-3 py-1.5 border-b border-[#F2F2F4] hover:bg-[#F0FFF4] cursor-pointer"
+                      >
+                        <p className="text-[11px] text-[#46474C] leading-[16px]">{v.symptom}</p>
+                      </div>
+                    )}
 
                     {/* Diagnosis */}
+                    {viewModes.has("진단") && (
                     <div className="border-b border-[#F0F0F2]">
                       <div className="grid bg-[#F7F7F8] border-b border-[#EBEBEE] px-2 py-[3px]"
                         style={{ gridTemplateColumns: DX_COLS }}>
@@ -551,14 +617,15 @@ export function EMRExpandedHistory({
                         </div>
                       ))}
                     </div>
+                    )}
 
                     {/* Prescriptions */}
-                    {v.prescriptions.length > 0 && (
+                    {viewModes.has("처방") && v.prescriptions.length > 0 && (
                       <div className="border-b border-[#F0F0F2]">
                         <div className="grid bg-[#F7F7F8] border-b border-[#EBEBEE] px-2 py-[3px]"
                           style={{ gridTemplateColumns: PRESC_COLS, columnGap: "2px" }}>
-                          {["처방명","용량","일투","일수","용법","단가","결과"].map((h, i) => (
-                            <span key={i} className={`text-[9px] font-medium text-[#989BA2] ${i === 0 ? "" : i === 6 ? "text-right" : "text-center"}`}>{h}</span>
+                          {["처방명","용량","일투","일수","결과"].map((h, i) => (
+                            <span key={i} className={`text-[9px] font-medium text-[#989BA2] ${i === 0 ? "" : i === 4 ? "text-right" : "text-center"}`}>{h}</span>
                           ))}
                         </div>
                         {v.prescriptions.map((p, i) => {
@@ -572,8 +639,6 @@ export function EMRExpandedHistory({
                               <span className="text-[9px] text-[#46474C] text-center">{p.dose}</span>
                               <span className="text-[9px] text-[#46474C] text-center">{p.freq}</span>
                               <span className="text-[9px] text-[#46474C] text-center">{p.days}</span>
-                              <span className="text-[9px] text-[#70737C] text-center truncate">{p.method ?? "경구"}</span>
-                              <span className="text-[9px] text-[#292A2D] text-right">{p.price.toLocaleString()}</span>
                               {lab ? (
                                 <span className={`text-[9px] font-semibold text-right truncate ${sColor(lab.status)}`}>
                                   {lab.value}{sArrow(lab.status)}
@@ -588,7 +653,7 @@ export function EMRExpandedHistory({
                     )}
 
                     {/* Note */}
-                    {v.note && (
+                    {viewModes.has("메모") && v.note && (
                       <div className="flex items-start gap-1 px-3 py-1.5">
                         <span className="text-[10px]">📝</span>
                         <span className="text-[10px] text-[#453EDC] leading-[15px]">{v.note}</span>
@@ -597,6 +662,7 @@ export function EMRExpandedHistory({
                   </div>
                 );
               })}
+              </Masonry>
             </div>
           )}
         </div>

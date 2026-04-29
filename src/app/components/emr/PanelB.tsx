@@ -1,5 +1,6 @@
 // Panel B: 환자정보 + AI요약 + 바이탈 + 공유메모 통합 패널
 import { useState } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const vitals = [
   { date: "03-12", bp: "128/82", bpHigh: false, hr: 76, temp: 36.5 },
@@ -34,76 +35,79 @@ export function PanelB() {
   const [noticeOpen, setNoticeOpen] = useState(true);
 
   return (
-    <div className="flex flex-col w-[260px] h-full bg-[#F4F4F5] flex-shrink-0 overflow-y-auto overflow-x-hidden gap-1.5 p-1.5">
+    <PanelGroup direction="vertical" className="w-full h-full">
 
       {/* ── 1. 환자정보 ── */}
-      <div className="bg-white rounded-xl flex-shrink-0 overflow-hidden">
-        <div className="px-4 py-3 border-b border-[#DBDCDF]">
+      <Panel defaultSize={38} minSize={20}>
+      <div className="bg-white rounded-md h-full overflow-hidden">
+        <div className="px-3 py-1.5 border-b border-[#DBDCDF]">
           <div className="flex items-start justify-between">
-            <div className="flex items-baseline gap-2">
-              <span className="text-[12px] font-medium text-[#989BA2]">100236</span>
-              <span className="text-[20px] font-bold text-[#171719]">황미진</span>
-              <span className="text-[13px] text-[#70737C]">여 · 45세</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-[11px] font-medium text-[#989BA2]">100236</span>
+              <span className="text-[15px] font-bold text-[#171719]">황미진</span>
+              <span className="text-[12px] text-[#70737C]">여 · 45세</span>
             </div>
-            <div className="w-4 h-4 bg-[#989BA2] rounded-[3px] flex-shrink-0 mt-1" />
+            <div className="w-3.5 h-3.5 bg-[#989BA2] rounded-[3px] flex-shrink-0 mt-1" />
           </div>
-          <span className="text-[11px] text-[#989BA2]">960101-2******</span>
+          <span className="text-[10px] text-[#989BA2]">960101-2******</span>
         </div>
 
         {/* Verify Row */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 border-b border-[#DBDCDF] flex-wrap">
-          <div className="flex items-center gap-1 bg-[#EDF8EF] rounded-[4px] px-2 py-0.5">
-            <div className="w-2.5 h-2.5 bg-[#4EAD0A] rounded-full" />
-            <span className="text-[10px] font-medium text-[#4EAD0A]">본인확인</span>
+        <div className="flex items-center gap-1 px-2 py-1 border-b border-[#DBDCDF]">
+          <div className="flex items-center gap-1 bg-[#EDF8EF] rounded-[4px] px-1.5 py-0.5">
+            <div className="w-2 h-2 bg-[#4EAD0A] rounded-full" />
+            <span className="text-[10px] font-medium text-[#4EAD0A] whitespace-nowrap">본인확인</span>
           </div>
-          <div className="flex items-center gap-1 bg-[#EDF8EF] rounded-[4px] px-2 py-0.5">
-            <div className="w-2.5 h-2.5 bg-[#4EAD0A] rounded-full" />
-            <span className="text-[10px] font-medium text-[#4EAD0A]">수진자조회</span>
+          <div className="flex items-center gap-1 bg-[#EDF8EF] rounded-[4px] px-1.5 py-0.5">
+            <div className="w-2 h-2 bg-[#4EAD0A] rounded-full" />
+            <span className="text-[10px] font-medium text-[#4EAD0A] whitespace-nowrap">수진자조회</span>
           </div>
-          <div className="flex items-center gap-1 bg-[#FBFAFF] border border-[#453EDC] rounded-[4px] px-2 py-0.5">
-            <div className="w-2.5 h-2.5 bg-[#453EDC] rounded-full" />
-            <span className="text-[10px] font-bold text-[#453EDC]">공단검진 2</span>
+          <div className="flex items-center gap-1 bg-[#FBFAFF] border border-[#453EDC] rounded-[4px] px-1.5 py-0.5">
+            <div className="w-2 h-2 bg-[#453EDC] rounded-full" />
+            <span className="text-[10px] font-bold text-[#453EDC] whitespace-nowrap">공단검진 2</span>
           </div>
         </div>
 
         {/* Info Rows */}
         <div className="border-b border-[#DBDCDF]">
-          <div className="flex items-center px-4 h-[32px] border-b border-[#DBDCDF]">
-            <span className="text-[11px] text-[#989BA2] w-[68px]">환자그룹</span>
+          <div className="flex items-center px-3 h-[24px] border-b border-[#DBDCDF]">
+            <span className="text-[11px] text-[#989BA2] w-[60px]">환자그룹</span>
             <span className="text-[12px] font-medium text-[#292A2D]">GC Cell</span>
           </div>
-          <div className="flex items-center px-4 h-[36px] border-b border-[#DBDCDF]">
-            <span className="text-[11px] text-[#989BA2] w-[68px]">환자유형</span>
+          <div className="flex items-center px-3 h-[26px] border-b border-[#DBDCDF]">
+            <span className="text-[11px] text-[#989BA2] w-[60px]">환자유형</span>
             <div className="flex gap-1">
               <span className="text-[10px] font-medium text-[#6541F2] bg-[#F1EDFF] rounded-[3px] px-1.5 py-0.5">만성질환</span>
               <span className="text-[10px] font-medium text-[#3385FF] bg-[#EAF2FE] rounded-[3px] px-1.5 py-0.5">고혈압</span>
               <span className="text-[10px] font-medium text-[#FF4242] bg-[#FEECEC] rounded-[3px] px-1.5 py-0.5">당뇨</span>
             </div>
           </div>
-          <div className="flex items-center px-4 h-[32px] border-b border-[#DBDCDF]">
-            <span className="text-[11px] text-[#989BA2] w-[68px]">최근내원</span>
+          <div className="flex items-center px-3 h-[24px] border-b border-[#DBDCDF]">
+            <span className="text-[11px] text-[#989BA2] w-[60px]">최근내원</span>
             <span className="text-[12px] font-medium text-[#292A2D]">2026-03-12</span>
           </div>
-          <div className="flex items-center px-4 h-[32px]">
-            <span className="text-[11px] text-[#989BA2] w-[68px]">예약일</span>
+          <div className="flex items-center px-3 h-[24px] border-b border-[#DBDCDF]">
+            <span className="text-[11px] text-[#989BA2] w-[60px]">예약일</span>
             <span className="text-[12px] font-medium text-[#FF4242]">2026-04-12</span>
           </div>
-        </div>
-
-        {/* Allergy */}
-        <div className="flex items-center px-4 py-2 gap-2">
-          <div className="w-5 h-5 bg-[#FF4242] rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-[11px] font-bold">!</span>
-          </div>
-          <span className="text-[11px] text-[#292A2D] flex-1">페니실린, 조영제</span>
-          <div className="flex items-center gap-1 bg-[#EDF8EF] rounded-[4px] px-2 py-0.5 flex-shrink-0">
-            <span className="text-[10px] font-medium text-[#2EA652]">✓ 동의 3</span>
+          <div className="flex items-center px-3 h-[26px]">
+            <span className="text-[11px] text-[#989BA2] w-[60px]">처방금지</span>
+            <div className="flex items-center gap-1 flex-1 min-w-0">
+              <div className="w-3.5 h-3.5 bg-[#FF4242] rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-[9px] font-bold leading-none">!</span>
+              </div>
+              <span className="text-[11px] text-[#292A2D] truncate">페니실린, 조영제</span>
+            </div>
           </div>
         </div>
       </div>
+      </Panel>
+
+      <PanelResizeHandle className="h-1 hover:bg-[#453EDC]/30 active:bg-[#453EDC]/50 transition-colors" />
 
       {/* ── 2. AI 진료이력 요약 ── */}
-      <div className="bg-[#FBFAFF] rounded-xl flex-shrink-0 overflow-hidden px-3 py-2.5">
+      <Panel defaultSize={14} minSize={8}>
+      <div className="bg-[#FBFAFF] rounded-md h-full overflow-hidden px-3 py-2.5">
         <div className="flex items-center justify-between mb-1.5">
           <div className="flex items-center gap-1.5">
             <span className="text-[#453EDC] text-[12px]">✨</span>
@@ -115,9 +119,13 @@ export function PanelB() {
           당뇨·고혈압 정기 관리 중. 메트포르민·라미프릴 장기복용. 최근 HbA1c 7.2% (3개월전). 9/20일자 알러지 검사 결과 확인 필요.
         </p>
       </div>
+      </Panel>
+
+      <PanelResizeHandle className="h-1 hover:bg-[#453EDC]/30 active:bg-[#453EDC]/50 transition-colors" />
 
       {/* ── 3. 최근 바이탈 ── */}
-      <div className="bg-white rounded-xl flex-shrink-0 overflow-hidden">
+      <Panel defaultSize={18} minSize={10}>
+      <div className="bg-white rounded-md h-full overflow-hidden">
         <div className="flex items-center justify-between px-3 pt-2 pb-1">
           <span className="text-[12px] font-bold text-[#292A2D]">최근 바이탈</span>
           <button className="text-[10px] text-[#989BA2] hover:text-[#453EDC]">+ 기록</button>
@@ -138,9 +146,13 @@ export function PanelB() {
           ))}
         </div>
       </div>
+      </Panel>
+
+      <PanelResizeHandle className="h-1 hover:bg-[#453EDC]/30 active:bg-[#453EDC]/50 transition-colors" />
 
       {/* ── 4. 공유메모 ── */}
-      <div className="bg-white rounded-xl overflow-hidden flex flex-col" style={{ minHeight: 220 }}>
+      <Panel defaultSize={30} minSize={15}>
+      <div className="bg-white rounded-md overflow-hidden flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between px-[10.5px] py-[7px] border-b border-[#EAEBEC] flex-shrink-0">
           <div className="flex items-center gap-[4px]">
@@ -239,7 +251,8 @@ export function PanelB() {
           </div>
         </div>
       </div>
+      </Panel>
 
-    </div>
+    </PanelGroup>
   );
 }

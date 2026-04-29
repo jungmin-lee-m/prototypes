@@ -1,5 +1,7 @@
 // Panel D: 차트 영역 (Main Chart Area)
 import { useState, useRef, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import type { TodayDiagnosis, TodayPrescription } from "./chartTypes";
 import {
   getDurCfg, DurWarningBar, DurBatchBar, SettingsPopover,
@@ -67,20 +69,102 @@ function PrescSearchRow() {
 export function PanelD({
   diagnoses: initDiagnoses,
   prescriptions: initPrescriptions,
+  symptom,
 }: {
   diagnoses: Diagnosis[];
   prescriptions: Prescription[];
+  symptom: string;
 }) {
   // ── Local state (PanelD owns a working copy of chart data) ──────────────────
   const [localRx, setLocalRx] = useState<Prescription[]>(initPrescriptions);
   const [localDx, setLocalDx] = useState<Diagnosis[]>(initDiagnoses);
+
+  // 외부(내원이력 클릭)에서 prop이 갱신되면 local에 새 항목만 머지 + 스크롤 + 반짝 효과
+  useEffect(() => {
+    setLocalDx(prev => {
+      const codes = new Set(prev.map(d => d.code));
+      const additions = initDiagnoses.filter(d => !codes.has(d.code));
+      if (additions.length === 0) return prev;
+      const addedCodes = new Set(additions.map(a => a.code));
+      setTimeout(() => {
+        diagScrollRef.current?.scrollTo({
+          top: diagScrollRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 50);
+      setTimeout(() => {
+        setLocalDx(p => p.map(d => addedCodes.has(d.code) ? { ...d, isNew: false } : d));
+      }, 1000);
+      return [...prev, ...additions.map(d => ({ ...d, isNew: true }))];
+    });
+  }, [initDiagnoses]);
+  useEffect(() => {
+    setLocalRx(prev => {
+      const names = new Set(prev.map(r => r.name));
+      const additions = initPrescriptions.filter(r => !names.has(r.name));
+      if (additions.length === 0) return prev;
+      const addedNames = new Set(additions.map(a => a.name));
+      setTimeout(() => {
+        prescScrollRef.current?.scrollTo({
+          top: prescScrollRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 50);
+      setTimeout(() => {
+        setLocalRx(p => p.map(r => addedNames.has(r.name) ? { ...r, isNew: false } : r));
+      }, 1000);
+      return [...prev, ...additions.map(r => ({ ...r, isNew: true }))];
+    });
+  }, [initPrescriptions]);
   const [durStates, setDurStates] = useState<Record<string, DurItemState>>({});
+  const [durChecked, setDurChecked] = useState(false);
   const [hoveredConflict, setHoveredConflict] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; undo?: () => void } | null>(null);
   const [settingsRect, setSettingsRect] = useState<DOMRect | null>(null);
+  const [chartMenuRect, setChartMenuRect] = useState<DOMRect | null>(null);
+  const chartMenuBtnRef = useRef<HTMLButtonElement>(null);
+
+  // D2 sub-panel system — 어떤 서브패널을 노출할지 설정
+  const D2_SUB_PANELS = ["증상", "이미지", "임상메모"] as const;
+  type D2Sub = typeof D2_SUB_PANELS[number];
+  const [d2Active, setD2Active] = useState<Set<D2Sub>>(new Set(D2_SUB_PANELS));
+  const [d2SettingsRect, setD2SettingsRect] = useState<DOMRect | null>(null);
+  const d2SettingsBtnRef = useRef<HTMLButtonElement>(null);
+
+  // close D2 settings popover on outside click
+  useEffect(() => {
+    if (!d2SettingsRect) return;
+    const handler = (e: MouseEvent) => {
+      const popup = document.getElementById("d2-settings-popover");
+      if (
+        d2SettingsBtnRef.current && !d2SettingsBtnRef.current.contains(e.target as Node) &&
+        (!popup || !popup.contains(e.target as Node))
+      ) {
+        setD2SettingsRect(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [d2SettingsRect]);
+
+  // close chart menu on outside click
+  useEffect(() => {
+    if (!chartMenuRect) return;
+    const handler = (e: MouseEvent) => {
+      if (chartMenuBtnRef.current && !chartMenuBtnRef.current.contains(e.target as Node)) {
+        const popup = document.getElementById("chart-context-menu");
+        if (!popup || !popup.contains(e.target as Node)) {
+          setChartMenuRect(null);
+        }
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [chartMenuRect]);
 
   // Refs
   const rowRefs   = useRef<Record<string, HTMLDivElement | null>>({});
+  const diagScrollRef  = useRef<HTMLDivElement>(null);
   const prescScrollRef = useRef<HTMLDivElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -122,6 +206,12 @@ export function PanelD({
 
   const addDx = useCallback((dx: { code: string; name: string }) =>
     setLocalDx(prev => prev.some(d => d.code === dx.code) ? prev : [...prev, dx]), []);
+
+  const deleteDx = useCallback((code: string) => {
+    const snapshot = localDx;
+    setLocalDx(prev => prev.filter(d => d.code !== code));
+    showToast("진단 삭제됨", () => setLocalDx(snapshot));
+  }, [localDx, showToast]);
 
   const bulkDismiss = useCallback(() => {
     const updates: Record<string, DurItemState> = {};
@@ -177,8 +267,8 @@ export function PanelD({
   return (
     <div className="flex flex-col flex-1 min-w-0 h-full bg-[#F4F4F5] gap-1 p-1 overflow-hidden">
 
-      {/* D1: 접수정보 바 */}
-      <div className="bg-[#FBFAFF] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-3 py-2 flex items-center gap-[17px] flex-shrink-0">
+      {/* D1: 접수정보 바 (높이 고정 — PanelGroup 밖) */}
+      <div className="bg-[#FBFAFF] rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-3 py-2 flex items-center gap-[17px] flex-shrink-0 overflow-hidden">
         {/* 날짜 */}
         <span className="text-[13px] font-bold text-[#171719] whitespace-nowrap flex-shrink-0">2026.03.17 (화)</span>
 
@@ -205,61 +295,77 @@ export function PanelD({
           <span className="text-[11px] text-[#171719] truncate">MRI 촬영 원함, 보호자(따님) 동반</span>
         </div>
 
-        {/* 삼점 버튼 */}
-        <button className="w-5 h-5 flex items-center justify-center flex-shrink-0 hover:opacity-60">
+        {/* 삼점 버튼 + 컨텍스트 메뉴 (portal로 클리핑 회피) */}
+        <button
+          ref={chartMenuBtnRef}
+          onClick={e => setChartMenuRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
+          className="w-5 h-5 flex items-center justify-center flex-shrink-0 hover:opacity-60"
+        >
           <svg width="3" height="14" viewBox="0 0 2.1875 13.125" fill="none">
             <path d={MORE_DOTS_ICON_PATH} fill="#171719" />
           </svg>
         </button>
       </div>
 
-      {/* D2: 증상 + 이미지 + 임상메모 */}
-      <div className="bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex-shrink-0 relative">
-        <div className="flex divide-x divide-[#DBDCDF]">
-          <div className="flex-1 p-3">
-            <div className="mb-2"><span className="text-[12px] font-bold text-[#292A2D]">증상</span></div>
-            <p className="text-[11px] text-[#292A2D] leading-[17px]">당뇨, 고혈압 정기 관리 중 (메트포르민·라미프릴). 이번 주 기침·콧물·발열 시작. 목 통증 동반. 9/20일자 알러지 검사 약 3~4주 소요, 결과 확인 필요. 복약 순응도 양호.</p>
-          </div>
-          <div className="w-[200px] p-3 flex-shrink-0">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1">
-                <span className="text-[12px] font-bold text-[#292A2D]">이미지</span>
-                <span className="text-[9px] bg-[#453EDC] text-white rounded-full w-4 h-4 flex items-center justify-center font-bold">3</span>
-              </div>
-              <button className="text-[10px] text-[#70737C] border border-[#DBDCDF] rounded-[3px] px-1.5 py-0.5">업로드</button>
+
+      <PanelGroup direction="vertical" className="flex-1">
+
+      {/* D2: 증상 / 이미지 / 임상메모 — 설정 버튼으로 노출 항목 선택 */}
+      <Panel defaultSize={25} minSize={12}>
+      <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] h-full overflow-hidden relative">
+        <div className="flex divide-x divide-[#DBDCDF] h-full">
+          {d2Active.has("증상") && (
+            <div className="flex-1 p-3 overflow-y-auto min-w-0">
+              <div className="mb-2"><span className="text-[12px] font-bold text-[#292A2D]">증상</span></div>
+              <p className="text-[11px] text-[#292A2D] leading-[17px] whitespace-pre-line">{symptom}</p>
             </div>
-            <div className="flex flex-col gap-1">
-              <div className="grid grid-cols-2 gap-1">
-                {medicalImages.slice(0, 2).map(img => (
-                  <div key={img.label} className="aspect-square rounded-[4px] overflow-hidden relative">
-                    <img src={img.url} alt={img.label} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/30 flex items-end p-1">
-                      <span className="text-[9px] text-white font-medium drop-shadow">{img.label}</span>
-                    </div>
-                  </div>
-                ))}
+          )}
+          {d2Active.has("이미지") && (
+            <div className="flex-1 p-3 overflow-y-auto min-w-0 flex flex-col">
+              <div className="flex items-center justify-between mb-2 flex-shrink-0">
+                <div className="flex items-center gap-1">
+                  <span className="text-[12px] font-bold text-[#292A2D]">이미지</span>
+                  <span className="text-[9px] bg-[#453EDC] text-white rounded-full w-4 h-4 flex items-center justify-center font-bold">3</span>
+                </div>
+                <button className="text-[10px] text-[#70737C] border border-[#DBDCDF] rounded-[3px] px-1.5 py-0.5">업로드</button>
               </div>
-              <div className="rounded-[4px] overflow-hidden relative" style={{ height: "52px" }}>
-                <img src={medicalImages[2].url} alt={medicalImages[2].label} className="w-full h-full object-cover" />
+              <div className="rounded-[4px] overflow-hidden relative flex-1 min-h-0">
+                <img src={medicalImages[0].url} alt={medicalImages[0].label} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/30 flex items-end p-1">
-                  <span className="text-[9px] text-white font-medium drop-shadow">{medicalImages[2].label}</span>
+                  <span className="text-[9px] text-white font-medium drop-shadow">{medicalImages[0].label}</span>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="flex-1 p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[12px] font-bold text-[#292A2D]">임상메모</span>
-              <button className="text-[10px] text-[#70737C] px-1">📌</button>
+          )}
+          {d2Active.has("임상메모") && (
+            <div className="flex-1 p-3 overflow-y-auto min-w-0">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[12px] font-bold text-[#292A2D]">임상메모</span>
+                <button className="text-[10px] text-[#70737C] px-1">📌</button>
+              </div>
+              <p className="text-[11px] text-[#292A2D] leading-[17px]">다음 방문 시 HbA1c 재검 요청. 혈압 관리 강조. 금연 상담 필요. 체중 감량 목표 설정 (현재 72kg → 목표 68kg). 식이 조절 교육 완료.</p>
             </div>
-            <p className="text-[11px] text-[#292A2D] leading-[17px]">다음 방문 시 HbA1c 재검 요청. 혈압 관리 강조. 금연 상담 필요. 체중 감량 목표 설정 (현재 72kg → 목표 68kg). 식이 조절 교육 완료.</p>
-          </div>
+          )}
+          {d2Active.size === 0 && (
+            <div className="flex-1 flex items-center justify-center text-[11px] text-[#989BA2]">
+              우상단 ⚙ 버튼으로 표시할 항목을 선택하세요
+            </div>
+          )}
         </div>
-        <button className="absolute top-2 right-2 text-[#989BA2] text-[14px]">⚙️</button>
+        <button
+          ref={d2SettingsBtnRef}
+          onClick={e => setD2SettingsRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
+          className="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center text-[#989BA2] hover:text-[#292A2D] text-[12px] transition-colors"
+          title="표시 항목 설정"
+        >⚙</button>
       </div>
+      </Panel>
+
+      <PanelResizeHandle className="h-1 hover:bg-[#453EDC]/30 active:bg-[#453EDC]/50 transition-colors" />
 
       {/* D3: 진단 + 처방 */}
-      <div className="bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col flex-1 overflow-hidden">
+      <Panel defaultSize={75} minSize={30}>
+      <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col h-full overflow-hidden">
         {/* Diagnosis Header */}
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[#DBDCDF] flex-shrink-0">
           <span className="text-[12px] font-bold text-[#292A2D] flex-shrink-0">진단 및 처방</span>
@@ -271,91 +377,93 @@ export function PanelD({
             <span className="text-[10px] text-[#989BA2]">통합 검색 (코드/명칭/증상)</span>
           </div>
           <button className="text-[11px] font-medium text-[#46474C] border border-[#DBDCDF] rounded-[4px] px-2 h-7 bg-white whitespace-nowrap flex-shrink-0">KOICD 분류</button>
+          {/* Settings button — 사전심사 범위 설정 */}
+          <button
+            onClick={e => setSettingsRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
+            className="text-[#989BA2] hover:text-[#292A2D] text-[13px] px-1 transition-colors flex-shrink-0"
+            title="사전심사 설정"
+          >⚙</button>
         </div>
 
-        {/* Diagnosis Table */}
-        <div className="flex-shrink-0 overflow-x-auto">
-          <div className="grid bg-[#F7F7F8] border-b border-[#DBDCDF] px-2 py-1.5"
-            style={{ gridTemplateColumns: "16px 40px 1fr 36px 28px 28px 36px 60px 24px" }}>
-            {["","코드","상병명","의증","좌","우","불완전","진료과",""].map((h, i) => (
-              <span key={i} className="text-[10px] font-medium text-[#989BA2] text-center">{h}</span>
-            ))}
-          </div>
-          {localDx.map((d, i) => (
-            <div key={d.code + i}
-              className={`grid items-center px-2 py-1.5 border-b border-[#DBDCDF] relative transition-colors ${
-                d.isNew ? "bg-[#EDFFF4]" : d.isMain ? "bg-[#FFFAEB]" : ""
-              }`}
-              style={{ gridTemplateColumns: "16px 40px 1fr 36px 28px 28px 36px 60px 24px" }}
-            >
-              {(d.isMain || d.isNew) && (
-                <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${d.isNew ? "bg-[#2EA652]" : "bg-[#FF7B2E]"}`} />
-              )}
-              <div className="text-[10px] text-[#C2C4C8] text-center">⋮⋮</div>
-              <span className="text-[11px] font-medium text-[#292A2D]">{d.code}</span>
-              <div className="flex items-center gap-1">
-                {d.isMain && <span className="text-[9px] bg-[#FF7B2E] text-white rounded-[3px] px-1 py-0.5 flex-shrink-0">주</span>}
-                {d.special && <span className="text-[9px] bg-[#FEECEC] text-[#FF4242] border border-[#FF9999] rounded-[3px] px-1 py-0.5 flex-shrink-0">{d.special}</span>}
-                <span className="text-[11px] text-[#292A2D] truncate">{d.name}</span>
-              </div>
-              {["의증","좌","우","불완전"].map(col => (
-                <div key={col} className="flex justify-center">
-                  <div className="w-3.5 h-3.5 border border-[#DBDCDF] rounded-[2px]" />
+        {/* D3 Body: 진단 + 처방 + 작동하는 스플리터 */}
+        <PanelGroup direction="vertical" className="flex-1">
+
+          {/* Diagnosis Section */}
+          <Panel defaultSize={35} minSize={15}>
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="grid bg-[#F7F7F8] border-b border-[#DBDCDF] px-2 py-1.5 flex-shrink-0"
+              style={{ gridTemplateColumns: "16px 40px 1fr 36px 28px 28px 36px 60px 24px" }}>
+              {["","코드","상병명","의증","좌","우","불완전","진료과",""].map((h, i) => (
+                <span key={i} className="text-[10px] font-medium text-[#989BA2] text-center">{h}</span>
+              ))}
+            </div>
+            <div ref={diagScrollRef} className="flex-1 overflow-y-auto overflow-x-auto">
+              {localDx.map((d, i) => (
+                <div key={d.code + i}
+                  className={`grid items-center px-2 py-1.5 border-b border-[#DBDCDF] relative transition-colors ${
+                    d.isNew ? "bg-[#EDFFF4]" : d.isMain ? "bg-[#FFFAEB]" : ""
+                  }`}
+                  style={{ gridTemplateColumns: "16px 40px 1fr 36px 28px 28px 36px 60px 24px" }}
+                >
+                  {(d.isMain || d.isNew) && (
+                    <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${d.isNew ? "bg-[#2EA652]" : "bg-[#FF7B2E]"}`} />
+                  )}
+                  <div className="text-[10px] text-[#C2C4C8] text-center">⋮⋮</div>
+                  <span className="text-[11px] font-medium text-[#292A2D]">{d.code}</span>
+                  <div className="flex items-center gap-1">
+                    {d.isMain && <span className="text-[9px] bg-[#FF7B2E] text-white rounded-[3px] px-1 py-0.5 flex-shrink-0">주</span>}
+                    {d.special && <span className="text-[9px] bg-[#FEECEC] text-[#FF4242] border border-[#FF9999] rounded-[3px] px-1 py-0.5 flex-shrink-0">{d.special}</span>}
+                    <span className="text-[11px] text-[#292A2D] truncate">{d.name}</span>
+                  </div>
+                  {["의증","좌","우","불완전"].map(col => (
+                    <div key={col} className="flex justify-center">
+                      <div className="w-3.5 h-3.5 border border-[#DBDCDF] rounded-[2px]" />
+                    </div>
+                  ))}
+                  <span className="text-[10px] text-[#292A2D] text-center">내과</span>
+                  <button
+                    onClick={() => deleteDx(d.code)}
+                    className="text-[11px] text-[#989BA2] hover:text-[#FF4242] text-center transition-colors"
+                  >✕</button>
                 </div>
               ))}
-              <span className="text-[10px] text-[#292A2D] text-center">내과</span>
-              <button className="text-[10px] text-[#989BA2] text-center">✕</button>
             </div>
-          ))}
-          <DiagSearchRow />
-        </div>
-
-        {/* Splitter */}
-        <div className="h-[10px] bg-[#F7F7F8] border-y border-[#DBDCDF] flex items-center justify-center flex-shrink-0 cursor-row-resize">
-          <div className="w-10 h-1 bg-[#989BA2] rounded-full opacity-50" />
-        </div>
-
-        {/* Prescription Area */}
-        <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Prescription Header */}
-          <div className="flex items-center gap-2 px-3 py-2 border-b border-[#DBDCDF] flex-shrink-0">
-            <span className="text-[12px] font-medium text-[#989BA2]">처방</span>
-            <div className="flex items-center gap-1 ml-auto">
-              {/* Settings button — 사전심사 범위 설정 */}
-              <button
-                onClick={e => setSettingsRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
-                className="text-[#989BA2] hover:text-[#292A2D] text-[13px] px-1 transition-colors"
-                title="사전심사 설정"
-              >⚙</button>
+            <div className="flex-shrink-0 border-t border-[#DBDCDF]">
+              <DiagSearchRow />
             </div>
           </div>
+          </Panel>
 
-          {/* Prescription Table */}
-          <div ref={prescScrollRef} className="flex-1 overflow-y-auto overflow-x-auto relative"
-            onScroll={recalcLines}>
-            {/* Conflict SVG lines overlay */}
-            {svgLines.length > 0 && (
-              <svg className="absolute left-0 top-0 pointer-events-none" width="4" style={{ height: svgH, zIndex: 5 }}>
-                {svgLines.map((ln, i) => (
-                  <line key={i} x1="2" y1={ln.y1} x2="2" y2={ln.y2}
-                    stroke={ln.color} strokeWidth="2" strokeDasharray="3,3" opacity="0.55" />
-                ))}
-              </svg>
-            )}
+          <PanelResizeHandle className="h-[10px] bg-[#F7F7F8] border-y border-[#DBDCDF] flex items-center justify-center cursor-row-resize hover:bg-[#EBEBEF] transition-colors">
+            <div className="w-10 h-1 bg-[#989BA2] rounded-full opacity-50" />
+          </PanelResizeHandle>
 
-            {/* Table Header */}
-            <div className="grid bg-[#F7F7F8] border-b border-[#DBDCDF] px-2 py-1.5 sticky top-0 z-10"
+          {/* Prescription Section */}
+          <Panel defaultSize={65} minSize={20}>
+          <div className="flex flex-col h-full overflow-hidden">
+            <div className="grid bg-[#F7F7F8] border-b border-[#DBDCDF] px-2 py-1.5 flex-shrink-0"
               style={{ gridTemplateColumns: COL }}>
               {["코드","처방명","용량","일투","일수","용법","예외","청구","수납","단가",""].map((h, i) => (
                 <span key={i} className="text-[10px] font-medium text-[#989BA2] text-center truncate">{h}</span>
               ))}
             </div>
+            <div ref={prescScrollRef} className="flex-1 overflow-y-auto overflow-x-auto relative"
+              onScroll={recalcLines}>
+              {/* Conflict SVG lines overlay */}
+              {svgLines.length > 0 && (
+                <svg className="absolute left-0 top-0 pointer-events-none" width="4" style={{ height: svgH, zIndex: 5 }}>
+                  {svgLines.map((ln, i) => (
+                    <line key={i} x1="2" y1={ln.y1} x2="2" y2={ln.y2}
+                      stroke={ln.color} strokeWidth="2" strokeDasharray="3,3" opacity="0.55" />
+                  ))}
+                </svg>
+              )}
 
-            {/* Prescription Rows */}
+              {/* Prescription Rows */}
             {localRx.map((p, i) => {
               const ds = durStates[p.code] ?? { status: "pending" as const };
               const durResolved = ds.status === "resolved";
-              const isDurActive = p.isDur && !durResolved;
+              const isDurActive = durChecked && p.isDur && !durResolved;
               const cfg = isDurActive ? getDurCfg(p.durType) : null;
               const isConflictHovered = hoveredConflict === p.code;
 
@@ -399,7 +507,10 @@ export function PanelD({
                     <div className="flex justify-center"><Checkbox checked={p.claim} /></div>
                     <div className="flex justify-center"><Checkbox checked={p.pay} /></div>
                     <span className="text-[11px] text-[#292A2D] text-right">{p.price.toLocaleString()}</span>
-                    <button className="text-[10px] text-[#989BA2] text-center">✕</button>
+                    <button
+                      onClick={() => deleteRx(p.code)}
+                      className="text-[11px] text-[#989BA2] hover:text-[#FF4242] text-center transition-colors"
+                    >✕</button>
                   </div>
 
                   {/* DUR Warning Bar */}
@@ -421,24 +532,34 @@ export function PanelD({
                 </div>
               );
             })}
-            <PrescSearchRow />
+            </div>
+            <div className="flex-shrink-0 border-t border-[#DBDCDF]">
+              <PrescSearchRow />
+            </div>
           </div>
-        </div>
+          </Panel>
+
+        </PanelGroup>
       </div>
+      </Panel>
+
+      </PanelGroup>
 
       {/* D4: Action Bar */}
       <div className="flex flex-col gap-1 flex-shrink-0">
         {/* Batch DUR bar (shown above action buttons when ≥2 DUR items) */}
-        <DurBatchBar
-          prescriptions={localRx}
-          durStates={durStates}
-          onBulkReason={bulkReason}
-          onBulkDismiss={bulkDismiss}
-          onScrollToFirst={scrollToFirstDur}
-          onScrollTo={code => rowRefs.current[code]?.scrollIntoView({ behavior: "smooth", block: "nearest" })}
-        />
+        {durChecked && (
+          <DurBatchBar
+            prescriptions={localRx}
+            durStates={durStates}
+            onBulkReason={bulkReason}
+            onBulkDismiss={bulkDismiss}
+            onScrollToFirst={scrollToFirstDur}
+            onScrollTo={code => rowRefs.current[code]?.scrollIntoView({ behavior: "smooth", block: "nearest" })}
+          />
+        )}
 
-        <div className="bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-3 py-2 flex items-center gap-2">
+        <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-3 py-2 flex items-center gap-2">
           <div className="flex items-center gap-2">
             <button className="flex items-center gap-1 text-[11px] bg-white border border-[#DBDCDF] text-[#46474C] rounded-[4px] px-2 py-1">
               <span>📅</span> 예약처방 2
@@ -452,9 +573,21 @@ export function PanelD({
           </div>
           <div className="flex-1" />
           <div className="flex items-center gap-2">
-            <button className="h-9 px-4 border border-[#DBDCDF] rounded-lg text-[13px] font-medium text-[#292A2D] bg-white hover:bg-[#F7F7F8]">저장</button>
-            <button className="h-9 px-4 border border-[#DBDCDF] rounded-lg text-[13px] font-medium text-[#292A2D] bg-white hover:bg-[#F7F7F8]">저장전달</button>
-            <button className="h-9 px-5 rounded-lg text-[13px] font-bold text-white bg-[#453EDC] hover:bg-[#3730B3]">출력전달</button>
+            <button
+              onClick={() => setDurChecked(c => !c)}
+              aria-pressed={durChecked}
+              className={`h-7 px-3 rounded-md text-[12px] font-medium transition-colors inline-flex items-center gap-1 ${
+                durChecked
+                  ? "border border-[#453EDC] bg-[#453EDC] text-white shadow-inner hover:bg-[#3730B3]"
+                  : "border border-[#DBDCDF] text-[#292A2D] bg-white hover:bg-[#F7F7F8]"
+              }`}
+            >
+              <span className={`text-[10px] leading-none ${durChecked ? "opacity-100" : "opacity-30"}`}>●</span>
+              점검
+            </button>
+            <button className="h-7 px-3 border border-[#DBDCDF] rounded-md text-[12px] font-medium text-[#292A2D] bg-white hover:bg-[#F7F7F8]">저장</button>
+            <button className="h-7 px-3 border border-[#DBDCDF] rounded-md text-[12px] font-medium text-[#292A2D] bg-white hover:bg-[#F7F7F8]">저장전달</button>
+            <button className="h-7 px-3.5 rounded-md text-[12px] font-bold text-white bg-[#453EDC] hover:bg-[#3730B3]">출력전달</button>
           </div>
         </div>
       </div>
@@ -462,6 +595,69 @@ export function PanelD({
       {/* Settings Popover */}
       {settingsRect && (
         <SettingsPopover rect={settingsRect} onClose={() => setSettingsRect(null)} />
+      )}
+
+      {/* D2 Sub-panel Settings Popover */}
+      {d2SettingsRect && createPortal(
+        <div
+          id="d2-settings-popover"
+          className="fixed w-[160px] bg-white border border-[#DBDCDF] rounded-md shadow-lg py-1.5"
+          style={{
+            top: d2SettingsRect.bottom + 4,
+            left: Math.max(8, d2SettingsRect.right - 160),
+            zIndex: 9999,
+          }}
+        >
+          <div className="px-3 pb-1 text-[10px] font-medium text-[#989BA2]">표시 항목</div>
+          {D2_SUB_PANELS.map(name => {
+            const checked = d2Active.has(name);
+            return (
+              <label key={name} className="flex items-center gap-2 px-3 py-1 cursor-pointer hover:bg-[#F7F7F8]">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => setD2Active(prev => {
+                    const next = new Set(prev);
+                    next.has(name) ? next.delete(name) : next.add(name);
+                    return next;
+                  })}
+                />
+                <span className="text-[12px] text-[#292A2D]">{name}</span>
+              </label>
+            );
+          })}
+        </div>,
+        document.body
+      )}
+
+      {/* Chart Context Menu (portal로 패널 클리핑 회피) */}
+      {chartMenuRect && createPortal(
+        <div
+          id="chart-context-menu"
+          className="fixed w-[140px] bg-white border border-[#DBDCDF] rounded-md shadow-lg py-1"
+          style={{
+            top: chartMenuRect.bottom + 4,
+            left: chartMenuRect.right - 140,
+            zIndex: 9999,
+          }}
+        >
+          {[
+            "차트 닫기",
+            "차트 삭제",
+            "처방전 보기",
+            "차트 출력",
+            "진료기록부 출력",
+          ].map(item => (
+            <button
+              key={item}
+              onClick={() => setChartMenuRect(null)}
+              className="w-full text-left px-3 py-1.5 text-[12px] text-[#292A2D] hover:bg-[#F7F7F8]"
+            >
+              {item}
+            </button>
+          ))}
+        </div>,
+        document.body
       )}
 
       {/* DUR Action Toast */}
