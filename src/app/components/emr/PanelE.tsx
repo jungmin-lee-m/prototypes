@@ -1,6 +1,7 @@
 // Panel E: 세트처방 + 빠른메뉴
 
 import { useState } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const setCategories = [
   { label: "★ 즐겨찾기", cnt: 3 },
@@ -176,9 +177,10 @@ export function PanelE({ quickMenuItems = INIT_QUICK_MENU }: { quickMenuItems?: 
       : quickMenuItems.filter((item) => item.category === activeQuickCat);
 
   return (
-    <div className="flex flex-col w-[310px] h-full bg-[#F4F4F5] flex-shrink-0 gap-1 p-1 overflow-hidden">
+    <PanelGroup direction="vertical" className="w-full h-full">
       {/* E1: 세트처방 */}
-      <div className="bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden flex-1">
+      <Panel defaultSize={70} minSize={30}>
+      <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[#DBDCDF] flex-shrink-0">
           <span className="text-[12px] font-bold text-[#292A2D]">세트처방</span>
@@ -268,8 +270,13 @@ export function PanelE({ quickMenuItems = INIT_QUICK_MENU }: { quickMenuItems?: 
         </div>
       </div>
 
+      </Panel>
+
+      <PanelResizeHandle className="h-1 hover:bg-[#453EDC]/30 active:bg-[#453EDC]/50 transition-colors" />
+
       {/* E2: 빠른메뉴 */}
-      <div className="bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col flex-shrink-0">
+      <Panel defaultSize={30} minSize={15}>
+      <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[#DBDCDF]">
           <span className="text-[12px] font-bold text-[#292A2D]">빠른 메뉴</span>
@@ -321,6 +328,7 @@ export function PanelE({ quickMenuItems = INIT_QUICK_MENU }: { quickMenuItems?: 
           </div>
         </div>
       </div>
-    </div>
+      </Panel>
+    </PanelGroup>
   );
 }

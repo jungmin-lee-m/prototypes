@@ -288,10 +288,12 @@ export function PanelC({
   onRepeatDx,
   onRepeatRx,
   onRepeatAll,
+  onAddSymptom,
 }: {
   onRepeatDx: (items: HistoryDx[]) => void;
   onRepeatRx: (items: HistoryRx[]) => void;
   onRepeatAll: (dxItems: HistoryDx[], rxItems: HistoryRx[]) => void;
+  onAddSymptom: (text: string) => void;
 }) {
   const [activeDate, setActiveDate] = useState("26-03-12");
   const blockRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -310,6 +312,9 @@ export function PanelC({
   const [filterFavorite,   setFilterFavorite]   = useState(false);
   const [filterPrescTypes, setFilterPrescTypes] = useState<Set<PrescType>>(new Set());
   const [filterDiagnoses,  setFilterDiagnoses]  = useState<Set<string>>(new Set());
+  const [filterVisitType,  setFilterVisitType]  = useState<"" | "초진" | "재진">("");
+  const [filterClaimType,  setFilterClaimType]  = useState<string>("");
+  const [filterInsType,    setFilterInsType]    = useState<string>("");
 
   // Diagnosis popover
   const [diagPopoverOpen, setDiagPopoverOpen] = useState(false);
@@ -346,6 +351,7 @@ export function PanelC({
     });
   };
 
+
   const openDiagPopover = () => {
     setPendingDiag(new Set(filterDiagnoses));
     setDiagSearch("");
@@ -369,17 +375,28 @@ export function PanelC({
     setFilterFavorite(false);
     setFilterPrescTypes(new Set());
     setFilterDiagnoses(new Set());
+    setFilterVisitType("");
+    setFilterClaimType("");
+    setFilterInsType("");
     setPendingDiag(new Set());
     setDiagPopoverOpen(false);
   };
 
-  const hasActiveFilters = filterFavorite || filterPrescTypes.size > 0 || filterDiagnoses.size > 0;
+  const hasActiveFilters =
+    filterFavorite
+    || filterPrescTypes.size > 0
+    || filterDiagnoses.size > 0
+    || !!filterVisitType
+    || !!filterClaimType
+    || !!filterInsType;
 
   // ── Filtered visits ──────────────────────────────────────
   const filteredVisits = visitHistory.filter(v => {
     if (filterFavorite && !starredDates.has(v.id)) return false;
     if (filterPrescTypes.size > 0 && !v.prescTypes.some(t => filterPrescTypes.has(t))) return false;
     if (filterDiagnoses.size > 0 && !v.diagnoses.some(d => filterDiagnoses.has(d.code))) return false;
+    if (filterVisitType && v.visitType !== filterVisitType) return false;
+    if (filterInsType && v.insType !== filterInsType) return false;
     return true;
   });
 
@@ -413,9 +430,9 @@ export function PanelC({
   );
 
   return (
-    <div ref={containerRef} className="flex flex-col w-[310px] h-full bg-[#F4F4F5] flex-shrink-0 overflow-hidden">
+    <div ref={containerRef} className="flex flex-col w-full h-full overflow-hidden">
       {/* Visit History Widget — no overflow-hidden so popover floats */}
-      <div className="mx-2 mt-2 flex-1 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col mb-2 min-h-0">
+      <div className="flex-1 bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col min-h-0">
         {/* Header */}
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[#DBDCDF] flex-shrink-0">
           <span className="text-[13px] font-bold text-[#292A2D] flex-shrink-0">내원이력</span>
@@ -474,24 +491,30 @@ export function PanelC({
             })}
           </div>
 
-          {/* Row 2 : 다빈도 상병 토글 버튼 */}
-          <div className="flex items-center gap-1 px-3 pb-1.5 flex-wrap">
-            <span className="text-[10px] text-[#989BA2] flex-shrink-0">상병</span>
-            {diagnosisOptions.slice(0, 7).map(d => {
-              const active = filterDiagnoses.has(d.code);
+          {/* Row 2 : 초재진 / 청구구분 / 보험 (단일선택 드롭다운) */}
+          <div className="px-3 pb-1.5 flex items-center gap-2 flex-wrap">
+            {([
+              { label: "초재진",   value: filterVisitType, setter: (v: string) => setFilterVisitType(v as "" | "초진" | "재진"), options: ["초진", "재진"] },
+              { label: "청구구분", value: filterClaimType, setter: setFilterClaimType,                                              options: ["급여", "비급여", "본인부담"] },
+              { label: "보험",     value: filterInsType,   setter: setFilterInsType,                                                options: ["건보", "일반", "자보", "산재"] },
+            ]).map(({ label, value, setter, options }) => {
+              const active = !!value;
               return (
-                <button
-                  key={d.code}
-                  onClick={() => toggleDiagnosis(d.code)}
-                  title={d.name}
-                  className={`text-[10px] rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
-                    active
-                      ? "bg-[#453EDC] text-white border-[#453EDC]"
-                      : "bg-[#F7F7F8] text-[#70737C] border-[#DBDCDF]"
-                  }`}
-                >
-                  {d.code}
-                </button>
+                <div key={label} className="flex items-center gap-1">
+                  <span className="text-[10px] text-[#989BA2] flex-shrink-0">{label}</span>
+                  <select
+                    value={value}
+                    onChange={e => setter(e.target.value)}
+                    className={`text-[10px] rounded-[4px] border px-1 py-0.5 cursor-pointer transition-colors focus:outline-none focus:border-[#453EDC] ${
+                      active
+                        ? "bg-[#453EDC] text-white border-[#453EDC]"
+                        : "bg-[#F7F7F8] text-[#70737C] border-[#DBDCDF]"
+                    }`}
+                  >
+                    <option value="">전체</option>
+                    {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                </div>
               );
             })}
             {hasActiveFilters && (
@@ -745,6 +768,7 @@ export function PanelC({
             onRepeatDx={onRepeatDx}
             onRepeatRx={onRepeatRx}
             onRepeatAll={onRepeatAll}
+            onAddSymptom={onAddSymptom}
           />,
           target
         );

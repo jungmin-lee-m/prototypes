@@ -1,5 +1,6 @@
 // 진료실 메인 화면 (App.tsx에서 분리, 라우팅 적용)
 import { useState, useRef } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { LNB } from "./LNB";
 import { TopBar } from "./TopBar";
 import { PanelA } from "./PanelA";
@@ -34,7 +35,6 @@ const INIT_RX: TodayPrescription[] = [
   { code: "B7502",  name: "비라토비캡슐 75mg",          dose: "1", freq: 1, days: 7,  method: "경구",  claim: true,  pay: true,  price: 3200 },
   { code: "L4400",  name: "레비라정 500mg",              dose: "2", freq: 2, days: 7,  method: "경구",  claim: true,  pay: true,  price: 1800 },
   { code: "cn000",  name: "클렌부테롤·아크라이드정(암브록솔염산염)", dose: "1", freq: 1, days: 5, method: "경구", claim: true, pay: false, price: 2500 },
-  { code: "I10rx",  name: "본태성(원발성) 고혈압",       dose: "1", freq: 1, days: 28, method: "경구",  claim: true,  pay: true,  price: 1200 },
 ];
 
 function toTodayRx(r: HistoryRx): TodayPrescription {
@@ -52,9 +52,12 @@ function toTodayRx(r: HistoryRx): TodayPrescription {
   };
 }
 
+const INIT_SYMPTOM = "당뇨, 고혈압 정기 관리 중 (메트포르민·라미프릴). 이번 주 기침·콧물·발열 시작. 목 통증 동반. 9/20일자 알러지 검사 약 3~4주 소요, 결과 확인 필요. 복약 순응도 양호.";
+
 export function EmrScreen() {
   const [todayDx, setTodayDx] = useState<TodayDiagnosis[]>(INIT_DX);
   const [todayRx, setTodayRx] = useState<TodayPrescription[]>(INIT_RX);
+  const [todaySymptom, setTodaySymptom] = useState<string>(INIT_SYMPTOM);
   const [quickMenuItems, setQuickMenuItems] = useState<QuickMenuItem[]>(INIT_QUICK_MENU);
   const [toast,   setToast]   = useState<string | null>(null);
   const [showLabViewer, setShowLabViewer] = useState(false);
@@ -105,6 +108,12 @@ export function EmrScreen() {
     clearNew();
   };
 
+  const addSymptom = (text: string) => {
+    if (!text.trim()) return;
+    setTodaySymptom(prev => prev ? `${prev}\n${text}` : text);
+    showToast("증상 추가됨");
+  };
+
   const repeatAll = (dxItems: HistoryDx[], rxItems: HistoryRx[]) => {
     const exDx = new Set(todayDx.map(d => d.code));
     const exRx = new Set(todayRx.map(r => r.name));
@@ -124,43 +133,55 @@ export function EmrScreen() {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <TopBar onOpenLabViewer={() => setShowLabViewer(true)} />
         <div className="flex flex-1 overflow-hidden">
-          {/* Main Area — 카드 레이아웃, 간격·둥근 모서리 */}
+          {/* Main Area — 리사이저블 레이아웃 */}
           <div className="flex flex-1 overflow-hidden bg-[#E8E9EE]">
-
-            {/* ── LEFT GROUP: A + B + C (expanded overlay covers this area) ── */}
-            <div id="emr-left-panels" className="relative flex flex-shrink-0 h-full overflow-hidden">
-              {/* A: 붙박이 좌측 패널 */}
-              <PanelA />
-              {/* B + C: 카드형 패널 */}
-              <div className="flex pt-1.5 pb-1.5 pl-1.5 gap-1.5 h-full">
-                {/* B: 환자정보 + AI요약 + 바이탈 + 공유메모 */}
-                <div className="rounded-xl overflow-hidden flex-shrink-0 shadow-sm bg-[#E8E9EE]">
-                  <PanelB />
+            <PanelGroup direction="horizontal" className="flex-1">
+              {/* LEFT: A(붙박이) + B + C — id로 펼쳐보기 portal 타깃 */}
+              <Panel defaultSize={38} minSize={26} className="!overflow-visible">
+                <div id="emr-left-panels" className="relative flex h-full overflow-hidden">
+                  <PanelA />
+                  <PanelGroup direction="horizontal" className="flex-1">
+                    <Panel defaultSize={45} minSize={28}>
+                      <div className="py-1 pl-1 h-full"><PanelB /></div>
+                    </Panel>
+                    <PanelResizeHandle className="w-1 hover:bg-[#453EDC]/30 active:bg-[#453EDC]/50 transition-colors" />
+                    <Panel defaultSize={55} minSize={32}>
+                      <div className="py-1 h-full">
+                        <PanelC
+                          onRepeatDx={repeatDx}
+                          onRepeatRx={repeatRx}
+                          onRepeatAll={repeatAll}
+                          onAddSymptom={addSymptom}
+                        />
+                      </div>
+                    </Panel>
+                  </PanelGroup>
                 </div>
-                {/* C: 내원이력 */}
-                <div className="rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
-                  <PanelC
-                    onRepeatDx={repeatDx}
-                    onRepeatRx={repeatRx}
-                    onRepeatAll={repeatAll}
-                  />
+              </Panel>
+
+              <PanelResizeHandle className="w-1 hover:bg-[#453EDC]/30 active:bg-[#453EDC]/50 transition-colors" />
+
+              {/* D: 오늘의 차트 */}
+              <Panel defaultSize={42} minSize={26}>
+                <div className="p-1 h-full">
+                  <div className="h-full rounded-md overflow-hidden shadow-sm"
+                    style={{ border: "2px solid #453EDC" }}>
+                    <PanelD
+                      diagnoses={todayDx}
+                      prescriptions={todayRx}
+                      symptom={todaySymptom}
+                    />
+                  </div>
                 </div>
-              </div>
-            </div>
+              </Panel>
 
-            {/* ── D: 오늘의 차트 (flex-1) ── */}
-            <div className="flex-1 min-w-0 p-1.5">
-              <div className="h-full rounded-xl overflow-hidden shadow-sm"
-                style={{ border: "2px solid #453EDC" }}>
-                <PanelD
-                  diagnoses={todayDx}
-                  prescriptions={todayRx}
-                />
-              </div>
-            </div>
+              <PanelResizeHandle className="w-1 hover:bg-[#453EDC]/30 active:bg-[#453EDC]/50 transition-colors" />
 
-            {/* E: 붙박이 우측 패널 */}
-            <PanelE quickMenuItems={quickMenuItems} />
+              {/* E: 도구모음 (세트처방 + 빠른메뉴) */}
+              <Panel defaultSize={20} minSize={12}>
+                <div className="py-1 pr-1 h-full"><PanelE quickMenuItems={quickMenuItems} /></div>
+              </Panel>
+            </PanelGroup>
           </div>
         </div>
       </div>
