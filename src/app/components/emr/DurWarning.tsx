@@ -11,6 +11,7 @@ export interface DurItemState {
   reason?: string;
   replacedFrom?: string;
   replacedTo?: string;
+  appliedToMaster?: boolean; // 처리된 결과를 기초자료(약품·상병 마스터)에 반영했는지
 }
 
 export interface AlternativeDrug {
@@ -70,9 +71,9 @@ interface PreCheckCfg {
 }
 
 // 공통 색상 (모든 경고 종류 동일)
-export const PRECHECK_COLOR  = "#FF7B2E";
-export const PRECHECK_BG     = "#FFF1E0";
-export const PRECHECK_BORDER = "#FFE4C4";
+export const PRECHECK_COLOR  = "var(--orange-500)";
+export const PRECHECK_BG     = "var(--status-warning-bg-subtle)";
+export const PRECHECK_BORDER = "var(--orange-100)";
 
 const PRECHECK_CONFIG: Record<DurType, PreCheckCfg> = {
   prohibited: {
@@ -170,7 +171,7 @@ function PopoverWrap({ rect, width, onClose, children, alignRight }: PwProps) {
     : { position: "fixed", bottom: (window.innerHeight || 800) - rect.top + 4, left, width, zIndex: 9998 };
   return (
     <div data-popover="true" style={style}
-      className="bg-white rounded-lg shadow-[0_4px_24px_rgba(0,0,0,0.16)] border border-[#DBDCDF] overflow-hidden">
+      className="bg-white rounded-lg shadow-[0_4px_24px_rgba(0,0,0,0.16)] border border-[var(--line-default)] overflow-hidden">
       {children}
     </div>
   );
@@ -178,9 +179,9 @@ function PopoverWrap({ rect, width, onClose, children, alignRight }: PwProps) {
 
 function PopHead({ title, onClose }: { title: string; onClose: () => void }) {
   return (
-    <div className="flex items-center justify-between px-3 py-2 border-b border-[#DBDCDF]">
-      <span className="text-[11px] font-bold text-[#292A2D]">{title}</span>
-      <button onClick={onClose} className="text-[#989BA2] hover:text-[#292A2D] text-[13px]">✕</button>
+    <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--line-default)]">
+      <span className="text-[11px] font-bold text-[var(--text-main)]">{title}</span>
+      <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[13px]">✕</button>
     </div>
   );
 }
@@ -195,15 +196,15 @@ function AltPopover({ rect, p, onSelect, onClose }: {
   return (
     <PopoverWrap rect={rect} width={320} onClose={onClose}>
       <PopHead title="대체 처방 선택" onClose={onClose} />
-      <div className="px-3 py-1.5 bg-[#F7F7F8] border-b border-[#DBDCDF]">
-        <span className="text-[10px] text-[#989BA2]">시스템 추천 — 동일 효능군, 사전심사 충돌 없음</span>
+      <div className="px-3 py-1.5 bg-[var(--bg-subtle)] border-b border-[var(--line-default)]">
+        <span className="text-[10px] text-[var(--text-tertiary)]">시스템 추천 — 동일 효능군, 사전심사 충돌 없음</span>
       </div>
       <div className="max-h-[260px] overflow-y-auto">
         {list.map(d => (
-          <div key={d.code} className="flex items-center gap-2 px-3 py-2 border-b border-[#F0F0F0] hover:bg-[#F7F7F8]">
+          <div key={d.code} className="flex items-center gap-2 px-3 py-2 border-b border-[var(--line-subtle)] hover:bg-[var(--bg-subtle)]">
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-[#292A2D] truncate">{d.name}</p>
-              <p className="text-[10px] text-[#989BA2]">1회 {d.dose}정 · {d.price.toLocaleString()}원</p>
+              <p className="text-[11px] text-[var(--text-main)] truncate">{d.name}</p>
+              <p className="text-[10px] text-[var(--text-tertiary)]">1회 {d.dose}정 · {d.price.toLocaleString()}원</p>
             </div>
             <button onClick={() => onSelect(d)}
               className="text-[10px] text-white rounded-[4px] px-2 py-1 flex-shrink-0 hover:opacity-90"
@@ -212,16 +213,16 @@ function AltPopover({ rect, p, onSelect, onClose }: {
             </button>
           </div>
         ))}
-        {list.length === 0 && <div className="py-4 text-[11px] text-[#989BA2] text-center">검색 결과 없음</div>}
+        {list.length === 0 && <div className="py-4 text-[11px] text-[var(--text-tertiary)] text-center">검색 결과 없음</div>}
       </div>
-      <div className="px-3 py-2 border-t border-[#DBDCDF]">
-        <div className="flex items-center gap-1.5 bg-[#F7F7F8] border border-[#DBDCDF] rounded-[6px] px-2 h-7">
+      <div className="px-3 py-2 border-t border-[var(--line-default)]">
+        <div className="flex items-center gap-1.5 bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-[6px] px-2 h-7">
           <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 16 16">
-            <circle cx="6.5" cy="6.5" r="4.5" stroke="#989BA2" strokeWidth="1.4"/>
-            <path d="M10 10L13.5 13.5" stroke="#989BA2" strokeWidth="1.4" strokeLinecap="round"/>
+            <circle cx="6.5" cy="6.5" r="4.5" stroke="var(--text-tertiary)" strokeWidth="1.4"/>
+            <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.4" strokeLinecap="round"/>
           </svg>
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="다른 약품 검색..."
-            className="text-[11px] bg-transparent flex-1 outline-none placeholder:text-[#BABBBE]" />
+            className="text-[11px] bg-transparent flex-1 outline-none placeholder:text-[var(--text-placeholder)]" />
         </div>
       </div>
     </PopoverWrap>
@@ -242,32 +243,32 @@ function DosePopover({ rect, p, onApply, onClose }: {
       <PopHead title="용량 조정" onClose={onClose} />
       <div className="px-3 py-3 space-y-3">
         <div className="flex justify-between text-[10px]">
-          <span className="text-[#989BA2]">현재 용량</span>
-          <span className="font-medium text-[#292A2D]">{p.dose}정</span>
+          <span className="text-[var(--text-tertiary)]">현재 용량</span>
+          <span className="font-medium text-[var(--text-main)]">{p.dose}정</span>
         </div>
         <div className="flex justify-between text-[10px]">
-          <span className="text-[#989BA2]">권장 최대</span>
-          <span className="font-medium text-[#FF4242]">{max}mg 이하</span>
+          <span className="text-[var(--text-tertiary)]">권장 최대</span>
+          <span className="font-medium text-[var(--red-500)]">{max}mg 이하</span>
         </div>
-        <div className="h-px bg-[#DBDCDF]" />
+        <div className="h-px bg-[var(--line-default)]" />
         <div className="flex items-center justify-center gap-4">
           <button onClick={() => adj(-0.5)}
-            className="w-7 h-7 rounded-full border border-[#DBDCDF] flex items-center justify-center text-[16px] hover:bg-[#F7F7F8]">−</button>
-          <span className={`text-[20px] font-bold w-14 text-center ${inRange ? "text-[#2EA652]" : "text-[#FF4242]"}`}>{val}</span>
+            className="w-7 h-7 rounded-full border border-[var(--line-default)] flex items-center justify-center text-[16px] hover:bg-[var(--bg-subtle)]">−</button>
+          <span className={`text-[20px] font-bold w-14 text-center ${inRange ? "text-[var(--green-500)]" : "text-[var(--red-500)]"}`}>{val}</span>
           <button onClick={() => adj(0.5)}
-            className="w-7 h-7 rounded-full border border-[#DBDCDF] flex items-center justify-center text-[16px] hover:bg-[#F7F7F8]">+</button>
+            className="w-7 h-7 rounded-full border border-[var(--line-default)] flex items-center justify-center text-[16px] hover:bg-[var(--bg-subtle)]">+</button>
         </div>
-        <p className={`text-[10px] text-center ${inRange ? "text-[#2EA652]" : "text-[#FF4242]"}`}>
+        <p className={`text-[10px] text-center ${inRange ? "text-[var(--green-500)]" : "text-[var(--red-500)]"}`}>
           {inRange ? "권장 범위 내" : "권장 최대 초과"}
         </p>
         <input type="range" min={0.25} max={max * 2} step={0.25} value={val}
-          onChange={e => setVal(parseFloat(e.target.value))} className="w-full accent-[#FF7B2E]" />
+          onChange={e => setVal(parseFloat(e.target.value))} className="w-full accent-[var(--orange-500)]" />
         <div className="flex gap-2">
           <button onClick={() => { onApply(String(val)); onClose(); }} disabled={!inRange}
             className="flex-1 h-7 rounded-[6px] text-[11px] text-white disabled:opacity-40"
             style={{ backgroundColor: inRange ? PRECHECK_COLOR : "#ccc" }}>적용</button>
           <button onClick={onClose}
-            className="flex-1 h-7 rounded-[6px] text-[11px] text-[#46474C] border border-[#DBDCDF] hover:bg-[#F7F7F8]">취소</button>
+            className="flex-1 h-7 rounded-[6px] text-[11px] text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)]">취소</button>
         </div>
       </div>
     </PopoverWrap>
@@ -289,18 +290,18 @@ function DiagPopover({ rect, p, existingDx, onAdd, onClose }: {
   return (
     <PopoverWrap rect={rect} width={320} onClose={onClose} alignRight>
       <PopHead title="필요 상병 추가" onClose={onClose} />
-      <div className="px-3 py-1.5 border-b border-[#DBDCDF]" style={{ backgroundColor: PRECHECK_BG }}>
+      <div className="px-3 py-1.5 border-b border-[var(--line-default)]" style={{ backgroundColor: PRECHECK_BG }}>
         <p className="text-[10px]" style={{ color: PRECHECK_COLOR }}>이 처방에 필요한 상병 추천</p>
       </div>
       <div className="max-h-[200px] overflow-y-auto">
         {filtered.map(dx => {
           const already = existingDx.includes(dx.code);
           return (
-            <div key={dx.code} className="flex items-center gap-2 px-3 py-2 border-b border-[#F0F0F0] hover:bg-[#F7F7F8]">
-              <span className="text-[10px] font-medium text-[#989BA2] w-12 flex-shrink-0">{dx.code}</span>
-              <span className="text-[11px] text-[#292A2D] flex-1">{dx.name}</span>
+            <div key={dx.code} className="flex items-center gap-2 px-3 py-2 border-b border-[var(--line-subtle)] hover:bg-[var(--bg-subtle)]">
+              <span className="text-[10px] font-medium text-[var(--text-tertiary)] w-12 flex-shrink-0">{dx.code}</span>
+              <span className="text-[11px] text-[var(--text-main)] flex-1">{dx.name}</span>
               {already
-                ? <span className="text-[10px] text-[#2EA652] flex-shrink-0">등록됨</span>
+                ? <span className="text-[10px] text-[var(--green-500)] flex-shrink-0">등록됨</span>
                 : <button onClick={() => onAdd(dx)}
                     className="text-[10px] border rounded-[4px] px-2 py-0.5 flex-shrink-0 hover:opacity-80"
                     style={{ color: PRECHECK_COLOR, borderColor: PRECHECK_COLOR }}>
@@ -311,14 +312,14 @@ function DiagPopover({ rect, p, existingDx, onAdd, onClose }: {
           );
         })}
       </div>
-      <div className="px-3 py-2 border-t border-[#DBDCDF]">
-        <div className="flex items-center gap-1.5 bg-[#F7F7F8] border border-[#DBDCDF] rounded-[6px] px-2 h-7">
+      <div className="px-3 py-2 border-t border-[var(--line-default)]">
+        <div className="flex items-center gap-1.5 bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-[6px] px-2 h-7">
           <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 16 16">
-            <circle cx="6.5" cy="6.5" r="4.5" stroke="#989BA2" strokeWidth="1.4"/>
-            <path d="M10 10L13.5 13.5" stroke="#989BA2" strokeWidth="1.4" strokeLinecap="round"/>
+            <circle cx="6.5" cy="6.5" r="4.5" stroke="var(--text-tertiary)" strokeWidth="1.4"/>
+            <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.4" strokeLinecap="round"/>
           </svg>
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="다른 상병 검색..."
-            className="text-[11px] bg-transparent flex-1 outline-none placeholder:text-[#BABBBE]" />
+            className="text-[11px] bg-transparent flex-1 outline-none placeholder:text-[var(--text-placeholder)]" />
         </div>
       </div>
     </PopoverWrap>
@@ -337,7 +338,7 @@ function ReasonPopover({ rect, defaultReason, onConfirm, onClose, title = "사�
     <PopoverWrap rect={rect} width={280} onClose={onClose} alignRight>
       <PopHead title={countLabel ? `${title} (${countLabel})` : title} onClose={onClose} />
       {countLabel && (
-        <div className="px-3 py-1.5 border-b border-[#DBDCDF]" style={{ backgroundColor: PRECHECK_BG }}>
+        <div className="px-3 py-1.5 border-b border-[var(--line-default)]" style={{ backgroundColor: PRECHECK_BG }}>
           <p className="text-[10px]" style={{ color: PRECHECK_COLOR }}>모든 미처리 경고에 동일 사유 적용</p>
         </div>
       )}
@@ -346,20 +347,20 @@ function ReasonPopover({ rect, defaultReason, onConfirm, onClose, title = "사�
           <label key={r} className="flex items-center gap-2 cursor-pointer group py-0.5">
             <div onClick={() => setSel(r)}
               className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                sel === r ? "border-[#FF7B2E]" : "border-[#C2C4C8] group-hover:border-[#FF7B2E]"
+                sel === r ? "border-[var(--orange-500)]" : "border-[var(--text-disabled)] group-hover:border-[var(--orange-500)]"
               }`}>
-              {sel === r && <div className="w-1.5 h-1.5 rounded-full bg-[#FF7B2E]" />}
+              {sel === r && <div className="w-1.5 h-1.5 rounded-full bg-[var(--orange-500)]" />}
             </div>
-            <span className="text-[11px] text-[#292A2D]" onClick={() => setSel(r)}>{r}</span>
+            <span className="text-[11px] text-[var(--text-main)]" onClick={() => setSel(r)}>{r}</span>
           </label>
         ))}
         {sel === "직접 입력" && (
           <textarea value={custom} onChange={e => setCustom(e.target.value)}
             placeholder="사유를 직접 입력하세요..."
-            className="w-full mt-1 text-[11px] border border-[#DBDCDF] rounded-[6px] px-2 py-1.5 h-16 resize-none outline-none focus:border-[#FF7B2E]" />
+            className="w-full mt-1 text-[11px] border border-[var(--line-default)] rounded-[6px] px-2 py-1.5 h-16 resize-none outline-none focus:border-[var(--orange-500)]" />
         )}
       </div>
-      <div className="px-3 py-2 border-t border-[#DBDCDF]">
+      <div className="px-3 py-2 border-t border-[var(--line-default)]">
         <button onClick={() => final && onConfirm(final)} disabled={!final}
           className="w-full h-7 rounded-[6px] text-[11px] text-white disabled:opacity-40"
           style={{ backgroundColor: final ? PRECHECK_COLOR : "#ccc" }}>
@@ -385,31 +386,31 @@ export function SettingsPopover({ rect, onClose }: { rect: DOMRect; onClose: () 
     <PopoverWrap rect={rect} width={260} onClose={onClose} alignRight>
       <PopHead title="사전심사 범위 설정" onClose={onClose} />
       <div className="px-3 py-3 space-y-2">
-        <p className="text-[10px] text-[#989BA2]">점검 범위</p>
+        <p className="text-[10px] text-[var(--text-tertiary)]">점검 범위</p>
         {opts.map(({ k, label }) => (
           <label key={k} className="flex items-center gap-2 cursor-pointer">
             <div onClick={() => tog(k)}
               className={`w-3.5 h-3.5 rounded-[2px] flex items-center justify-center border transition-colors flex-shrink-0 ${
-                checks[k] ? "border-[#FF7B2E]" : "border-[#C2C4C8]"
+                checks[k] ? "border-[var(--orange-500)]" : "border-[var(--text-disabled)]"
               }`} style={checks[k] ? { backgroundColor: PRECHECK_COLOR } : {}}>
               {checks[k] && <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
                 <path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>}
             </div>
-            <span className="text-[11px] text-[#292A2D]">{label}</span>
+            <span className="text-[11px] text-[var(--text-main)]">{label}</span>
           </label>
         ))}
-        <div className="h-px bg-[#DBDCDF] my-1" />
-        <p className="text-[10px] text-[#989BA2]">적용 범위</p>
+        <div className="h-px bg-[var(--line-default)] my-1" />
+        <p className="text-[10px] text-[var(--text-tertiary)]">적용 범위</p>
         {([["this","이 환자에게만 적용"],["all","전체 환자에 적용"]] as const).map(([v, label]) => (
           <label key={v} className="flex items-center gap-2 cursor-pointer">
             <div onClick={() => setScope(v)}
               className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                scope === v ? "border-[#FF7B2E]" : "border-[#C2C4C8]"
+                scope === v ? "border-[var(--orange-500)]" : "border-[var(--text-disabled)]"
               }`}>
-              {scope === v && <div className="w-1.5 h-1.5 rounded-full bg-[#FF7B2E]" />}
+              {scope === v && <div className="w-1.5 h-1.5 rounded-full bg-[var(--orange-500)]" />}
             </div>
-            <span className="text-[11px] text-[#292A2D]">{label}</span>
+            <span className="text-[11px] text-[var(--text-main)]">{label}</span>
           </label>
         ))}
       </div>
@@ -442,12 +443,15 @@ interface DurWarningBarProps {
   onAddDiagnosis: (dx: { code: string; name: string }) => void;
   onHoverConflict: (code: string | null) => void;
   isConflictHighlighted: boolean;
+  /** 처리됨 상태에서 "기초자료에도 반영" 버튼 클릭 시 호출. 약품/상병 마스터에 결과를 영구화한다. */
+  onApplyToMaster?: () => void;
 }
 
 export function DurWarningBar({
   p, durState, existingDx,
   onStateChange, onDelete, onDeleteConflict, onReplace, onAdjustDose, onAddDiagnosis,
   onHoverConflict, isConflictHighlighted,
+  onApplyToMaster,
 }: DurWarningBarProps) {
   const cfg = getDurCfg(p.durType);
   const [pop, setPop] = useState<{ type: PopType; rect: DOMRect } | null>(null);
@@ -463,24 +467,40 @@ export function DurWarningBar({
   const wrapStyle: React.CSSProperties = {
     backgroundColor: PRECHECK_BG,
     borderTop: `1px solid ${PRECHECK_BORDER}`,
-    ...(isConflictHighlighted ? { boxShadow: `inset 0 0 0 2px ${PRECHECK_COLOR}50` } : {}),
+    // 충돌 행 강조 — DS 200 톤 테두리 (이전 ${COLOR}50 알파 표기는 var() 위에서 invalid CSS였음)
+    ...(isConflictHighlighted ? { boxShadow: `inset 0 0 0 2px var(--orange-200)` } : {}),
   };
 
   // ── 처리된 상태 렌더링 ──────────────────────────────────────────────────────
   if (durState.status !== "pending") {
     const message = cfg.getMessage(p.durExtra);
+    // "기초자료에도 반영" 버튼 노출 — 사유/대체/용량/상병처럼 실제 수정한 케이스만
+    const canApplyMaster = durState.status === "replaced" || durState.status === "reasonEntered";
+    // 케이스별 마스터 라벨 — 항상 "약품 기초자료" 기준 (상병/용량을 약품에 자동 추가)
+    const masterLabel = (() => {
+      if (durState.status !== "replaced" && durState.status !== "reasonEntered") return "";
+      // "상병 필요"는 약품 처방 시 함께 등록할 상병을 약품 기초자료에 추가
+      if (p.durType === "diagnosis")  return `${p.name} 기초자료에 상병 추가`;
+      // "용량주의"는 약품의 권장 용량을 마스터에 갱신
+      if (p.durType === "dose")       return `${p.name} 기초자료에 용량 반영`;
+      // "병용금기·중복처방·임부금기·연령금기"의 대체처방을 약품 기초자료에 자동 대체로 등록
+      if (durState.status === "replaced") return "약품 기초자료에 대체 처방 등록";
+      // 그 외 사유 입력 케이스 — 동일 환자/약품 조합에 대해 룰을 기억
+      return "이 환자·약품 조합의 사유로 기억";
+    })();
+
     return (
-      <div className="relative border-b border-[#DBDCDF]" style={wrapStyle}
+      <div className="relative border-b border-[var(--line-default)]" style={wrapStyle}
         onMouseEnter={() => p.conflictCode && onHoverConflict(p.conflictCode)}
         onMouseLeave={() => p.conflictCode && onHoverConflict(null)}>
         <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: PRECHECK_COLOR }} />
         {/* 단일 행: 뱃지 + 내용 + 액션 버튼 */}
-        <div className="flex items-center gap-2 pl-3 pr-3 h-8">
-          {durState.status === "reasonEntered" && <StatusBadge label="사유 입력됨" color="white" bg="#2EA652" />}
-          {durState.status === "replaced"      && <StatusBadge label="대체 완료"   color="white" bg="#0066FF" />}
-          {durState.status === "dismissed"     && <StatusBadge label="확인됨"      color="#6B7280" bg="#E5E7EB" />}
+        <div className="flex items-center gap-2 pl-3 pr-3 min-h-8 py-1 flex-wrap">
+          {durState.status === "reasonEntered" && <StatusBadge label="처리됨"     color="white" bg="var(--green-500)" />}
+          {durState.status === "replaced"      && <StatusBadge label="대체 완료"  color="white" bg="var(--brand-primary)" />}
+          {durState.status === "dismissed"     && <StatusBadge label="확인됨"     color="var(--text-tertiary)" bg="var(--line-default)" />}
 
-          <span className="text-[11px] text-[#46474C] flex-1 min-w-0 truncate">
+          <span className="text-[11px] text-[var(--text-sub)] flex-1 min-w-0 truncate">
             {durState.status === "reasonEntered" && `사유: ${durState.reason}`}
             {durState.status === "replaced" && (
               <>{durState.replacedFrom} → {durState.replacedTo}</>
@@ -488,14 +508,32 @@ export function DurWarningBar({
             {durState.status === "dismissed" && message}
           </span>
 
+          {/* 기초자료 반영됨 인디케이터 또는 반영 버튼 */}
+          {canApplyMaster && durState.appliedToMaster && (
+            <span className="flex items-center gap-1 text-[10px] font-medium flex-shrink-0 px-1.5 py-0.5 rounded-[3px]"
+              style={{ color: "var(--brand-primary)", backgroundColor: "var(--bg-primary-subtle)" }}>
+              <svg width="10" height="8" viewBox="0 0 8 6" fill="none">
+                <path d="M1 3L3 5L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              기초자료 반영됨
+            </span>
+          )}
+          {canApplyMaster && !durState.appliedToMaster && onApplyToMaster && (
+            <button data-precheck-btn="true" onClick={onApplyToMaster}
+              className="h-6 px-3 text-[11px] font-medium rounded-[4px] flex-shrink-0 hover:bg-[var(--bg-primary-subtle)] border bg-white"
+              style={{ color: "var(--brand-primary)", borderColor: "var(--brand-primary)" }}>
+              {masterLabel}
+            </button>
+          )}
+
           {durState.status === "reasonEntered" && (
             <button data-precheck-btn="true" onClick={e => open("reason", e)}
-              className="h-6 px-3 text-[11px] text-[#46474C] bg-white border border-[#DBDCDF] rounded-[4px] hover:shadow-sm flex-shrink-0">
+              className="h-6 px-3 text-[11px] text-[var(--text-sub)] bg-white border border-[var(--line-default)] rounded-[4px] hover:shadow-sm flex-shrink-0">
               수정
             </button>
           )}
           <button onClick={() => onStateChange({ status: "pending" })}
-            className="h-6 px-3 text-[11px] text-[#989BA2] hover:text-[#46474C] flex-shrink-0">
+            className="h-6 px-3 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">
             되돌리기
           </button>
         </div>
@@ -506,7 +544,7 @@ export function DurWarningBar({
   // ── 미처리(pending) 상태 렌더링 ────────────────────────────────────────────
   return (
     <>
-      <div className="relative border-b border-[#DBDCDF]" style={wrapStyle}
+      <div className="relative border-b border-[var(--line-default)]" style={wrapStyle}
         onMouseEnter={() => p.conflictCode && onHoverConflict(p.conflictCode)}
         onMouseLeave={() => p.conflictCode && onHoverConflict(null)}>
         <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: PRECHECK_COLOR }} />
@@ -523,7 +561,7 @@ export function DurWarningBar({
             if (isDismiss) return (
               <button key={act.label} data-precheck-btn="true"
                 onClick={() => onStateChange({ status: "dismissed" })}
-                className="h-6 px-3 text-[11px] text-[#989BA2] hover:text-[#70737C] flex-shrink-0 transition-colors">
+                className="h-6 px-3 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0 transition-colors">
                 {act.label}
               </button>
             );
@@ -542,7 +580,7 @@ export function DurWarningBar({
                 className={`h-6 px-3 text-[11px] rounded-[4px] whitespace-nowrap flex-shrink-0 transition-all ${
                     isFirst
                       ? "text-white hover:opacity-90"
-                      : "bg-white border border-[#DBDCDF] text-[#46474C] hover:shadow-sm hover:border-[#C2C4C8]"
+                      : "bg-white border border-[var(--line-default)] text-[var(--text-sub)] hover:shadow-sm hover:border-[var(--text-disabled)]"
                 }`}
                 style={isFirst ? { backgroundColor: PRECHECK_COLOR } : {}}>
                 {act.label}
@@ -596,10 +634,10 @@ function SummaryPopover({ rect, prescriptions, durStates, onScrollTo, onClose }:
   const items = prescriptions.filter(p => p.isDur && durStates[p.code]?.status !== "resolved");
   const getStateBadge = (s: DurStatus | undefined) => {
     if (!s || s === "pending")       return { label: "미처리", color: PRECHECK_COLOR, bg: PRECHECK_BG };
-    if (s === "reasonEntered")       return { label: "사유 입력됨", color: "white", bg: "#2EA652" };
-    if (s === "replaced")            return { label: "대체 완료", color: "white", bg: "#0066FF" };
-    if (s === "dismissed")           return { label: "확인됨", color: "#6B7280", bg: "#E5E7EB" };
-    return { label: s, color: "#292A2D", bg: "#F7F7F8" };
+    if (s === "reasonEntered")       return { label: "사유 입력됨", color: "white", bg: "var(--green-500)" };
+    if (s === "replaced")            return { label: "대체 완료", color: "white", bg: "var(--brand-primary)" };
+    if (s === "dismissed")           return { label: "확인됨", color: "var(--text-tertiary)", bg: "var(--line-default)" };
+    return { label: s, color: "var(--text-main)", bg: "var(--bg-subtle)" };
   };
   return (
     <PopoverWrap rect={rect} width={340} onClose={onClose} alignRight>
@@ -610,14 +648,14 @@ function SummaryPopover({ rect, prescriptions, durStates, onScrollTo, onClose }:
           const st = durStates[p.code]?.status;
           const badge = getStateBadge(st);
           return (
-            <div key={p.code + i} className="flex items-center gap-2 px-3 py-2.5 border-b border-[#F0F0F0] hover:bg-[#F7F7F8]">
+            <div key={p.code + i} className="flex items-center gap-2 px-3 py-2.5 border-b border-[var(--line-subtle)] hover:bg-[var(--bg-subtle)]">
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-[#292A2D] font-medium truncate">{p.name}</p>
-                <p className="text-[10px] text-[#989BA2]">{cfg.label}</p>
+                <p className="text-[11px] text-[var(--text-main)] font-medium truncate">{p.name}</p>
+                <p className="text-[10px] text-[var(--text-tertiary)]">{cfg.label}</p>
               </div>
               <StatusBadge label={badge.label} color={badge.color} bg={badge.bg} />
               <button onClick={() => { onScrollTo(p.code); onClose(); }}
-                className="text-[10px] text-[#453EDC] hover:underline flex-shrink-0 ml-1">
+                className="text-[10px] text-[var(--brand-primary)] hover:underline flex-shrink-0 ml-1">
                 이동
               </button>
             </div>
@@ -665,8 +703,8 @@ export function DurBatchBar({
   // 모두 처리됨 → 초록 배너
   if (pending.length === 0 && doneVisible) {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2EA652]/30 bg-[#EDF8EF] flex-shrink-0 animate-pulse">
-        <span className="text-[11px] text-[#2EA652]">모든 사전심사 경고 처리됨</span>
+      <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--green-500)]/30 bg-[var(--status-success-bg-subtle)] flex-shrink-0 animate-pulse">
+        <span className="text-[11px] text-[var(--green-500)]">모든 사전심사 경고 처리됨</span>
       </div>
     );
   }
@@ -692,23 +730,23 @@ export function DurBatchBar({
           <button
             data-precheck-btn="true"
             onClick={e => setBatchRect(e.currentTarget.getBoundingClientRect())}
-            className="h-7 px-3 text-[11px] bg-white border border-[#DBDCDF] text-[#46474C] rounded-[4px] hover:shadow-sm whitespace-nowrap">
+            className="h-7 px-3 text-[11px] bg-white border border-[var(--line-default)] text-[var(--text-sub)] rounded-[4px] hover:shadow-sm whitespace-nowrap">
             모두 사유 일괄 입력
           </button>
           <button
             onClick={onBulkDismiss}
-            className="h-7 px-3 text-[11px] bg-white border border-[#DBDCDF] text-[#46474C] rounded-[4px] hover:shadow-sm whitespace-nowrap">
+            className="h-7 px-3 text-[11px] bg-white border border-[var(--line-default)] text-[var(--text-sub)] rounded-[4px] hover:shadow-sm whitespace-nowrap">
             모두 무시
           </button>
           <button
             onClick={onScrollToFirst}
-            className="h-7 px-3 text-[11px] bg-white border border-[#DBDCDF] text-[#46474C] rounded-[4px] hover:shadow-sm whitespace-nowrap">
+            className="h-7 px-3 text-[11px] bg-white border border-[var(--line-default)] text-[var(--text-sub)] rounded-[4px] hover:shadow-sm whitespace-nowrap">
             하나씩 처리
           </button>
           <button
             data-precheck-btn="true"
             onClick={e => setSummaryRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
-            className="h-7 px-3 text-[11px] bg-white border border-[#DBDCDF] rounded-[4px] hover:shadow-sm whitespace-nowrap"
+            className="h-7 px-3 text-[11px] bg-white border border-[var(--line-default)] rounded-[4px] hover:shadow-sm whitespace-nowrap"
             style={{ color: PRECHECK_COLOR, borderColor: PRECHECK_COLOR }}>
             상세 요약
           </button>

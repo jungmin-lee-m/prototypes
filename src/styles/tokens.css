@@ -1,0 +1,164 @@
+/*
+ * MediAI Design System — CSS variable tokens
+ * Source: nextemr-docs DESIGN.md + mediai-ds.md (v2.4)
+ *
+ * 사용 방식:
+ *   bg-[var(--bg-base)] / text-[var(--text-main)] 등 Tailwind arbitrary value로 호출.
+ *
+ * 우선 PanelD에 적용. 추후 다른 패널에 확대 적용 시 동일 토큰 재사용.
+ */
+
+:root {
+  /* ── Primitives — Gray (DESIGN.md Light) ── */
+  --gray-000: #FFFFFF;
+  --gray-050: #F7F7F8;
+  --gray-075: #EEF0F2;
+  --gray-100: #E6E8EA;
+  --gray-200: #CDD1D5;
+  --gray-300: #B1B8BE;
+  --gray-400: #8A949E;
+  --gray-500: #6D7882;
+  --gray-600: #58616C;
+  --gray-700: #464C53;
+  --gray-800: #33363D;
+  --gray-900: #1E2124;
+  --gray-950: #131619;
+  --gray-1000: #000000;
+
+  /* ── Primitives — Blue (DESIGN.md Light, Trust 컬러) ── */
+  --blue-025: #F7F9FF;
+  --blue-050: #EEF2FF;
+  --blue-100: #C8DDF5;
+  --blue-200: #96C0EE;
+  --blue-300: #59A0E6;
+  --blue-400: #1A7EE4;
+  --blue-500: #0066E3;
+  --blue-600: #0053BA;
+  --blue-700: #003E8C;
+  --blue-800: #002D6C;
+  --blue-900: #001840;
+
+  /* ── Primitives — Violet (mediai-ds.md range, 050/500/900 spec, 나머지 보간) ── */
+  --violet-050: #F3F1FD;
+  --violet-100: #E6E2FB;
+  --violet-200: #C9C0F4;
+  --violet-300: #9D8DEB;
+  --violet-400: #7B66E0;
+  --violet-500: #5335D5;
+  --violet-600: #3F22B7;
+  --violet-700: #2D178C;
+  --violet-800: #1D0E62;
+  --violet-900: #120A44;
+
+  /* ── Primitives — Red (DESIGN.md Light) ── */
+  --red-050: #FEF3F2;
+  --red-100: #FEE4E2;
+  --red-200: #FECDCA;
+  --red-500: #F04438;
+  --red-700: #B42318;
+
+  /* ── Primitives — Orange (mediai-ds.md 500 spec, 나머지 보간) ── */
+  --orange-050: #FFF8EB;
+  --orange-100: #FEEDC7;
+  --orange-200: #FBD68D;
+  --orange-500: #F79009;
+  --orange-700: #B54708;
+
+  /* ── Primitives — Green (mediai-ds.md 500 spec, 나머지 보간) ── */
+  --green-050: #ECFDF3;
+  --green-100: #D1FADF;
+  --green-200: #A6F4C5;
+  --green-500: #12B76A;
+  --green-700: #027A48;
+
+  /* ── Semantic — Background ── */
+  --bg-base: var(--gray-000);
+  --bg-subtle: var(--gray-050);
+  --bg-neutral: var(--gray-100);
+  --bg-primary: var(--blue-500);
+  --bg-primary-hover: var(--blue-600);
+  --bg-primary-subtle: var(--blue-050);
+  --bg-primary-subtle-hover: var(--blue-100);
+  --bg-service: var(--violet-500);
+  --bg-service-subtle: var(--violet-050);
+  --bg-inverse: var(--gray-900);
+  --bg-disabled: var(--gray-100);
+
+  /* ── Semantic — Text ── */
+  --text-main: var(--gray-900);
+  --text-sub: var(--gray-600);
+  --text-tertiary: var(--gray-500);
+  --text-placeholder: var(--gray-400);
+  --text-disabled: var(--gray-300);
+  --text-on-color: var(--gray-000);
+  --text-link: var(--blue-500);
+  --text-link-hover: var(--blue-700);
+  --text-service-primary: var(--violet-500);
+  --text-service-bold: var(--violet-700);
+  --text-data-number: var(--gray-900);
+
+  /* ── Semantic — Line ── */
+  --line-default: var(--gray-200);
+  --line-subtle: var(--gray-100);
+  --line-strong: var(--gray-400);
+  --line-disabled: var(--gray-300);
+  --line-focus: var(--blue-400);
+  --line-focus-ring: var(--blue-500);
+  --line-table-row: var(--gray-075);
+  --line-table-column: var(--gray-200);
+  --line-header-strong: var(--gray-400);
+
+  /* ── Semantic — Icon ── */
+  --icon-default: var(--gray-800);
+  --icon-sub: var(--gray-600);
+  --icon-tertiary: var(--gray-500);
+  --icon-disabled: var(--gray-300);
+  --icon-on-color: var(--gray-000);
+  --icon-brand-primary: var(--blue-500);
+  --icon-brand-secondary: var(--blue-800);
+  --icon-error: var(--red-500);
+
+  /* ── Status — Error (Red) ── */
+  --status-error-bg-subtle: var(--red-050);
+  --status-error-line: var(--red-200);
+  --status-error-text-main: var(--red-700);
+
+  /* ── Status — Warning (Orange) ── */
+  --status-warning-bg-subtle: var(--orange-050);
+  --status-warning-line: var(--orange-200);
+  --status-warning-text-main: var(--orange-700);
+
+  /* ── Status — Success (Green) ── */
+  --status-success-bg-subtle: var(--green-050);
+  --status-success-line: var(--green-200);
+  --status-success-text-main: var(--green-700);
+
+  /* ── Status — Info (Blue) ── */
+  --status-info-bg-subtle: var(--blue-050);
+  --status-info-line: var(--blue-200);
+  --status-info-text-main: var(--blue-700);
+
+  /* ── Brand ── */
+  --brand-primary: var(--blue-500);
+  --brand-primary-hover: var(--blue-600);
+  --brand-primary-pressed: var(--blue-700);
+  --brand-secondary: var(--blue-800);
+
+  /* ── Radius (DS spec) ── */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* ── Spacing (DS spec) ── */
+  --space-xs: 2px;
+  --space-sm: 4px;
+  --space-md: 8px;
+  --space-lg: 12px;
+  --space-xl: 16px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+}

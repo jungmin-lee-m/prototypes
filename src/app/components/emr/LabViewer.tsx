@@ -40,7 +40,7 @@ const W_DATE = 86;
 const W_STICKY = W_FAV + W_CAT + W_NAME + W_REF;
 
 // ─── 그래프 색상 팔레트 ──────────────────────────────────────────────────────
-const GCOLS = ["#453EDC","#FF7B2E","#2EA652","#FF4242","#9B59B6","#E67E22","#1ABC9C","#0066FF"];
+const GCOLS = ["var(--brand-primary)","var(--orange-500)","var(--green-500)","var(--red-500)","var(--violet-500)","var(--orange-500)","var(--green-500)","var(--brand-primary)"];
 
 // ─── 정성 결과 표시 함수 ─────────────────────────────────────────────────────
 const uSemi = (v: number) => v===0?"Neg":v===0.5?"Trace":v===1?"+1":v===2?"+2":String(v);
@@ -174,9 +174,9 @@ function dispVal(row: LabRow, val: number | null): string {
 }
 
 function vColor(s: VStatus): string {
-  if (s === "high") return "#FF4242";
-  if (s === "low")  return "#0066FF";
-  return "#46474C";
+  if (s === "high") return "var(--red-500)";
+  if (s === "low")  return "var(--brand-primary)";
+  return "var(--text-sub)";
 }
 function vArrow(s: VStatus): string {
   if (s === "high") return "↑ ";
@@ -265,7 +265,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
   // ── Sticky cell shared styles ──────────────────────────────────────────────
   const stickyTd = (left: number, bg: string, border: boolean): CSSProperties => ({
     position: "sticky", left, zIndex: 10, backgroundColor: bg,
-    borderRight: border ? "2px solid #C2C4C8" : "1px solid #DBDCDF",
+    borderRight: border ? "2px solid var(--text-disabled)" : "1px solid var(--line-default)",
     verticalAlign: "middle",
   });
 
@@ -274,33 +274,31 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
     <div className="flex flex-col h-screen bg-white overflow-hidden" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>
 
       {/* ① 환자 정보 바 (40px, 다크) */}
-      <div className="flex items-center px-4 gap-2 flex-shrink-0" style={{ height: 40, backgroundColor: "#171719" }}>
+      <div className="flex items-center px-4 gap-2 flex-shrink-0" style={{ height: 40, backgroundColor: "var(--text-main)" }}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <span className="text-white font-bold" style={{ fontSize: 13 }}>김지영</span>
-          <span className="text-[#5A5A5F] text-[11px]">|</span>
-          <span className="text-[#BABBBE] text-[11px]">차트번호 100236</span>
-          <span className="text-[#5A5A5F] text-[11px]">|</span>
-          <span className="text-[#BABBBE] text-[11px]">1974.03.12</span>
-          <span className="text-[#5A5A5F] text-[11px]">|</span>
-          <span className="text-[#BABBBE] text-[11px]">52세</span>
-          <span className="text-[#5A5A5F] text-[11px]">|</span>
-          <span className="text-[#BABBBE] text-[11px]">여</span>
+          <span className="text-[var(--text-sub)] text-[11px]">|</span>
+          <span className="text-[var(--text-placeholder)] text-[11px]">차트번호 100236</span>
+          <span className="text-[var(--text-sub)] text-[11px]">|</span>
+          <span className="text-[var(--text-placeholder)] text-[11px]">1974.03.12</span>
+          <span className="text-[var(--text-sub)] text-[11px]">|</span>
+          <span className="text-[var(--text-placeholder)] text-[11px] tabular-nums">여/52</span>
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {["PACS 연동","알림톡 발송","인쇄","Excel 내보내기"].map(lbl => (
-            <button key={lbl} className="h-7 px-2.5 rounded text-[10px] text-[#BABBBE] border border-[#3A3A3D] hover:border-[#666] hover:text-white transition-colors whitespace-nowrap">
+            <button key={lbl} className="h-7 px-2.5 rounded text-[10px] text-[var(--text-placeholder)] border border-[var(--text-main)] hover:border-[#666] hover:text-white transition-colors whitespace-nowrap">
               {lbl}
             </button>
           ))}
           <button onClick={() => onClose?.()}
-            className="h-7 px-2.5 rounded text-[10px] text-white bg-[#3A3A3D] hover:bg-[#555] ml-1 whitespace-nowrap">
+            className="h-7 px-2.5 rounded text-[10px] text-white bg-[var(--text-main)] hover:bg-[#555] ml-1 whitespace-nowrap">
             ✕ 닫기
           </button>
         </div>
       </div>
 
       {/* ② 오더분류 칩 바 */}
-      <div className="flex-shrink-0 border-b border-[#DBDCDF]" style={{ backgroundColor: "#F7F7F8", padding: "8px 16px" }}>
+      <div className="flex-shrink-0 border-b border-[var(--line-default)]" style={{ backgroundColor: "var(--bg-subtle)", padding: "8px 16px" }}>
         <div className="flex flex-wrap gap-1 items-center">
           {ALL_CATS.map(cat => {
             const hasData = DATA_CATS.has(cat);
@@ -309,10 +307,10 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
               <button key={cat} onClick={() => hasData && toggleCat(cat)} disabled={!hasData}
                 className={`flex items-center gap-0.5 text-[11px] rounded border whitespace-nowrap transition-colors ${
                   isSel && hasData
-                    ? "bg-[#453EDC] text-white border-[#453EDC]"
+                    ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)]"
                     : hasData
-                      ? "bg-white text-[#46474C] border-[#DBDCDF] hover:border-[#453EDC] hover:text-[#453EDC]"
-                      : "bg-white text-[#C2C4C8] border-[#DBDCDF] cursor-not-allowed"
+                      ? "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
+                      : "bg-white text-[var(--text-disabled)] border-[var(--line-default)] cursor-not-allowed"
                 }`} style={{ padding: "4px 10px" }}>
                 {isSel && hasData && <span className="text-[10px] mr-0.5">✓</span>}
                 {cat}
@@ -320,24 +318,24 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
             );
           })}
           <div className="flex items-center gap-3 ml-auto pl-3 flex-shrink-0">
-            <button onClick={() => setSelCats(new Set(DATA_CATS))} className="text-[11px] text-[#453EDC] hover:underline whitespace-nowrap">전체선택</button>
-            <button onClick={() => setSelCats(new Set())}          className="text-[11px] text-[#989BA2] hover:underline whitespace-nowrap">선택해제</button>
+            <button onClick={() => setSelCats(new Set(DATA_CATS))} className="text-[11px] text-[var(--brand-primary)] hover:underline whitespace-nowrap">전체선택</button>
+            <button onClick={() => setSelCats(new Set())}          className="text-[11px] text-[var(--text-tertiary)] hover:underline whitespace-nowrap">선택해제</button>
           </div>
         </div>
       </div>
 
       {/* ③ 툴바 (36px) */}
-      <div className="flex items-center px-4 gap-2 flex-shrink-0 border-b border-[#DBDCDF]"
-        style={{ height: 36, backgroundColor: "#FAFAFA" }}>
+      <div className="flex items-center px-4 gap-2 flex-shrink-0 border-b border-[var(--line-default)]"
+        style={{ height: 36, backgroundColor: "var(--bg-subtle)" }}>
         {/* 좌측 토글 */}
         {[
-          { label:"이상치만 보기",  active:abnOnly,   fn:()=>setAbnOnly(v=>!v),   activeCls:"bg-[#FFF1E0] text-[#FF7B2E] border-[#FF7B2E]" },
-          { label:"즐겨찾기만 보기",active:favOnly,   fn:()=>setFavOnly(v=>!v),   activeCls:"bg-[#FFF8E1] text-[#E08A00] border-[#E08A00]" },
-          { label:"그래프 보기",    active:showGraph,  fn:()=>setShowGraph(v=>!v), activeCls:"bg-[#EEF4FF] text-[#0066FF] border-[#0066FF]" },
+          { label:"이상치만 보기",  active:abnOnly,   fn:()=>setAbnOnly(v=>!v),   activeCls:"bg-[var(--status-warning-bg-subtle)] text-[var(--orange-500)] border-[var(--orange-500)]" },
+          { label:"즐겨찾기만 보기",active:favOnly,   fn:()=>setFavOnly(v=>!v),   activeCls:"bg-[var(--status-warning-bg-subtle)] text-[var(--orange-700)] border-[var(--orange-700)]" },
+          { label:"그래프 보기",    active:showGraph,  fn:()=>setShowGraph(v=>!v), activeCls:"bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] border-[var(--brand-primary)]" },
         ].map(({ label, active, fn, activeCls }) => (
           <button key={label} onClick={fn}
             className={`h-6 px-3 text-[11px] rounded border transition-colors whitespace-nowrap ${
-              active ? activeCls : "bg-white text-[#46474C] border-[#DBDCDF] hover:border-[#989BA2]"
+              active ? activeCls : "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:border-[var(--text-tertiary)]"
             }`}>
             {label}
           </button>
@@ -347,32 +345,32 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
         <div className="flex items-center gap-2" ref={presetRef}>
           <div className="relative">
             <button onClick={() => setPresetOpen(v => !v)}
-              className="h-6 px-3 text-[11px] bg-white border border-[#DBDCDF] rounded text-[#46474C] hover:border-[#989BA2] whitespace-nowrap">
+              className="h-6 px-3 text-[11px] bg-white border border-[var(--line-default)] rounded text-[var(--text-sub)] hover:border-[var(--text-tertiary)] whitespace-nowrap">
               모아보기 세트 ▾
             </button>
             {presetOpen && (
-              <div className="absolute top-7 right-0 bg-white border border-[#DBDCDF] rounded-lg shadow-xl w-44 z-50 py-1 overflow-hidden">
+              <div className="absolute top-7 right-0 bg-white border border-[var(--line-default)] rounded-lg shadow-xl w-44 z-50 py-1 overflow-hidden">
                 {PRESETS.map(ps => (
                   <button key={ps.name} onClick={() => applyRowPreset(ps.rows)}
-                    className="w-full text-left px-3 py-1.5 text-[11px] text-[#292A2D] hover:bg-[#F7F7F8]">
+                    className="w-full text-left px-3 py-1.5 text-[11px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
                     {ps.name}
                   </button>
                 ))}
-                <div className="border-t border-[#DBDCDF] mt-1">
-                  <button className="w-full text-left px-3 py-1.5 text-[11px] text-[#453EDC] hover:bg-[#F7F7F8]">
+                <div className="border-t border-[var(--line-default)] mt-1">
+                  <button className="w-full text-left px-3 py-1.5 text-[11px] text-[var(--brand-primary)] hover:bg-[var(--bg-subtle)]">
                     + 세트 저장...
                   </button>
                 </div>
               </div>
             )}
           </div>
-          <div className="flex items-center gap-1.5 bg-white border border-[#DBDCDF] rounded px-2 h-6 w-40">
+          <div className="flex items-center gap-1.5 bg-white border border-[var(--line-default)] rounded px-2 h-6 w-40">
             <svg width="11" height="11" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
-              <circle cx="6.5" cy="6.5" r="4.5" stroke="#989BA2" strokeWidth="1.5"/>
-              <path d="M10 10L13.5 13.5" stroke="#989BA2" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="6.5" cy="6.5" r="4.5" stroke="var(--text-tertiary)" strokeWidth="1.5"/>
+              <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="검사명 검색..."
-              className="text-[11px] flex-1 outline-none placeholder:text-[#BABBBE] bg-transparent" />
+              className="text-[11px] flex-1 outline-none placeholder:text-[var(--text-placeholder)] bg-transparent" />
           </div>
         </div>
       </div>
@@ -381,10 +379,10 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
       <div className="flex flex-1 overflow-hidden">
 
         {/* 좌측 날짜 네비 (88px) */}
-        <div className="flex flex-col flex-shrink-0 border-r border-[#DBDCDF] overflow-hidden"
-          style={{ width: 88, backgroundColor: "#F7F7F8" }}>
+        <div className="flex flex-col flex-shrink-0 border-r border-[var(--line-default)] overflow-hidden"
+          style={{ width: 88, backgroundColor: "var(--bg-subtle)" }}>
           <div className="px-2 pt-2 pb-1 flex-shrink-0">
-            <span className="text-[10px] text-[#989BA2]">내원일</span>
+            <span className="text-[10px] text-[var(--text-tertiary)]">내원일</span>
           </div>
           {/* 프리셋 버튼 */}
           <div className="grid grid-cols-2 gap-0.5 px-1.5 pb-1.5 flex-shrink-0">
@@ -393,7 +391,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
               { label:"최근 1년", n:12 },{ label:"전체", n:99 },
             ].map(({ label, n }) => (
               <button key={label} onClick={() => applyDatePreset(n)}
-                className="text-[9px] text-[#46474C] bg-white border border-[#DBDCDF] rounded py-0.5 hover:border-[#453EDC] hover:text-[#453EDC] transition-colors">
+                className="text-[9px] text-[var(--text-sub)] bg-white border border-[var(--line-default)] rounded py-0.5 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors">
                 {label}
               </button>
             ))}
@@ -405,8 +403,8 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
               return (
                 <div key={date} onClick={() => toggleDate(date)}
                   className="flex items-center cursor-pointer hover:bg-white transition-colors"
-                  style={{ height: 32, borderLeft: active ? "3px solid #453EDC" : "3px solid transparent", backgroundColor: active ? "white" : "transparent", paddingLeft: 6 }}>
-                  <span className={`text-[10px] leading-none ${active ? "text-[#292A2D] font-bold" : "text-[#989BA2]"}`}>
+                  style={{ height: 32, borderLeft: active ? "3px solid var(--brand-primary)" : "3px solid transparent", backgroundColor: active ? "white" : "transparent", paddingLeft: 6 }}>
+                  <span className={`text-[10px] leading-none ${active ? "text-[var(--text-main)] font-bold" : "text-[var(--text-tertiary)]"}`}>
                     {date.slice(2)}
                   </span>
                 </div>
@@ -425,13 +423,13 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
             <table style={{ borderCollapse:"collapse", minWidth: W_STICKY + visibleDates.length * W_DATE }} className="text-[11px]">
               {/* 고정 헤더 */}
               <thead>
-                <tr style={{ backgroundColor: "#F7F7F8" }}>
-                  <th style={{ position:"sticky", top:0, left:0, zIndex:30, width:W_FAV, minWidth:W_FAV, backgroundColor:"#F7F7F8", borderBottom:"2px solid #C2C4C8", borderRight:"1px solid #DBDCDF", height:32, textAlign:"center", fontSize:10, fontWeight:600, color:"#989BA2" }}>★</th>
-                  <th style={{ position:"sticky", top:0, left:W_FAV, zIndex:30, width:W_CAT, minWidth:W_CAT, backgroundColor:"#F7F7F8", borderBottom:"2px solid #C2C4C8", borderRight:"1px solid #DBDCDF", textAlign:"left", padding:"0 8px", fontSize:10, fontWeight:600, color:"#989BA2" }}>검사종류</th>
-                  <th style={{ position:"sticky", top:0, left:W_FAV+W_CAT, zIndex:30, width:W_NAME, minWidth:W_NAME, backgroundColor:"#F7F7F8", borderBottom:"2px solid #C2C4C8", borderRight:"1px solid #DBDCDF", textAlign:"left", padding:"0 8px", fontSize:10, fontWeight:600, color:"#989BA2" }}>검사명</th>
-                  <th style={{ position:"sticky", top:0, left:W_FAV+W_CAT+W_NAME, zIndex:30, width:W_REF, minWidth:W_REF, backgroundColor:"#F7F7F8", borderBottom:"2px solid #C2C4C8", borderRight:"2px solid #C2C4C8", textAlign:"center", padding:"0 6px", fontSize:10, fontWeight:600, color:"#989BA2" }}>참조치</th>
+                <tr style={{ backgroundColor: "var(--bg-subtle)" }}>
+                  <th style={{ position:"sticky", top:0, left:0, zIndex:30, width:W_FAV, minWidth:W_FAV, backgroundColor:"var(--bg-subtle)", borderBottom:"2px solid var(--text-disabled)", borderRight:"1px solid var(--line-default)", height:32, textAlign:"center", fontSize:10, fontWeight:600, color:"var(--text-tertiary)" }}>★</th>
+                  <th style={{ position:"sticky", top:0, left:W_FAV, zIndex:30, width:W_CAT, minWidth:W_CAT, backgroundColor:"var(--bg-subtle)", borderBottom:"2px solid var(--text-disabled)", borderRight:"1px solid var(--line-default)", textAlign:"left", padding:"0 8px", fontSize:10, fontWeight:600, color:"var(--text-tertiary)" }}>검사종류</th>
+                  <th style={{ position:"sticky", top:0, left:W_FAV+W_CAT, zIndex:30, width:W_NAME, minWidth:W_NAME, backgroundColor:"var(--bg-subtle)", borderBottom:"2px solid var(--text-disabled)", borderRight:"1px solid var(--line-default)", textAlign:"left", padding:"0 8px", fontSize:10, fontWeight:600, color:"var(--text-tertiary)" }}>검사명</th>
+                  <th style={{ position:"sticky", top:0, left:W_FAV+W_CAT+W_NAME, zIndex:30, width:W_REF, minWidth:W_REF, backgroundColor:"var(--bg-subtle)", borderBottom:"2px solid var(--text-disabled)", borderRight:"2px solid var(--text-disabled)", textAlign:"center", padding:"0 6px", fontSize:10, fontWeight:600, color:"var(--text-tertiary)" }}>참조치</th>
                   {visibleDates.map(date => (
-                    <th key={date} style={{ position:"sticky", top:0, zIndex:20, width:W_DATE, minWidth:W_DATE, backgroundColor:"#F7F7F8", borderBottom:"2px solid #C2C4C8", borderRight:"1px solid #E8E8EA", textAlign:"center", fontSize:10, fontWeight:600, color:"#292A2D", whiteSpace:"nowrap", padding:"0 4px" }}>
+                    <th key={date} style={{ position:"sticky", top:0, zIndex:20, width:W_DATE, minWidth:W_DATE, backgroundColor:"var(--bg-subtle)", borderBottom:"2px solid var(--text-disabled)", borderRight:"1px solid var(--line-default)", textAlign:"center", fontSize:10, fontWeight:600, color:"var(--text-main)", whiteSpace:"nowrap", padding:"0 4px" }}>
                       {date}
                     </th>
                   ))}
@@ -442,11 +440,11 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
                   const isFav    = favs.has(row.id);
                   const isGRow   = graphRows.has(row.id) && showGraph;
                   const isLast   = idx === rows.length - 1 || rows[idx+1]?.category !== row.category;
-                  const rowBg    = row.isHeader ? "#F9F9FB"
-                                 : isFav        ? "#FFFBEB"
-                                 : isGRow       ? "#EEF4FF"
+                  const rowBg    = row.isHeader ? "var(--bg-subtle)"
+                                 : isFav        ? "var(--status-warning-bg-subtle)"
+                                 : isGRow       ? "var(--bg-primary-subtle)"
                                  : "white";
-                  const botBd    = isLast ? "2px solid #C2C4C8" : "1px solid #F0F0F2";
+                  const botBd    = isLast ? "2px solid var(--text-disabled)" : "1px solid var(--line-subtle)";
 
                   return (
                     <tr key={row.id}
@@ -459,14 +457,14 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
                         className="group-hover:brightness-[0.97]">
                         {!row.isHeader && (
                           <button onClick={e => { e.stopPropagation(); toggleFav(row.id); }}
-                            className={`text-[12px] leading-none transition-all ${isFav ? "text-[#E08A00]" : "text-[#C2C4C8] hover:text-[#E08A00]"}`}>
+                            className={`text-[12px] leading-none transition-all ${isFav ? "text-[var(--orange-700)]" : "text-[var(--text-disabled)] hover:text-[var(--orange-700)]"}`}>
                             {isFav ? "★" : "☆"}
                           </button>
                         )}
                       </td>
 
                       {/* 검사종류 */}
-                      <td style={{ ...stickyTd(W_FAV, rowBg, false), width:W_CAT, borderBottom: botBd, padding:"0 6px 0 8px", fontSize:10, color:"#70737C", overflow:"hidden", whiteSpace:"nowrap" }}
+                      <td style={{ ...stickyTd(W_FAV, rowBg, false), width:W_CAT, borderBottom: botBd, padding:"0 6px 0 8px", fontSize:10, color:"var(--text-sub)", overflow:"hidden", whiteSpace:"nowrap" }}
                         className="group-hover:brightness-[0.97]">
                         {row.firstInGroup ? row.category : ""}
                       </td>
@@ -481,14 +479,14 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
                           {isGRow && (
                             <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: GCOLS[Array.from(graphRows).indexOf(row.id) % GCOLS.length] }} />
                           )}
-                          <span className={`text-[11px] truncate ${row.isHeader ? "font-semibold text-[#292A2D]" : "text-[#292A2D]"}`}>
+                          <span className={`text-[11px] truncate ${row.isHeader ? "font-semibold text-[var(--text-main)]" : "text-[var(--text-main)]"}`}>
                             {row.name}
                           </span>
                         </div>
                       </td>
 
                       {/* 참조치 */}
-                      <td style={{ ...stickyTd(W_FAV+W_CAT+W_NAME, rowBg, true), width:W_REF, borderBottom: botBd, padding:"0 6px", textAlign:"center", fontSize:10, color:"#989BA2", whiteSpace:"nowrap", overflow:"hidden" }}
+                      <td style={{ ...stickyTd(W_FAV+W_CAT+W_NAME, rowBg, true), width:W_REF, borderBottom: botBd, padding:"0 6px", textAlign:"center", fontSize:10, color:"var(--text-tertiary)", whiteSpace:"nowrap", overflow:"hidden" }}
                         className="group-hover:brightness-[0.97]">
                         {row.refRange}
                       </td>
@@ -502,7 +500,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
                           ? (val !== null ? "O" : "—")
                           : dispVal(row, val);
                         const col = row.isHeader
-                          ? (val !== null ? "#2EA652" : "#BABBBE")
+                          ? (val !== null ? "var(--green-500)" : "var(--text-placeholder)")
                           : vColor(st);
                         return (
                           <td key={date}
@@ -516,7 +514,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
                             style={{
                               width: W_DATE, textAlign:"center", padding:"0 4px",
                               verticalAlign:"middle", fontSize:11,
-                              borderBottom: botBd, borderRight:"1px solid #F0F0F2",
+                              borderBottom: botBd, borderRight:"1px solid var(--line-subtle)",
                               color: col,
                               cursor: val !== null && !row.isHeader ? "help" : "default",
                               fontWeight: (st === "high" || st === "low") ? 600 : 400,
@@ -534,12 +532,12 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
 
           {/* 그래프 패널 */}
           {showGraph && (
-            <div className="flex flex-col border-l border-[#DBDCDF] overflow-hidden" style={{ flex: 1, minWidth: 0 }}>
+            <div className="flex flex-col border-l border-[var(--line-default)] overflow-hidden" style={{ flex: 1, minWidth: 0 }}>
               {/* 그래프 헤더 */}
-              <div className="flex items-center gap-2 px-3 border-b border-[#DBDCDF] flex-shrink-0 flex-wrap"
-                style={{ minHeight: 36, backgroundColor: "#F7F7F8", padding: "6px 12px" }}>
-                <span className="text-[11px] font-medium text-[#292A2D]">시계열 그래프</span>
-                <span className="text-[10px] text-[#989BA2]">행 클릭으로 추가/제거</span>
+              <div className="flex items-center gap-2 px-3 border-b border-[var(--line-default)] flex-shrink-0 flex-wrap"
+                style={{ minHeight: 36, backgroundColor: "var(--bg-subtle)", padding: "6px 12px" }}>
+                <span className="text-[11px] font-medium text-[var(--text-main)]">시계열 그래프</span>
+                <span className="text-[10px] text-[var(--text-tertiary)]">행 클릭으로 추가/제거</span>
                 {graphRowList.map((r, ci) => (
                   <span key={r.id} onClick={() => toggleGRow(r.id)}
                     className="flex items-center gap-1 text-[10px] rounded cursor-pointer px-1.5 py-0.5 border"
@@ -554,16 +552,16 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
               {/* 그래프 영역 */}
               <div className="flex-1 p-2 min-h-0">
                 {graphRowList.length === 0
-                  ? <div className="h-full flex items-center justify-center text-[12px] text-[#989BA2]">
+                  ? <div className="h-full flex items-center justify-center text-[12px] text-[var(--text-tertiary)]">
                       테이블에서 검사 항목을 클릭하면 그래프가 표시됩니다
                     </div>
                   : <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={graphData} margin={{ top:8, right:20, bottom:8, left:0 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F2" />
-                        <XAxis dataKey="date" tick={{ fontSize:9, fill:"#989BA2" }} />
-                        <YAxis tick={{ fontSize:9, fill:"#989BA2" }} width={38} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--line-subtle)" />
+                        <XAxis dataKey="date" tick={{ fontSize:9, fill:"var(--text-tertiary)" }} />
+                        <YAxis tick={{ fontSize:9, fill:"var(--text-tertiary)" }} width={38} />
                         <ChartTooltip
-                          contentStyle={{ fontSize:11, border:"1px solid #DBDCDF", borderRadius:6, padding:"6px 10px" }}
+                          contentStyle={{ fontSize:11, border:"1px solid var(--line-default)", borderRadius:6, padding:"6px 10px" }}
                           labelStyle={{ fontWeight:600, marginBottom:4 }} />
                         <Legend iconSize={8} wrapperStyle={{ fontSize:10, paddingTop:4 }} />
                         {/* Reference areas (참조 범위 배경) */}
@@ -593,21 +591,21 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
       {/* ⑤ 셀 호버 툴팁 */}
       {tooltip && (
         <div style={{ position:"fixed", left: tooltip.x, top: tooltip.y, transform:"translateX(-50%)", zIndex:9999, pointerEvents:"none" }}
-          className="bg-[#1E1F22] text-white rounded-lg shadow-2xl px-3 py-2">
+          className="bg-[var(--bg-inverse)] text-white rounded-lg shadow-2xl px-3 py-2">
           <div className="text-[11px] font-medium mb-1 text-white">{tooltip.row.name}</div>
-          <div className="text-[10px] text-[#BABBBE] space-y-0.5">
+          <div className="text-[10px] text-[var(--text-placeholder)] space-y-0.5">
             <div>날짜: {DATES[tooltip.di]}</div>
             <div>참조치: {tooltip.row.refRange}</div>
             {(() => {
               const val = tooltip.row.values[tooltip.di];
               const st  = vStatus(tooltip.row, val);
               if (st !== "empty" && st !== "normal")
-                return <div style={{ color: st === "high" ? "#FF8080" : "#80AAFF" }}>
+                return <div style={{ color: st === "high" ? "var(--red-200)" : "var(--blue-300)" }}>
                   {st === "high" ? "참조치 초과" : "참조치 미만"}
                 </div>;
             })()}
             {tooltip.row.isCalc && (
-              <div className="text-[#9B8AFF] mt-1 border-t border-[#3A3A3D] pt-1">
+              <div className="text-[var(--blue-300)] mt-1 border-t border-[var(--text-main)] pt-1">
                 계산식: {tooltip.row.calcFormula}
               </div>
             )}
@@ -618,44 +616,44 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
       {/* ⑥ 플로팅 미니 차트 (우측 하단) */}
       <div className="fixed bottom-4 right-4 z-[9990]" style={{ width: miniOpen ? 340 : "auto" }}>
         {miniOpen && (
-          <div className="bg-white rounded-xl shadow-2xl border border-[#DBDCDF] overflow-hidden mb-2"
+          <div className="bg-white rounded-xl shadow-2xl border border-[var(--line-default)] overflow-hidden mb-2"
             style={{ width: 340, maxHeight: 420 }}>
             {/* 헤더 */}
-            <div className="flex items-center px-3 border-b border-[#DBDCDF]" style={{ height: 36, backgroundColor:"#F7F7F8" }}>
-              <span className="text-[11px] font-semibold text-[#292A2D] flex-1">오늘 차트 — 김지영</span>
-              <span className="text-[10px] text-[#989BA2]">2026.03.17</span>
-              <button onClick={() => setMiniOpen(false)} className="ml-2 text-[#989BA2] hover:text-[#292A2D] text-[13px]">✕</button>
+            <div className="flex items-center px-3 border-b border-[var(--line-default)]" style={{ height: 36, backgroundColor:"var(--bg-subtle)" }}>
+              <span className="text-[11px] font-semibold text-[var(--text-main)] flex-1">오늘 차트 — 김지영</span>
+              <span className="text-[10px] text-[var(--text-tertiary)]">2026.03.17</span>
+              <button onClick={() => setMiniOpen(false)} className="ml-2 text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[13px]">✕</button>
             </div>
             {/* 진단 */}
-            <div className="px-3 py-2 border-b border-[#F0F0F2]">
-              <p className="text-[10px] text-[#989BA2] mb-1">진단</p>
+            <div className="px-3 py-2 border-b border-[var(--line-subtle)]">
+              <p className="text-[10px] text-[var(--text-tertiary)] mb-1">진단</p>
               {[
                 { code:"J00",   name:"급성비인두염[코감기]" },
                 { code:"I10",   name:"본태성(원발성) 고혈압" },
                 { code:"E11.9", name:"제2형 당뇨병, 합병증 없음" },
               ].map(d => (
                 <div key={d.code} className="flex items-center gap-2 py-0.5">
-                  <span className="text-[9px] text-[#989BA2] w-12 flex-shrink-0">{d.code}</span>
-                  <span className="text-[10px] text-[#292A2D] truncate">{d.name}</span>
+                  <span className="text-[9px] text-[var(--text-tertiary)] w-12 flex-shrink-0">{d.code}</span>
+                  <span className="text-[10px] text-[var(--text-main)] truncate">{d.name}</span>
                 </div>
               ))}
             </div>
             {/* 처방 */}
-            <div className="px-3 py-2 border-b border-[#F0F0F2] max-h-48 overflow-y-auto">
-              <p className="text-[10px] text-[#989BA2] mb-1">오늘 처방</p>
+            <div className="px-3 py-2 border-b border-[var(--line-subtle)] max-h-48 overflow-y-auto">
+              <p className="text-[10px] text-[var(--text-tertiary)] mb-1">오늘 처방</p>
               {MINI_RX.map(rx => (
                 <div key={rx.name} className="flex items-center gap-2 py-0.5">
-                  <span className="text-[10px] text-[#292A2D] flex-1 truncate">{rx.name}</span>
-                  <span className="text-[9px] text-[#989BA2] flex-shrink-0">1일 {rx.freq}회</span>
+                  <span className="text-[10px] text-[var(--text-main)] flex-1 truncate">{rx.name}</span>
+                  <span className="text-[9px] text-[var(--text-tertiary)] flex-shrink-0">1일 {rx.freq}회</span>
                 </div>
               ))}
             </div>
             {/* 처방 추가 버튼 */}
-            <div className="px-3 py-2 bg-[#F7F7F8]">
+            <div className="px-3 py-2 bg-[var(--bg-subtle)]">
               <button
                 onClick={() => { alert("메인 창 차트에 처방이 추가되었습니다.\n(실제 구현 시 postMessage로 메인 창과 통신)"); }}
                 className="w-full h-7 text-[11px] rounded text-white transition-colors"
-                style={{ backgroundColor: "#453EDC" }}>
+                style={{ backgroundColor: "var(--brand-primary)" }}>
                 + 처방 추가 (메인 창으로 전송)
               </button>
             </div>
@@ -664,7 +662,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
         {/* 토글 버튼 */}
         <button onClick={() => setMiniOpen(v => !v)}
           className="flex items-center gap-2 h-9 px-4 rounded-xl shadow-xl text-white text-[11px] font-medium transition-all"
-          style={{ backgroundColor: miniOpen ? "#292A2D" : "#453EDC" }}>
+          style={{ backgroundColor: miniOpen ? "var(--text-main)" : "var(--brand-primary)" }}>
           {miniOpen ? "▼ 오늘 차트 접기" : "▲ 오늘 차트 보기"}
         </button>
       </div>

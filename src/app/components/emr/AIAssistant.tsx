@@ -10,7 +10,7 @@ const TIME_SLOTS = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00
 
 function AiBubble({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[#f1efe8] rounded-[8px] px-3 py-3 max-w-[320px] text-[13px] text-[#212121] leading-[20px]">
+    <div className="bg-[var(--bg-subtle)] rounded-[8px] px-3 py-3 max-w-[320px] text-[13px] text-[var(--text-main)] leading-[20px]">
       {children}
     </div>
   );
@@ -18,7 +18,7 @@ function AiBubble({ children }: { children: React.ReactNode }) {
 
 function UserBubble({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[#534ab7] rounded-[8px] px-3 py-3 max-w-[320px] text-[13px] text-white leading-[20px] self-end ml-auto">
+    <div className="bg-[var(--brand-primary-hover)] rounded-[8px] px-3 py-3 max-w-[320px] text-[13px] text-white leading-[20px] self-end ml-auto">
       {children}
     </div>
   );
@@ -39,8 +39,8 @@ function InputArea({
 }) {
   const active = !disabled && value.trim().length > 0;
   return (
-    <div className="border-t border-[#dbdbde] bg-white px-5 py-4 flex items-center gap-2.5 flex-shrink-0">
-      <div className="flex-1 border border-[#dbdbde] rounded-[22px] h-[44px] flex items-center px-5 bg-white overflow-hidden">
+    <div className="border-t border-[var(--line-default)] bg-white px-5 py-4 flex items-center gap-2.5 flex-shrink-0">
+      <div className="flex-1 border border-[var(--line-default)] rounded-[22px] h-[44px] flex items-center px-5 bg-white overflow-hidden">
         {disabled ? (
           <span className="text-[13px] text-[#999]">{placeholder}</span>
         ) : (
@@ -50,14 +50,14 @@ function InputArea({
             onChange={(e) => onChange?.(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && active && onSend?.()}
             placeholder={placeholder}
-            className="w-full text-[13px] text-[#212121] placeholder-[#999] outline-none bg-transparent"
+            className="w-full text-[13px] text-[var(--text-main)] placeholder-[#999] outline-none bg-transparent"
           />
         )}
       </div>
       <button
         onClick={active ? onSend : undefined}
         className={`w-[32px] h-[32px] rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-          active ? "bg-[#534ab7] hover:bg-[#4338a8]" : "bg-[#f0f0f0]"
+          active ? "bg-[var(--brand-primary-hover)] hover:bg-[var(--brand-primary-pressed)]" : "bg-[var(--line-subtle)]"
         }`}
       >
         <span className={`text-[14px] font-bold leading-none ${active ? "text-white" : "text-[#999]"}`}>↑</span>
@@ -68,12 +68,12 @@ function InputArea({
 
 function PanelHeader({ onClose }: { onClose: () => void }) {
   return (
-    <div className="flex items-center justify-between px-5 h-[56px] border-b border-[#dbdbde] flex-shrink-0 bg-white">
+    <div className="flex items-center justify-between px-5 h-[56px] border-b border-[var(--line-default)] flex-shrink-0 bg-white">
       <div className="flex items-center gap-2.5">
-        <div className="w-[18px] h-[18px] bg-[#534ab7] rounded-[4px] flex items-center justify-center flex-shrink-0">
+        <div className="w-[18px] h-[18px] bg-[var(--brand-primary-hover)] rounded-[4px] flex items-center justify-center flex-shrink-0">
           <span className="text-white text-[11px] font-bold leading-none">✦</span>
         </div>
-        <span className="text-[14px] font-medium text-[#212121]">AI 어시스턴트</span>
+        <span className="text-[14px] font-medium text-[var(--text-main)]">AI 어시스턴트</span>
       </div>
       <div className="flex items-center gap-4">
         <button className="text-[#999] text-[14px] hover:text-[#555] leading-none w-5 h-5 flex items-center justify-center">—</button>
@@ -87,22 +87,22 @@ function PanelHeader({ onClose }: { onClose: () => void }) {
 
 const CARDS = [
   {
-    icon: "⊕", iconBg: "#eeedfe", iconColor: "#3c3489",
+    icon: "⊕", iconBg: "var(--blue-050)", iconColor: "var(--blue-700)",
     title: "빠른메뉴 만들기", desc: "자주 하는 작업을 한 번에 등록", badge: "새기능",
     id: "quick",
   },
   {
-    icon: "◎", iconBg: "#e1f5ee", iconColor: "#085041",
+    icon: "◎", iconBg: "var(--status-success-bg-subtle)", iconColor: "var(--green-700)",
     title: "환자 찾기", desc: "이름·증상·진료 시점으로 검색",
     id: "patient",
   },
   {
-    icon: "℞", iconBg: "#faede8", iconColor: "#712b13",
+    icon: "℞", iconBg: "var(--status-error-bg-subtle)", iconColor: "var(--red-700)",
     title: "처방 도우미", desc: "약물 상호작용·용량 가이드 질의",
     id: "rx",
   },
   {
-    icon: "▦", iconBg: "#e6f1fb", iconColor: "#0c447c",
+    icon: "▦", iconBg: "var(--blue-050)", iconColor: "var(--blue-800)",
     title: "통계 조회", desc: "이번 달 진료·매출 현황",
     id: "stat",
   },
@@ -119,14 +119,14 @@ function HomeScreen({
   return (
     <>
       <div className="flex-1 overflow-y-auto px-5 pt-6 pb-2">
-        <p className="text-[15px] font-medium text-[#212121] mb-1.5">안녕하세요. 무엇을 도와드릴까요?</p>
-        <p className="text-[12px] text-[#6b6b6b] mb-5">자주 쓰는 작업이나 무엇이든 자유롭게 말해주세요.</p>
+        <p className="text-[15px] font-medium text-[var(--text-main)] mb-1.5">안녕하세요. 무엇을 도와드릴까요?</p>
+        <p className="text-[12px] text-[var(--text-sub)] mb-5">자주 쓰는 작업이나 무엇이든 자유롭게 말해주세요.</p>
         <div className="flex flex-col gap-2.5">
           {CARDS.map((card) => (
             <button
               key={card.id}
               onClick={card.id === "quick" ? onQuickMenu : undefined}
-              className="flex items-center gap-3 w-full bg-white border border-[#dbdbde] rounded-[8px] px-4 h-[64px] hover:border-[#534ab7] hover:bg-[#fafafe] transition-colors text-left relative"
+              className="flex items-center gap-3 w-full bg-white border border-[var(--line-default)] rounded-[8px] px-4 h-[64px] hover:border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] transition-colors text-left relative"
             >
               <div
                 className="w-[28px] h-[28px] rounded-[6px] flex items-center justify-center flex-shrink-0 text-[14px] font-semibold"
@@ -135,12 +135,12 @@ function HomeScreen({
                 {card.icon}
               </div>
               <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                <span className="text-[13px] font-medium text-[#212121]">{card.title}</span>
-                <span className="text-[11px] text-[#6b6b6b]">{card.desc}</span>
+                <span className="text-[13px] font-medium text-[var(--text-main)]">{card.title}</span>
+                <span className="text-[11px] text-[var(--text-sub)]">{card.desc}</span>
               </div>
               {card.badge && (
-                <div className="bg-[#eeedfe] rounded-[6px] px-1.5 py-0.5">
-                  <span className="text-[10px] font-medium text-[#3c3489]">{card.badge}</span>
+                <div className="bg-[var(--blue-050)] rounded-[6px] px-1.5 py-0.5">
+                  <span className="text-[10px] font-medium text-[var(--blue-700)]">{card.badge}</span>
                 </div>
               )}
             </button>
@@ -156,9 +156,9 @@ function HomeScreen({
 
 function AnalyzingScreen({ phase, message }: { phase: number; message: string }) {
   const steps = [
-    { label: "✓  의도 파악 완료", color: "#212121" },
-    { label: "✓  필요한 기능 확인 (예약 + 알림톡)", color: "#212121" },
-    { label: "⏳  누락된 정보 확인 중...", color: "#6b6b6b" },
+    { label: "✓  의도 파악 완료", color: "var(--text-main)" },
+    { label: "✓  필요한 기능 확인 (예약 + 알림톡)", color: "var(--text-main)" },
+    { label: "⏳  누락된 정보 확인 중...", color: "var(--text-sub)" },
   ];
   return (
     <>
@@ -171,8 +171,8 @@ function AnalyzingScreen({ phase, message }: { phase: number; message: string })
           </p>
         </AiBubble>
         <UserBubble>{message}</UserBubble>
-        <div className="bg-[#f1efe8] rounded-[8px] px-3 py-3 max-w-[320px]">
-          <p className="text-[11px] font-medium text-[#6b6b6b] mb-2.5">분석 중...</p>
+        <div className="bg-[var(--bg-subtle)] rounded-[8px] px-3 py-3 max-w-[320px]">
+          <p className="text-[11px] font-medium text-[var(--text-sub)] mb-2.5">분석 중...</p>
           {steps.map((s, i) =>
             phase > i ? (
               <p
@@ -195,7 +195,7 @@ function AnalyzingScreen({ phase, message }: { phase: number; message: string })
 
 const RECOG_ROWS = [
   { label: "예약실", value: "1 진료실" },
-  { label: "예약 유형", value: "위내시경", dot: "#D85A30" },
+  { label: "예약 유형", value: "위내시경", dot: "var(--orange-500)" },
   { label: "진료의", value: "김현호" },
   { label: "발송 횟수", value: "방문 3일 전, 1일 전" },
 ];
@@ -226,14 +226,14 @@ function ChoiceList({
         <button
           key={t}
           onClick={() => onPick(t)}
-          className="text-[12px] text-left bg-white border border-[#dbdbde] hover:border-[#534ab7] hover:bg-[#f9f8ff] rounded-[8px] px-3 py-2.5 transition-colors"
+          className="text-[12px] text-left bg-white border border-[var(--line-default)] hover:border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] rounded-[8px] px-3 py-2.5 transition-colors"
         >
-          <span className="text-[#534ab7] font-medium mr-1">📋</span>{t}
+          <span className="text-[var(--brand-primary-hover)] font-medium mr-1">📋</span>{t}
         </button>
       ))}
       <button
         onClick={onDirect}
-        className="text-[12px] text-left bg-white border border-dashed border-[#534ab7] hover:bg-[#f9f8ff] text-[#534ab7] rounded-[8px] px-3 py-2.5 transition-colors"
+        className="text-[12px] text-left bg-white border border-dashed border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] text-[var(--brand-primary-hover)] rounded-[8px] px-3 py-2.5 transition-colors"
       >
         ✏️ 직접 입력하기
       </button>
@@ -248,20 +248,20 @@ function DirectComposer({
   onSend: () => void; onCancel: () => void; placeholder: string;
 }) {
   return (
-    <div className="flex flex-col gap-2 self-end ml-auto max-w-[320px] w-full bg-white border border-[#534ab7] rounded-[8px] p-3">
+    <div className="flex flex-col gap-2 self-end ml-auto max-w-[320px] w-full bg-white border border-[var(--brand-primary-hover)] rounded-[8px] p-3">
       <textarea
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="text-[12px] resize-none outline-none border border-[#dbdbde] rounded-[6px] p-2 min-h-[64px] focus:border-[#534ab7]"
+        className="text-[12px] resize-none outline-none border border-[var(--line-default)] rounded-[6px] p-2 min-h-[64px] focus:border-[var(--brand-primary-hover)]"
         autoFocus
       />
       <div className="flex gap-2 justify-end">
-        <button onClick={onCancel} className="text-[11px] text-[#6b6b6b] hover:text-[#212121] px-2">취소</button>
+        <button onClick={onCancel} className="text-[11px] text-[var(--text-sub)] hover:text-[var(--text-main)] px-2">취소</button>
         <button
           onClick={onSend}
           disabled={!value.trim()}
-          className="text-[11px] bg-[#534ab7] text-white px-3 py-1 rounded-[6px] disabled:bg-[#cbcae3] disabled:cursor-not-allowed"
+          className="text-[11px] bg-[var(--brand-primary-hover)] text-white px-3 py-1 rounded-[6px] disabled:bg-[var(--blue-100)] disabled:cursor-not-allowed"
         >
           전송
         </button>
@@ -317,19 +317,19 @@ function ConfirmScreen({
         <AiBubble>분석을 마쳤어요. 이렇게 인식했어요 👇</AiBubble>
 
         {/* 인식 카드 */}
-        <div className="bg-[#f8fbf9] border border-[#9fe1cb] rounded-[8px] p-3 self-start max-w-[320px]">
+        <div className="bg-[var(--bg-base)] border border-[var(--green-200)] rounded-[8px] p-3 self-start max-w-[320px]">
           <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-[14px] h-[14px] bg-[#1D9E75] rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-[14px] h-[14px] bg-[var(--green-500)] rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-white text-[9px] font-bold leading-none">✓</span>
             </div>
-            <span className="text-[11px] font-medium text-[#08342a]">예약 + 알림 자동화</span>
+            <span className="text-[11px] font-medium text-[var(--green-700)]">예약 + 알림 자동화</span>
           </div>
           {RECOG_ROWS.map((row, i) => (
-            <div key={row.label} className={`flex items-center py-1 ${i === 0 ? "" : "border-t border-[#e6f4ee]"}`}>
-              <span className="text-[11px] text-[#6b6b6b] w-[68px] flex-shrink-0">{row.label}</span>
+            <div key={row.label} className={`flex items-center py-1 ${i === 0 ? "" : "border-t border-[var(--status-success-bg-subtle)]"}`}>
+              <span className="text-[11px] text-[var(--text-sub)] w-[68px] flex-shrink-0">{row.label}</span>
               <div className="flex items-center gap-1.5">
                 {row.dot && <div className="w-[8px] h-[8px] rounded-full flex-shrink-0" style={{ backgroundColor: row.dot }} />}
-                <span className="text-[11px] font-medium text-[#212121]">{row.value}</span>
+                <span className="text-[11px] font-medium text-[var(--text-main)]">{row.value}</span>
               </div>
             </div>
           ))}
@@ -338,7 +338,7 @@ function ConfirmScreen({
         {/* === Q1: 3일 전 문자 === */}
         <AiBubble>
           <p className="font-medium mb-1">📨 3일 전엔 어떤 내용으로 보낼까요?</p>
-          <p className="text-[12px] text-[#6b6b6b]">템플릿을 골라도 되고, 직접 적어도 돼요.</p>
+          <p className="text-[12px] text-[var(--text-sub)]">템플릿을 골라도 되고, 직접 적어도 돼요.</p>
         </AiBubble>
 
         {!template3 ? (
@@ -360,7 +360,7 @@ function ConfirmScreen({
         {showQ2 && (
           <AiBubble>
             <p className="font-medium mb-1">📨 1일 전 문자는 어떤 내용으로 보낼까요?</p>
-            <p className="text-[12px] text-[#6b6b6b]">템플릿 또는 직접 입력 가능해요.</p>
+            <p className="text-[12px] text-[var(--text-sub)]">템플릿 또는 직접 입력 가능해요.</p>
           </AiBubble>
         )}
         {showQ2 && (
@@ -384,27 +384,27 @@ function ConfirmScreen({
         {showQ3 && (
           <AiBubble>
             <p className="font-medium mb-1">⏰ 몇 시에 보낼까요?</p>
-            <p className="text-[12px] text-[#6b6b6b]">자주 쓰는 시각을 골라도 되고, 직접 지정할 수 있어요.</p>
+            <p className="text-[12px] text-[var(--text-sub)]">자주 쓰는 시각을 골라도 되고, 직접 지정할 수 있어요.</p>
           </AiBubble>
         )}
         {showQ3 && (
           !sendTime ? (
             directTimeMode ? (
-              <div className="flex flex-col gap-2 self-end ml-auto max-w-[320px] w-full bg-white border border-[#534ab7] rounded-[8px] p-3">
+              <div className="flex flex-col gap-2 self-end ml-auto max-w-[320px] w-full bg-white border border-[var(--brand-primary-hover)] rounded-[8px] p-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-[#6b6b6b]">발송 시각</span>
+                  <span className="text-[11px] text-[var(--text-sub)]">발송 시각</span>
                   <input
                     type="time"
                     value={directTimeVal}
                     onChange={(e) => setDirectTimeVal(e.target.value)}
-                    className="flex-1 text-[13px] outline-none border border-[#dbdbde] rounded-[6px] px-2 py-1 focus:border-[#534ab7]"
+                    className="flex-1 text-[13px] outline-none border border-[var(--line-default)] rounded-[6px] px-2 py-1 focus:border-[var(--brand-primary-hover)]"
                   />
                 </div>
                 <div className="flex gap-2 justify-end">
-                  <button onClick={() => setDirectTimeMode(false)} className="text-[11px] text-[#6b6b6b] hover:text-[#212121] px-2">취소</button>
+                  <button onClick={() => setDirectTimeMode(false)} className="text-[11px] text-[var(--text-sub)] hover:text-[var(--text-main)] px-2">취소</button>
                   <button
                     onClick={() => pickTime(formatTimeLabel(directTimeVal))}
-                    className="text-[11px] bg-[#534ab7] text-white px-3 py-1 rounded-[6px]"
+                    className="text-[11px] bg-[var(--brand-primary-hover)] text-white px-3 py-1 rounded-[6px]"
                   >
                     확인
                   </button>
@@ -417,7 +417,7 @@ function ConfirmScreen({
                     <button
                       key={t}
                       onClick={() => pickTime(t)}
-                      className="text-[12px] bg-white border border-[#dbdbde] hover:border-[#534ab7] hover:bg-[#f9f8ff] rounded-full px-4 py-1.5 transition-colors"
+                      className="text-[12px] bg-white border border-[var(--line-default)] hover:border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] rounded-full px-4 py-1.5 transition-colors"
                     >
                       {t}
                     </button>
@@ -425,7 +425,7 @@ function ConfirmScreen({
                 </div>
                 <button
                   onClick={() => setDirectTimeMode(true)}
-                  className="text-[12px] text-[#534ab7] hover:underline self-end"
+                  className="text-[12px] text-[var(--brand-primary-hover)] hover:underline self-end"
                 >
                   ✏️ 직접 시간 지정하기
                 </button>
@@ -441,14 +441,14 @@ function ConfirmScreen({
           <>
             <AiBubble>
               <p className="font-medium mb-1">✅ 이렇게 만들어드릴게요</p>
-              <p className="text-[12px] text-[#6b6b6b]">아래 내용으로 빠른메뉴를 등록할까요?</p>
+              <p className="text-[12px] text-[var(--text-sub)]">아래 내용으로 빠른메뉴를 등록할까요?</p>
             </AiBubble>
-            <div className="bg-[#f9f8ff] border border-[#ccc8f0] rounded-[8px] p-3 self-start max-w-[320px]">
-              <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-[#e0deeb]">
-                <span className="text-[10px] font-medium text-[#3c3489] bg-[#eeedfe] rounded-[4px] px-1.5 py-0.5">예약</span>
-                <span className="text-[12px] font-medium text-[#212121]">위내시경 예약 + 공복 안내</span>
+            <div className="bg-[var(--blue-025)] border border-[var(--blue-100)] rounded-[8px] p-3 self-start max-w-[320px]">
+              <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-[var(--blue-050)]">
+                <span className="text-[10px] font-medium text-[var(--blue-700)] bg-[var(--blue-050)] rounded-[4px] px-1.5 py-0.5">예약</span>
+                <span className="text-[12px] font-medium text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
               </div>
-              <div className="text-[11px] text-[#212121] flex flex-col gap-1.5">
+              <div className="text-[11px] text-[var(--text-main)] flex flex-col gap-1.5">
                 <div className="flex gap-1.5"><span className="text-[#888] flex-shrink-0">📨 3일 전</span><span className="break-words">{template3}</span></div>
                 <div className="flex gap-1.5"><span className="text-[#888] flex-shrink-0">📨 1일 전</span><span className="break-words">{template1}</span></div>
                 <div className="flex gap-1.5"><span className="text-[#888] flex-shrink-0">⏰ 발송시각</span><span>{sendTime}</span></div>
@@ -459,10 +459,10 @@ function ConfirmScreen({
       </div>
 
       {/* 하단 버튼 — review 단계에서만 활성 */}
-      <div className="flex gap-2 px-5 py-3 border-t border-[#dbdbde] flex-shrink-0">
+      <div className="flex gap-2 px-5 py-3 border-t border-[var(--line-default)] flex-shrink-0">
         <button
           onClick={onBack}
-          className="w-[90px] h-[40px] border border-[#dbdbde] rounded-[8px] text-[13px] text-[#6b6b6b] flex-shrink-0 hover:bg-[#f7f7f7] transition-colors"
+          className="w-[90px] h-[40px] border border-[var(--line-default)] rounded-[8px] text-[13px] text-[var(--text-sub)] flex-shrink-0 hover:bg-[var(--bg-subtle)] transition-colors"
         >
           ← 처음으로
         </button>
@@ -471,8 +471,8 @@ function ConfirmScreen({
           disabled={!showReview}
           className={`flex-1 h-[40px] rounded-[8px] text-[13px] font-medium transition-colors ${
             showReview
-              ? "bg-[#534ab7] text-white hover:bg-[#4338a8] cursor-pointer"
-              : "bg-[#f0f0f0] text-[#999] cursor-not-allowed"
+              ? "bg-[var(--brand-primary-hover)] text-white hover:bg-[var(--brand-primary-pressed)] cursor-pointer"
+              : "bg-[var(--line-subtle)] text-[#999] cursor-not-allowed"
           }`}
         >
           {showReview ? "빠른메뉴로 저장하기" : "대화를 마치면 저장할 수 있어요"}
@@ -506,27 +506,27 @@ function CompleteScreen({
     <div className="flex-1 overflow-y-auto px-5 pt-8 pb-5 flex flex-col">
       {/* 성공 아이콘 */}
       <div className="flex flex-col items-center mb-8">
-        <div className="w-[56px] h-[56px] bg-[#E1F5EE] rounded-full flex items-center justify-center mb-4">
-          <span className="text-[24px] text-[#085041] font-bold leading-none">✓</span>
+        <div className="w-[56px] h-[56px] bg-[var(--status-success-bg-subtle)] rounded-full flex items-center justify-center mb-4">
+          <span className="text-[24px] text-[var(--green-700)] font-bold leading-none">✓</span>
         </div>
-        <p className="text-[16px] font-medium text-[#212121] mb-1.5">빠른메뉴에 추가했어요</p>
-        <p className="text-[12px] text-[#6b6b6b]">우측 빠른메뉴 영역에서 새 버튼을 확인하세요</p>
+        <p className="text-[16px] font-medium text-[var(--text-main)] mb-1.5">빠른메뉴에 추가했어요</p>
+        <p className="text-[12px] text-[var(--text-sub)]">우측 빠른메뉴 영역에서 새 버튼을 확인하세요</p>
       </div>
 
       {/* 미리보기 */}
       <p className="text-[11px] text-[#999] mb-2">미리보기</p>
-      <div className="border border-[#dbdbde] rounded-[8px] px-4 py-3 mb-6">
+      <div className="border border-[var(--line-default)] rounded-[8px] px-4 py-3 mb-6">
         <div className="mb-2">
-          <span className="text-[10px] font-medium text-[#3c3489] bg-[#eeedfe] rounded-[4px] px-1.5 py-0.5">예약</span>
+          <span className="text-[10px] font-medium text-[var(--blue-700)] bg-[var(--blue-050)] rounded-[4px] px-1.5 py-0.5">예약</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-[6px] h-[6px] rounded-full bg-[#D85A30] flex-shrink-0" />
-          <span className="text-[13px] font-medium text-[#212121]">위내시경 예약 + 공복 안내</span>
+          <div className="w-[6px] h-[6px] rounded-full bg-[var(--orange-500)] flex-shrink-0" />
+          <span className="text-[13px] font-medium text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
         </div>
       </div>
 
       {/* 다음 작업 */}
-      <p className="text-[11px] font-medium text-[#6b6b6b] mb-2.5">다음 작업</p>
+      <p className="text-[11px] font-medium text-[var(--text-sub)] mb-2.5">다음 작업</p>
       <div className="flex flex-col gap-2.5">
         {follow.map((f) => (
           <button
@@ -534,14 +534,14 @@ function CompleteScreen({
             onClick={f.onClick}
             className={`flex items-start gap-3 w-full rounded-[8px] px-4 py-3 text-left transition-colors ${
               f.accent
-                ? "bg-[#eeedfe] border border-[#534ab7] hover:bg-[#e4e2fc]"
-                : "bg-white border border-[#dbdbde] hover:border-[#999]"
+                ? "bg-[var(--blue-050)] border border-[var(--brand-primary-hover)] hover:bg-[var(--blue-050)]"
+                : "bg-white border border-[var(--line-default)] hover:border-[#999]"
             }`}
           >
-            <span className={`text-[14px] font-bold mt-0.5 flex-shrink-0 ${f.accent ? "text-[#3c3489]" : "text-[#212121]"}`}>{f.emoji}</span>
+            <span className={`text-[14px] font-bold mt-0.5 flex-shrink-0 ${f.accent ? "text-[var(--blue-700)]" : "text-[var(--text-main)]"}`}>{f.emoji}</span>
             <div>
-              <p className={`text-[13px] font-medium ${f.accent ? "text-[#26215c]" : "text-[#212121]"}`}>{f.title}</p>
-              <p className={`text-[11px] mt-0.5 ${f.accent ? "text-[#3c3489]" : "text-[#6b6b6b]"}`}>{f.sub}</p>
+              <p className={`text-[13px] font-medium ${f.accent ? "text-[var(--blue-800)]" : "text-[var(--text-main)]"}`}>{f.title}</p>
+              <p className={`text-[11px] mt-0.5 ${f.accent ? "text-[var(--blue-700)]" : "text-[var(--text-sub)]"}`}>{f.sub}</p>
             </div>
           </button>
         ))}
@@ -567,10 +567,10 @@ function UseMenuScreen({
   return (
     <div className="flex flex-col h-full">
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-5 h-[52px] border-b border-[#dbdbde] flex-shrink-0">
+      <div className="flex items-center justify-between px-5 h-[52px] border-b border-[var(--line-default)] flex-shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-[#534ab7] text-[14px] font-bold leading-none">✦</span>
-          <span className="text-[15px] font-bold text-[#212121]">위내시경 예약 + 공복 안내</span>
+          <span className="text-[var(--brand-primary-hover)] text-[14px] font-bold leading-none">✦</span>
+          <span className="text-[15px] font-bold text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
         </div>
         <button onClick={onClose} className="text-[#999] text-[14px] hover:text-[#555] leading-none">✕</button>
       </div>
@@ -578,20 +578,20 @@ function UseMenuScreen({
       <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
         {/* 날짜 */}
         <div>
-          <p className="text-[12px] font-medium text-[#212121] mb-2">📅 예약 날짜</p>
+          <p className="text-[12px] font-medium text-[var(--text-main)] mb-2">📅 예약 날짜</p>
           <div className="relative">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => { setSelectedDate(e.target.value); setSelectedTimeSlot(""); }}
-              className="w-full h-[38px] bg-[#faeeda] border border-[#ba7517] rounded-[6px] px-3 text-[13px] text-[#633806] outline-none cursor-pointer"
+              className="w-full h-[38px] bg-[var(--status-warning-bg-subtle)] border border-[var(--orange-700)] rounded-[6px] px-3 text-[13px] text-[var(--orange-700)] outline-none cursor-pointer"
             />
           </div>
         </div>
 
         {/* 시간 */}
         <div>
-          <p className="text-[12px] font-medium text-[#212121] mb-2">⏰ 예약 시간</p>
+          <p className="text-[12px] font-medium text-[var(--text-main)] mb-2">⏰ 예약 시간</p>
           <div className="grid grid-cols-4 gap-2">
             {TIME_SLOTS.map((slot) => {
               const isSelected = selectedTimeSlot === slot;
@@ -601,10 +601,10 @@ function UseMenuScreen({
                   onClick={() => dateSelected && setSelectedTimeSlot(slot)}
                   className={`h-[32px] rounded-[6px] border text-[12px] transition-colors ${
                     !dateSelected
-                      ? "opacity-50 border-[#dbdbde] text-[#999] cursor-not-allowed"
+                      ? "opacity-50 border-[var(--line-default)] text-[#999] cursor-not-allowed"
                       : isSelected
-                      ? "bg-[#eeedfe] border-[#534ab7] text-[#26215c] font-medium"
-                      : "bg-white border-[#dbdbde] text-[#212121] hover:border-[#534ab7] cursor-pointer"
+                      ? "bg-[var(--blue-050)] border-[var(--brand-primary-hover)] text-[var(--blue-800)] font-medium"
+                      : "bg-white border-[var(--line-default)] text-[var(--text-main)] hover:border-[var(--brand-primary-hover)] cursor-pointer"
                   }`}
                 >
                   {slot}
@@ -616,18 +616,18 @@ function UseMenuScreen({
       </div>
 
       {/* 버튼 */}
-      <div className="flex justify-end gap-2 px-5 py-3 border-t border-[#dbdbde] flex-shrink-0">
+      <div className="flex justify-end gap-2 px-5 py-3 border-t border-[var(--line-default)] flex-shrink-0">
         <button
           onClick={onCancel}
-          className="w-[80px] h-[40px] border border-[#dbdbde] rounded-[8px] text-[13px] text-[#6b6b6b] hover:bg-[#f7f7f7] transition-colors"
+          className="w-[80px] h-[40px] border border-[var(--line-default)] rounded-[8px] text-[13px] text-[var(--text-sub)] hover:bg-[var(--bg-subtle)] transition-colors"
         >
           취소
         </button>
         <button
           className={`w-[92px] h-[40px] rounded-[8px] text-[13px] font-bold transition-colors ${
             canReserve
-              ? "bg-[#534ab7] text-white hover:bg-[#4338a8] cursor-pointer"
-              : "bg-[#f0f0f0] text-[#999] cursor-not-allowed"
+              ? "bg-[var(--brand-primary-hover)] text-white hover:bg-[var(--brand-primary-pressed)] cursor-pointer"
+              : "bg-[var(--line-subtle)] text-[#999] cursor-not-allowed"
           }`}
         >
           예약
@@ -682,7 +682,7 @@ export function AIAssistant({
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-[9995] bg-white border border-[#dbdbde] shadow-2xl flex flex-col overflow-hidden rounded-[12px] transition-all duration-300 ${
+      className={`fixed bottom-6 right-6 z-[9995] bg-white border border-[var(--line-default)] shadow-2xl flex flex-col overflow-hidden rounded-[12px] transition-all duration-300 ${
         isUseMenu ? "w-[400px]" : "w-[440px] h-[720px]"
       }`}
       style={{ fontFamily: "'Noto Sans KR', sans-serif", ...(isUseMenu ? { height: "auto" } : {}) }}
