@@ -253,7 +253,12 @@ const TAB_LABELS: { key: TabKey; label: string }[] = [
   { key: "수납완료", label: "수납완료" },
 ];
 
-export function PanelA() {
+export function PanelA({
+  // 환자명 클릭 → 환자 자세히보기 모달 열기. EmrScreen 에서 주입.
+  onPatientNameClick,
+}: {
+  onPatientNameClick?: (patientId: string) => void;
+} = {}) {
   const [activeTab, setActiveTab] = useState<TabKey>("대기");
   const [activeRoom, setActiveRoom] = useState(ROOMS[0]);
   // 환자 행 우클릭 컨텍스트 메뉴
@@ -508,10 +513,19 @@ export function PanelA() {
                   p.status === "진료중" ? "bg-[var(--bg-primary-subtle)]" : "bg-white"
                 }`}
               >
-                {/* Row 1: chart no + name + gender/age + 우측 */}
+                {/* Row 1: chart no + name + gender/age + 우측. 이름 클릭 → 환자 자세히보기 모달 (initialTab="기본정보"). */}
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="text-xs text-[var(--text-tertiary)] tabular-nums flex-shrink-0">{p.id}</span>
-                  <span className="text-lg font-bold text-[var(--text-main)] truncate">{p.name}</span>
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();  // 행 클릭 이벤트 차단 — 모달 열기만 처리
+                      onPatientNameClick?.(p.id);
+                    }}
+                    title="환자 자세히보기"
+                    className="text-lg font-bold text-[var(--text-main)] truncate hover:text-[var(--brand-primary)] hover:underline text-left"
+                  >
+                    {p.name}
+                  </button>
                   <span className="text-sm text-[var(--text-sub)] tabular-nums flex-shrink-0">{p.gender}/{p.age}</span>
                   {renderRow1Right()}
                 </div>

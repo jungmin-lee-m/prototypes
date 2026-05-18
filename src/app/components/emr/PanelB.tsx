@@ -425,7 +425,12 @@ function ClassificationTab() {
 // • 헤더 한 줄에 이름 / 차트번호 뱃지 / 본인확인 ✓ / 보험chip / 공단검진chip / 편집
 // • 스크롤 없음 — 모든 정보가 한 화면에 들어감
 // • 보험·공단검진은 클릭 팝오버로 자세한 정보 노출
-export function PatientInfoCard() {
+export function PatientInfoCard({
+  // 환자명 클릭 → 환자 자세히보기 모달. EmrScreen 에서 주입.
+  onPatientNameClick,
+}: {
+  onPatientNameClick?: (patientId: string) => void;
+} = {}) {
   const p = PATIENT_PROFILE;
   const ins = INSURANCE_LOOKUP;
   const insBtnRef = useRef<HTMLButtonElement>(null);
@@ -453,7 +458,13 @@ export function PatientInfoCard() {
       {/* ── 헤더 — [chart#] 환자명 + 처방금지 아이콘 + 보험·검진 chip 한 줄 ── */}
       <div className="flex items-center gap-2 px-2.5 pt-1.5 pb-1 pr-9 flex-shrink-0">
         <ChartNoBadge no={p.chartNo} />
-        <span className="text-xl font-bold text-[var(--text-main)]">{p.name}</span>
+        <button
+          onClick={() => onPatientNameClick?.(p.chartNo)}
+          title="환자 자세히보기"
+          className="text-xl font-bold text-[var(--text-main)] hover:text-[var(--brand-primary)] hover:underline"
+        >
+          {p.name}
+        </button>
         {/* 처방금지 아이콘 — 클릭 시 약품 리스트 팝오버 */}
         {BANNED_DRUGS.length > 0 && (
           <button

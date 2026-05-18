@@ -5,6 +5,7 @@ import { LNB, type LNBItem } from "./LNB";
 import { TopBar } from "./TopBar";
 import { DashboardScreen } from "./DashboardScreen";
 import { EndOfDayReport } from "./EndOfDayReport";
+import { PatientDetailModal, type PatientDetailTab } from "./PatientDetailModal";
 import { PanelA } from "./PanelA";
 import { PanelB, PatientInfoCard, AISummaryCard } from "./PanelB";
 import { PanelC } from "./PanelC";
@@ -138,6 +139,15 @@ export function EmrScreen() {
   const [showReport, setShowReport] = useState(false);
   const openReport  = () => { setShowReport(true); };
   const closeReport = () => { setShowReport(false); };
+
+  // 환자 자세히보기 모달 — 진입점에 따라 첫 탭이 달라짐 (initialTab).
+  //   - PanelA 환자명 클릭 → "기본정보"
+  //   - 내원이력 자세히보기 → "내원이력"  (추후 다른 진입점에서 추가)
+  const [detailPatient, setDetailPatient] = useState<{ id: string; initialTab: PatientDetailTab } | null>(null);
+  const openPatientDetail = (id: string, initialTab: PatientDetailTab = "기본정보") => {
+    setDetailPatient({ id, initialTab });
+  };
+  const closePatientDetail = () => setDetailPatient(null);
 
   // ── 진료 녹음 + STT SOAP 자동 작성 ──────────────────────────
   // 녹음 버튼 → setInterval 두 개 시작:
@@ -281,7 +291,7 @@ export function EmrScreen() {
               {/* LEFT: A(붙박이) + B + C — id로 펼쳐보기 portal 타깃 */}
               <Panel defaultSize={38} minSize={26} className="!overflow-visible">
                 <div id="emr-left-panels" className="relative flex h-full overflow-hidden">
-                  <PanelA />
+                  <PanelA onPatientNameClick={id => openPatientDetail(id, "기본정보")} />
                   {layout === 1 ? (
                     /* Layout 1: B 세로 스택 | C 내원이력 */
                     <PanelGroup direction="horizontal" className="flex-1">
@@ -313,7 +323,7 @@ export function EmrScreen() {
                       <PanelGroup direction="vertical" className="w-full h-full">
                         {/* 1단: 환자정보 (전체폭) — 푸터에 최근 바이탈 1줄 컴팩트 노출 */}
                         <Panel defaultSize={20} minSize={14}>
-                          <PatientInfoCard />
+                          <PatientInfoCard onPatientNameClick={id => openPatientDetail(id, "기본정보")} />
                         </Panel>
                         <PanelResizeHandle className="h-1 hover:bg-[var(--brand-primary)]/30 active:bg-[var(--brand-primary)]/50 transition-colors" />
                         {/* 2단: AI 요약 | 임상메모 (좌우) */}
@@ -418,6 +428,15 @@ export function EmrScreen() {
         <EndOfDayReport onClose={closeReport} />
       )}
       {/* 하단 플로팅 "오늘 내원 현황" 버튼 제거 — 상단 TopBar 의 동일 액션 버튼만 유지 */}
+
+      {/* 환자 자세히보기 모달 — 진입점에 따라 initialTab 결정 */}
+      {detailPatient && (
+        <PatientDetailModal
+          patientId={detailPatient.id}
+          initialTab={detailPatient.initialTab}
+          onClose={closePatientDetail}
+        />
+      )}
     </div>
   );
 }
