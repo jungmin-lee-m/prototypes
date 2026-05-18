@@ -4,7 +4,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { LNB, type LNBItem } from "./LNB";
 import { TopBar } from "./TopBar";
 import { DashboardScreen } from "./DashboardScreen";
-import { EndOfDayReport, EndOfDayReportFab } from "./EndOfDayReport";
+import { EndOfDayReport } from "./EndOfDayReport";
 import { PanelA } from "./PanelA";
 import { PanelB, PatientInfoCard, AISummaryCard } from "./PanelB";
 import { PanelC } from "./PanelC";
@@ -134,10 +134,9 @@ export function EmrScreen() {
   const [todayClinicalNote, setTodayClinicalNote] = useState<string>(INIT_CLINICAL_NOTE);
   const [layout, setLayout] = useState<1 | 2>(2);
   const [lnbActive, setLnbActive] = useState<LNBItem>("진료");
-  // 오늘의 리포트 모달 — 진료실에서만 노출. 한 번이라도 열린 적이 있으면 플로팅 버튼 노출.
+  // 오늘 내원 현황 모달 — 진료실에서만 노출. 상단 TopBar 의 버튼으로만 열림.
   const [showReport, setShowReport] = useState(false);
-  const [reportEverOpened, setReportEverOpened] = useState(false);
-  const openReport  = () => { setShowReport(true); setReportEverOpened(true); };
+  const openReport  = () => { setShowReport(true); };
   const closeReport = () => { setShowReport(false); };
 
   // ── 진료 녹음 + STT SOAP 자동 작성 ──────────────────────────
@@ -384,8 +383,8 @@ export function EmrScreen() {
 
       {toast && (
         <div className="fixed bottom-6 right-6 z-[9999] flex items-center gap-2 bg-[var(--bg-inverse)] text-white px-4 py-2.5 rounded-xl shadow-2xl pointer-events-none select-none">
-          <span className="text-[var(--green-500)] text-[15px]">↩</span>
-          <span className="text-[12px] font-medium">{toast}</span>
+          <span className="text-[var(--green-500)] text-xl">↩</span>
+          <span className="text-md font-medium">{toast}</span>
         </div>
       )}
 
@@ -418,11 +417,7 @@ export function EmrScreen() {
       {lnbActive === "진료" && showReport && (
         <EndOfDayReport onClose={closeReport} />
       )}
-
-      {/* 오늘의 리포트 다시 보기 플로팅 버튼 — 모달이 한 번이라도 열렸다 닫혔을 때 */}
-      {lnbActive === "진료" && reportEverOpened && !showReport && (
-        <EndOfDayReportFab onClick={openReport} />
-      )}
+      {/* 하단 플로팅 "오늘 내원 현황" 버튼 제거 — 상단 TopBar 의 동일 액션 버튼만 유지 */}
     </div>
   );
 }

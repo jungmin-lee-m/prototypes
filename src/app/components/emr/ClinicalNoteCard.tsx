@@ -101,8 +101,8 @@ export function ClinicalNoteCard({
       {/* 헤더 — 환자 단위 누적 메모임을 명시하는 서브타이틀 */}
       <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-[var(--line-default)] flex-shrink-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-[12px] font-bold text-[var(--text-main)]">임상메모</span>
-          <span className="text-[9px] text-[var(--text-tertiary)]">환자 누적</span>
+          <span className="text-md font-bold text-[var(--text-main)]">임상메모</span>
+          <span className="text-micro text-[var(--text-tertiary)]">환자 누적</span>
         </div>
       </div>
 
@@ -121,22 +121,22 @@ export function ClinicalNoteCard({
                       if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) savePinEdit();
                       if (e.key === "Escape") cancelPinEdit();
                     }}
-                    className="w-full min-h-[60px] text-[11px] text-[var(--text-main)] leading-[16px] px-2 py-1.5 border border-[var(--brand-primary)] rounded bg-white outline-none resize-none"
+                    className="w-full min-h-[60px] text-sm text-[var(--text-main)] leading-[16px] px-2 py-1.5 border border-[var(--brand-primary)] rounded bg-white outline-none resize-none"
                   />
                   <div className="flex items-center justify-end gap-1">
                     <button onClick={cancelPinEdit}
-                      className="h-6 px-2 text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)]">
+                      className="h-6 px-2 text-xs text-[var(--text-tertiary)] hover:text-[var(--text-sub)]">
                       취소
                     </button>
                     <button onClick={savePinEdit}
-                      className="h-6 px-2.5 text-[10px] font-bold text-white bg-[var(--brand-primary)] rounded hover:opacity-90">
+                      className="h-6 px-2.5 text-xs font-bold text-white bg-[var(--brand-primary)] rounded hover:opacity-90">
                       저장
                     </button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <p className="text-[11px] text-[var(--text-main)] leading-[16px] whitespace-pre-line pr-12">{p.text}</p>
+                  <p className="text-sm text-[var(--text-main)] leading-[16px] whitespace-pre-line pr-12">{p.text}</p>
                   <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => startEditPin(p.id, p.text)} title="편집"
                       className="w-5 h-5 flex items-center justify-center rounded hover:bg-white/70 text-[var(--text-tertiary)] hover:text-[var(--brand-primary)]">
@@ -168,7 +168,7 @@ export function ClinicalNoteCard({
         onKeyUp={handleNoteSelection}
         onBlur={() => setTimeout(() => setNoteSelection(null), 150)}
         placeholder="임상메모를 입력해주세요. ('/' 입력하여 상용구 검색, 텍스트를 선택하면 서식·상용구·고정 도구가 나타납니다)"
-        className="flex-1 p-3 text-[11px] text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent overflow-y-auto"
+        className="flex-1 p-3 text-sm text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent overflow-y-auto"
       />
 
       {/* 즐겨찾기 상용구 — preset + 사용자 등록 */}
@@ -188,7 +188,7 @@ export function ClinicalNoteCard({
           }}
           onMouseDown={e => e.preventDefault()}
         >
-          <button title="굵게" className="w-7 h-7 flex items-center justify-center text-[12px] font-bold text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded">B</button>
+          <button title="굵게" className="w-7 h-7 flex items-center justify-center text-md font-bold text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded">B</button>
           <button title="색상" className="w-7 h-7 flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
               <circle cx="8" cy="8" r="5" stroke="currentColor" strokeWidth="1.4" />
@@ -200,7 +200,7 @@ export function ClinicalNoteCard({
               <path d="M3 13L4 10L11 3L13 5L6 12L3 13Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
             </svg>
           </button>
-          <button title="제목" className="w-7 h-7 flex items-center justify-center text-[11px] font-bold text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded">H1</button>
+          <button title="제목" className="w-7 h-7 flex items-center justify-center text-sm font-bold text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded">H1</button>
           <button title="목록" className="w-7 h-7 flex items-center justify-center text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
               <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -214,12 +214,12 @@ export function ClinicalNoteCard({
           <span className="w-px h-5 bg-[var(--line-default)] mx-0.5" />
           <button onClick={registerSnippet}
             title="선택 텍스트를 상용구로 등록"
-            className="h-7 px-2 text-[11px] font-medium text-[var(--text-main)] hover:bg-[var(--bg-primary-subtle)] hover:text-[var(--brand-primary)] rounded transition-colors">
+            className="h-7 px-2 text-sm font-medium text-[var(--text-main)] hover:bg-[var(--bg-primary-subtle)] hover:text-[var(--brand-primary)] rounded transition-colors">
             상용구
           </button>
           <button onClick={pinSelection}
             title="선택 텍스트를 고정"
-            className="h-7 px-2 text-[11px] font-medium text-[var(--text-main)] hover:bg-[var(--bg-primary-subtle)] hover:text-[var(--brand-primary)] rounded transition-colors">
+            className="h-7 px-2 text-sm font-medium text-[var(--text-main)] hover:bg-[var(--bg-primary-subtle)] hover:text-[var(--brand-primary)] rounded transition-colors">
             고정
           </button>
         </div>,

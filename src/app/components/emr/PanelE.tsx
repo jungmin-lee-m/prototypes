@@ -115,7 +115,7 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: b
 // 표 헤더 셀 — 컴팩트하게 11px 굵은 글씨
 function ThCell({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <th className={`text-[11px] font-bold text-[var(--text-sub)] text-left px-1.5 py-1.5 whitespace-nowrap ${className}`}>
+    <th className={`text-sm font-bold text-[var(--text-sub)] text-left px-1.5 py-1.5 whitespace-nowrap ${className}`}>
       {children}
     </th>
   );
@@ -160,7 +160,7 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 h-12 border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[15px] font-bold text-[var(--text-main)]">신규 묶음 등록</span>
+          <span className="text-xl font-bold text-[var(--text-main)]">신규 묶음 등록</span>
           <button onClick={onClose} className="w-7 h-7 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)]" aria-label="닫기">
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
               <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -173,13 +173,13 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
           {/* Section 1: 묶음 신규 추가 ─────────────────────────── */}
           <section className="border border-[var(--line-default)] rounded-md">
             <div className="flex items-center justify-between px-3 h-9 border-b border-[var(--line-default)] bg-[var(--bg-subtle)]">
-              <span className="text-[12px] font-bold text-[var(--text-main)]">묶음 신규 추가</span>
+              <span className="text-md font-bold text-[var(--text-main)]">묶음 신규 추가</span>
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-1.5 text-[11px] text-[var(--text-sub)]">
+                <label className="flex items-center gap-1.5 text-sm text-[var(--text-sub)]">
                   즐겨찾기
                   <ToggleSwitch checked={favorite} onChange={setFavorite} />
                 </label>
-                <label className="flex items-center gap-1.5 text-[11px] text-[var(--text-sub)]">
+                <label className="flex items-center gap-1.5 text-sm text-[var(--text-sub)]">
                   사용여부
                   <ToggleSwitch checked={active} onChange={setActive} />
                 </label>
@@ -188,12 +188,12 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
             <div className="grid gap-3 px-3 py-3" style={{ gridTemplateColumns: "200px 1fr 1fr 160px 1.4fr" }}>
               {/* 카테고리 */}
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-medium text-[var(--text-sub)]">카테고리</span>
+                <span className="text-sm font-medium text-[var(--text-sub)]">카테고리</span>
                 <div className="flex items-center gap-1">
                   <select
                     value={mainCat}
                     onChange={e => { setMainCat(e.target.value); setSubCat("선택안함"); }}
-                    className="flex-1 h-8 px-1.5 text-[11px] border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)]"
+                    className="flex-1 h-8 px-1.5 text-sm border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)]"
                   >
                     <option value="선택안함">선택안함</option>
                     {MAIN_CATEGORIES.map(c => <option key={c.label} value={c.label}>{c.label.replace("★ ", "")}</option>)}
@@ -202,7 +202,7 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
                     value={subCat}
                     onChange={e => setSubCat(e.target.value)}
                     disabled={mainCat === "선택안함"}
-                    className="flex-1 h-8 px-1.5 text-[11px] border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)] disabled:bg-[var(--bg-subtle)] disabled:text-[var(--text-tertiary)]"
+                    className="flex-1 h-8 px-1.5 text-sm border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)] disabled:bg-[var(--bg-subtle)] disabled:text-[var(--text-tertiary)]"
                   >
                     <option value="선택안함">선택안함</option>
                     {subCategoriesForMain.map(s => <option key={s.label} value={s.label}>{s.label}</option>)}
@@ -211,35 +211,35 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
               </div>
               {/* 묶음코드 */}
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-medium text-[var(--text-sub)]">
+                <span className="text-sm font-medium text-[var(--text-sub)]">
                   묶음코드 <span className="text-[var(--red-500)]">*</span>
                 </span>
                 <input
                   value={code}
                   onChange={e => setCode(e.target.value)}
-                  className="h-8 px-2 text-[11px] border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)]"
+                  className="h-8 px-2 text-sm border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)]"
                 />
               </div>
               {/* 묶음명칭 */}
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-medium text-[var(--text-sub)]">
+                <span className="text-sm font-medium text-[var(--text-sub)]">
                   묶음명칭 <span className="text-[var(--red-500)]">*</span>
                 </span>
                 <input
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="h-8 px-2 text-[11px] border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)]"
+                  className="h-8 px-2 text-sm border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)]"
                 />
               </div>
               {/* 묶음가 */}
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-medium text-[var(--text-sub)]">
+                <span className="text-sm font-medium text-[var(--text-sub)]">
                   묶음가 <span className="text-[var(--red-500)]">*</span>
                 </span>
                 <select
                   value={priceMode}
                   onChange={e => setPriceMode(e.target.value)}
-                  className="h-8 px-1.5 text-[11px] border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)]"
+                  className="h-8 px-1.5 text-sm border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)]"
                 >
                   <option>단가합산</option>
                   <option>고정가</option>
@@ -248,17 +248,17 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
               </div>
               {/* 기타 */}
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-medium text-[var(--text-sub)]">기타</span>
+                <span className="text-sm font-medium text-[var(--text-sub)]">기타</span>
                 <div className="flex items-center gap-3 h-8">
-                  <label className="flex items-center gap-1 text-[11px] text-[var(--text-main)] cursor-pointer">
+                  <label className="flex items-center gap-1 text-sm text-[var(--text-main)] cursor-pointer">
                     <input type="checkbox" checked={unbundle} onChange={e => setUnbundle(e.target.checked)} className="accent-[var(--brand-primary)]" />
                     묶음풀어서처방
                   </label>
-                  <label className="flex items-center gap-1 text-[11px] text-[var(--text-main)] cursor-pointer">
+                  <label className="flex items-center gap-1 text-sm text-[var(--text-main)] cursor-pointer">
                     <input type="checkbox" checked={verbal} onChange={e => setVerbal(e.target.checked)} className="accent-[var(--brand-primary)]" />
                     구두처방 가능
                   </label>
-                  <label className="flex items-center gap-1 text-[11px] text-[var(--text-main)] cursor-pointer">
+                  <label className="flex items-center gap-1 text-sm text-[var(--text-main)] cursor-pointer">
                     <input type="checkbox" checked={noBilling} onChange={e => setNoBilling(e.target.checked)} className="accent-[var(--brand-primary)]" />
                     내원일 비청구
                   </label>
@@ -298,23 +298,23 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
                       }`}
                     >
                       <td className="px-1.5 py-1 text-center">
-                        <span className={`text-[12px] ${isActive ? "text-[var(--orange-500)]" : "text-[var(--text-tertiary)]"}`}>⊕</span>
+                        <span className={`text-md ${isActive ? "text-[var(--orange-500)]" : "text-[var(--text-tertiary)]"}`}>⊕</span>
                       </td>
-                      <td className="px-1.5 py-1 text-[11px] font-mono text-[var(--text-main)]">{d.code}</td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-main)]">{d.name}</td>
+                      <td className="px-1.5 py-1 text-sm font-mono text-[var(--text-main)]">{d.code}</td>
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-main)]">{d.name}</td>
                       <td className="px-1.5 py-1 text-center"><input type="checkbox" className="accent-[var(--brand-primary)]" /></td>
                       <td className="px-1.5 py-1 text-center"><input type="checkbox" className="accent-[var(--brand-primary)]" /></td>
                       <td className="px-1.5 py-1 text-center"><input type="checkbox" className="accent-[var(--brand-primary)]" /></td>
                       <td className="px-1.5 py-1 text-center"><input type="checkbox" className="accent-[var(--brand-primary)]" /></td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-main)]">
-                        <select defaultValue={d.dept} className="h-6 px-1 text-[11px] border border-[var(--line-default)] rounded bg-white outline-none w-full">
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-main)]">
+                        <select defaultValue={d.dept} className="h-6 px-1 text-sm border border-[var(--line-default)] rounded bg-white outline-none w-full">
                           <option>피부과</option><option>내과</option><option>가정의학과</option>
                         </select>
                       </td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-tertiary)]">—</td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-tertiary)]">—</td>
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-tertiary)]">—</td>
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-tertiary)]">—</td>
                       <td className="px-1.5 py-1 text-center"><input type="checkbox" className="accent-[var(--brand-primary)]" /></td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-tertiary)]">—</td>
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-tertiary)]">—</td>
                     </tr>
                   );
                 })}
@@ -328,7 +328,7 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
               </svg>
               <input
                 placeholder="상병 검색"
-                className="flex-1 h-6 text-[11px] outline-none bg-transparent placeholder:text-[var(--text-tertiary)]"
+                className="flex-1 h-6 text-sm outline-none bg-transparent placeholder:text-[var(--text-tertiary)]"
               />
             </div>
           </section>
@@ -366,27 +366,27 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
                           <path d="M5 4l4 4-4 4M12 3v10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
                         </svg>
                       </td>
-                      <td className="px-1.5 py-1 text-[11px] font-mono text-[var(--text-main)]">{r.userCode}</td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-main)]">{r.name}</td>
-                      <td className="px-1.5 py-1 text-[11px] text-center tabular-nums">{r.dose}</td>
-                      <td className="px-1.5 py-1 text-[11px] text-center tabular-nums">{r.per}</td>
-                      <td className="px-1.5 py-1 text-[11px] text-center tabular-nums">{r.days}</td>
-                      <td className="px-1.5 py-1 text-[11px] text-center tabular-nums">{r.usage}</td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-tertiary)]">{r.spec || "—"}</td>
+                      <td className="px-1.5 py-1 text-sm font-mono text-[var(--text-main)]">{r.userCode}</td>
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-main)]">{r.name}</td>
+                      <td className="px-1.5 py-1 text-sm text-center tabular-nums">{r.dose}</td>
+                      <td className="px-1.5 py-1 text-sm text-center tabular-nums">{r.per}</td>
+                      <td className="px-1.5 py-1 text-sm text-center tabular-nums">{r.days}</td>
+                      <td className="px-1.5 py-1 text-sm text-center tabular-nums">{r.usage}</td>
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-tertiary)]">{r.spec || "—"}</td>
                       <td className="px-1.5 py-1 text-center">
-                        <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold text-white ${
+                        <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-xs font-bold text-white ${
                           r.claim === "청" ? "bg-[var(--orange-500)]" : "bg-[var(--text-tertiary)]"
                         }`}>{r.claim}</span>
                       </td>
                       <td className="px-1.5 py-1 text-center">
-                        <span className={`inline-flex items-center justify-center px-1.5 h-5 rounded text-[10px] font-medium ${
+                        <span className={`inline-flex items-center justify-center px-1.5 h-5 rounded text-xs font-medium ${
                           r.payment === "보험가" ? "bg-[var(--orange-50,#FFF7ED)] text-[var(--orange-500)]" : "bg-[var(--bg-subtle)] text-[var(--text-sub)]"
                         }`}>{r.payment}</span>
                       </td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-tertiary)]">{r.sample || "—"}</td>
-                      <td className="px-1.5 py-1 text-[11px] tabular-nums text-[var(--text-main)]">{r.price}</td>
-                      <td className="px-1.5 py-1 text-[11px] text-[var(--text-tertiary)]">{r.unit || "—"}</td>
-                      <td className="px-1.5 py-1 text-[11px] font-mono text-[var(--text-tertiary)]">{r.billCode}</td>
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-tertiary)]">{r.sample || "—"}</td>
+                      <td className="px-1.5 py-1 text-sm tabular-nums text-[var(--text-main)]">{r.price}</td>
+                      <td className="px-1.5 py-1 text-sm text-[var(--text-tertiary)]">{r.unit || "—"}</td>
+                      <td className="px-1.5 py-1 text-sm font-mono text-[var(--text-tertiary)]">{r.billCode}</td>
                       <td className="px-1.5 py-1 text-center"><input type="checkbox" defaultChecked={r.exception} className="accent-[var(--brand-primary)]" /></td>
                       <td className="px-1.5 py-1 text-center"><input type="checkbox" defaultChecked={r.inHouse} className="accent-[var(--brand-primary)]" /></td>
                       <td className="px-1.5 py-1 text-center"><input type="checkbox" defaultChecked={r.powder} className="accent-[var(--brand-primary)]" /></td>
@@ -403,7 +403,7 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
               </svg>
               <input
                 placeholder="처방 검색"
-                className="flex-1 h-6 text-[11px] outline-none bg-transparent placeholder:text-[var(--text-tertiary)]"
+                className="flex-1 h-6 text-sm outline-none bg-transparent placeholder:text-[var(--text-tertiary)]"
               />
             </div>
           </section>
@@ -413,18 +413,18 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
             {/* 증상 */}
             <div className="border border-[var(--line-default)] rounded-md flex flex-col">
               <div className="flex items-center justify-between px-3 h-8 border-b border-[var(--line-default)] bg-[var(--bg-subtle)]">
-                <span className="text-[11px] font-bold text-[var(--text-main)]">증상</span>
+                <span className="text-sm font-bold text-[var(--text-main)]">증상</span>
               </div>
               <textarea
                 value={symptom}
                 onChange={e => setSymptom(e.target.value)}
                 rows={4}
                 placeholder="('/' 입력하여 상용구 검색)"
-                className="px-3 py-2 text-[11px] text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent"
+                className="px-3 py-2 text-sm text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent"
               />
               <div className="flex items-center gap-1 px-2 py-1.5 border-t border-[var(--line-default)] bg-[var(--bg-base)]">
                 {["1st", "2nd", "abd"].map(t => (
-                  <button key={t} className="text-[10px] px-2 py-0.5 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">
+                  <button key={t} className="text-xs px-2 py-0.5 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">
                     {t}
                   </button>
                 ))}
@@ -433,19 +433,19 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
             {/* 특정내역(MX999) */}
             <div className="border border-[var(--line-default)] rounded-md flex flex-col">
               <div className="flex items-center justify-between px-3 h-8 border-b border-[var(--line-default)] bg-[var(--bg-subtle)]">
-                <span className="text-[11px] font-bold text-[var(--text-main)]">특정내역(MX999)</span>
-                <span className="text-[10px] text-[var(--text-tertiary)] tabular-nums">{new Blob([mx999]).size}/700 bytes</span>
+                <span className="text-sm font-bold text-[var(--text-main)]">특정내역(MX999)</span>
+                <span className="text-xs text-[var(--text-tertiary)] tabular-nums">{new Blob([mx999]).size}/700 bytes</span>
               </div>
               <textarea
                 value={mx999}
                 onChange={e => setMx999(e.target.value)}
                 rows={4}
                 placeholder="특정내역(MX999)을 입력해주세요."
-                className="px-3 py-2 text-[11px] text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent"
+                className="px-3 py-2 text-sm text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent"
               />
               <div className="flex items-center gap-1 px-2 py-1.5 border-t border-[var(--line-default)] bg-[var(--bg-base)]">
                 {["1st", "2nd", "abd"].map(t => (
-                  <button key={t} className="text-[10px] px-2 py-0.5 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">
+                  <button key={t} className="text-xs px-2 py-0.5 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">
                     {t}
                   </button>
                 ))}
@@ -456,13 +456,13 @@ function NewSetModal({ onClose, onSave }: { onClose: () => void; onSave: () => v
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-5 h-13 py-3 border-t border-[var(--line-default)] flex-shrink-0 bg-white">
-          <button onClick={onClose} className="h-9 px-4 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+          <button onClick={onClose} className="h-9 px-4 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
             취소
           </button>
           <button
             onClick={() => { if (canSave) onSave(); }}
             disabled={!canSave}
-            className={`h-9 px-5 text-[12px] font-bold rounded-md text-white transition-colors ${
+            className={`h-9 px-5 text-md font-bold rounded-md text-white transition-colors ${
               canSave ? "bg-[var(--text-main)] hover:opacity-90" : "bg-[var(--text-disabled)] cursor-not-allowed"
             }`}
           >
@@ -492,16 +492,16 @@ export function PanelE() {
       <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[12px] font-bold text-[var(--text-main)]">묶음처방</span>
+          <span className="text-md font-bold text-[var(--text-main)]">묶음처방</span>
           <div className="flex items-center gap-1 bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-[6px] px-2 h-7 flex-1">
             <div className="w-3 h-3 bg-[var(--text-tertiary)] rounded-sm flex-shrink-0" />
-            <span className="text-[10px] text-[var(--text-tertiary)]">묶음 검색</span>
+            <span className="text-xs text-[var(--text-tertiary)]">묶음 검색</span>
           </div>
-          <button className="w-6 h-6 border border-[var(--line-default)] rounded-[4px] flex items-center justify-center text-[11px] text-[var(--text-sub)]">⚙</button>
+          <button className="w-6 h-6 border border-[var(--line-default)] rounded-[4px] flex items-center justify-center text-sm text-[var(--text-sub)]">⚙</button>
           <button
             onClick={() => setNewSetOpen(true)}
             title="현재 차트 내용으로 묶음 신규 등록"
-            className="w-6 h-6 border border-[var(--line-default)] bg-white rounded-[4px] flex items-center justify-center text-[var(--text-sub)] text-[13px] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors"
+            className="w-6 h-6 border border-[var(--line-default)] bg-white rounded-[4px] flex items-center justify-center text-[var(--text-sub)] text-lg hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors"
           >+</button>
         </div>
 
@@ -513,14 +513,14 @@ export function PanelE() {
               <button
                 key={cat.label}
                 onClick={() => { setActiveMain(cat.label); setActiveSub("전체"); }}
-                className={`flex items-center gap-1 h-6 px-2 rounded-md text-[10px] font-medium border whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1 h-6 px-2 rounded-md text-xs font-medium border whitespace-nowrap transition-colors ${
                   active
                     ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] font-bold"
                     : "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:bg-[var(--bg-subtle)]"
                 }`}
               >
                 {cat.label}
-                <span className={`text-[9px] tabular-nums ${active ? "opacity-80" : "text-[var(--text-tertiary)]"}`}>{cat.count}</span>
+                <span className={`text-micro tabular-nums ${active ? "opacity-80" : "text-[var(--text-tertiary)]"}`}>{cat.count}</span>
               </button>
             );
           })}
@@ -534,14 +534,14 @@ export function PanelE() {
               <button
                 key={sub.label}
                 onClick={() => setActiveSub(sub.label)}
-                className={`flex items-center gap-1 h-6 px-2 rounded-md text-[10px] font-medium whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1 h-6 px-2 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
                   active
                     ? "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] border border-[var(--brand-primary)]"
                     : "bg-[var(--bg-subtle)] text-[var(--text-sub)] border border-transparent hover:bg-white hover:border-[var(--line-default)]"
                 }`}
               >
                 {sub.label}
-                <span className={`text-[9px] tabular-nums ${active ? "opacity-80" : "text-[var(--text-tertiary)]"}`}>{sub.count}</span>
+                <span className={`text-micro tabular-nums ${active ? "opacity-80" : "text-[var(--text-tertiary)]"}`}>{sub.count}</span>
               </button>
             );
           })}
@@ -549,10 +549,10 @@ export function PanelE() {
 
         {/* Current Category Bar */}
         <div className="flex items-center justify-between px-2.5 py-1 bg-[var(--bg-subtle)] border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[10px] text-[var(--text-sub)]">
+          <span className="text-xs text-[var(--text-sub)]">
             {activeMain} <span className="text-[var(--text-tertiary)]">›</span> {activeSub} · <span className="font-bold text-[var(--text-main)]">{currentSubInfo.count}</span>개 묶음
           </span>
-          <button className="text-[10px] text-[var(--text-sub)]">이름순 ▾</button>
+          <button className="text-xs text-[var(--text-sub)]">이름순 ▾</button>
         </div>
 
         {/* 묶음 List — 컴팩트 행 */}
@@ -563,21 +563,21 @@ export function PanelE() {
               <div key={item.id} className="border-b border-[var(--line-subtle)]">
                 {/* 메인 행 — 한 줄 */}
                 <div className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-[var(--bg-subtle)] cursor-pointer">
-                  <span className={`text-[12px] flex-shrink-0 ${item.starred ? "text-[var(--orange-500)]" : "text-[var(--text-disabled)]"}`}>
+                  <span className={`text-md flex-shrink-0 ${item.starred ? "text-[var(--orange-500)]" : "text-[var(--text-disabled)]"}`}>
                     {item.starred ? "★" : "☆"}
                   </span>
-                  <span className="text-[11px] font-medium text-[var(--text-main)] truncate flex-1 min-w-0">{item.name}</span>
-                  <span className="text-[10px] text-[var(--text-tertiary)] tabular-nums flex-shrink-0">{item.count}항목</span>
-                  <span className="text-[10px] font-medium text-[var(--brand-primary)] tabular-nums flex-shrink-0 w-14 text-right">{item.price.toLocaleString()}원</span>
+                  <span className="text-sm font-medium text-[var(--text-main)] truncate flex-1 min-w-0">{item.name}</span>
+                  <span className="text-xs text-[var(--text-tertiary)] tabular-nums flex-shrink-0">{item.count}항목</span>
+                  <span className="text-xs font-medium text-[var(--brand-primary)] tabular-nums flex-shrink-0 w-14 text-right">{item.price.toLocaleString()}원</span>
                   <button
                     onClick={() => setExpandedSet(isExpanded ? null : item.id)}
                     title={isExpanded ? "접기" : "펼치기"}
-                    className="text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] w-5 h-5 flex items-center justify-center flex-shrink-0">
+                    className="text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] w-5 h-5 flex items-center justify-center flex-shrink-0">
                     {isExpanded ? "⌃" : "⌄"}
                   </button>
                   <button
                     title="추가"
-                    className="w-5 h-5 border border-[var(--line-default)] bg-white rounded-full flex items-center justify-center text-[var(--text-sub)] text-[11px] flex-shrink-0 hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">
+                    className="w-5 h-5 border border-[var(--line-default)] bg-white rounded-full flex items-center justify-center text-[var(--text-sub)] text-sm flex-shrink-0 hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">
                     +
                   </button>
                 </div>
@@ -587,13 +587,13 @@ export function PanelE() {
                   <div className="bg-[var(--bg-primary-subtle)] border-t border-[var(--line-default)] px-3 py-1.5">
                     {item.items.map((sub) => (
                       <div key={sub.name} className="flex items-center justify-between py-0.5">
-                        <span className="text-[11px] text-[var(--text-main)]">{sub.name}</span>
-                        <span className="text-[10px] text-[var(--text-tertiary)] tabular-nums">{sub.price.toLocaleString()}원</span>
+                        <span className="text-sm text-[var(--text-main)]">{sub.name}</span>
+                        <span className="text-xs text-[var(--text-tertiary)] tabular-nums">{sub.price.toLocaleString()}원</span>
                       </div>
                     ))}
                     <div className="flex items-center justify-between pt-1 border-t border-[var(--line-default)] mt-1">
-                      <span className="text-[11px] font-bold text-[var(--text-main)]">합계</span>
-                      <span className="text-[11px] font-bold text-[var(--brand-primary)] tabular-nums">
+                      <span className="text-sm font-bold text-[var(--text-main)]">합계</span>
+                      <span className="text-sm font-bold text-[var(--brand-primary)] tabular-nums">
                         {item.items.reduce((s, sub) => s + sub.price, 0).toLocaleString()}원
                       </span>
                     </div>

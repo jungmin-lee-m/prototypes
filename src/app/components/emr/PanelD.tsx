@@ -53,7 +53,7 @@ function DiagSearchRow() {
           <circle cx="6.5" cy="6.5" r="4.5" stroke="var(--text-tertiary)" strokeWidth="1.4"/>
           <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.4" strokeLinecap="round"/>
         </svg>
-        <span className="text-[10px] text-[var(--text-placeholder)]">상병 검색 — 코드 또는 명칭 입력...</span>
+        <span className="text-xs text-[var(--text-placeholder)]">상병 검색 — 코드 또는 명칭 입력...</span>
       </div>
     </div>
   );
@@ -90,19 +90,19 @@ export function SnippetChips({ snippets, onInsert }: { snippets: Snippet[]; onIn
   return (
     <div className="flex items-center gap-1 px-2 py-1.5 border-t border-[var(--line-default)] bg-[var(--bg-base)] flex-shrink-0 flex-wrap min-h-[34px]">
       {visible.length === 0 ? (
-        <span className="text-[10px] text-[var(--text-tertiary)] italic px-1">즐겨찾기 상용구 없음</span>
+        <span className="text-xs text-[var(--text-tertiary)] italic px-1">즐겨찾기 상용구 없음</span>
       ) : (
         visible.map(s => (
           <button key={s.id}
             onClick={() => onInsert(s.text)}
             title={s.text.split("\n").slice(0, 3).join(" / ")}
-            className="text-[11px] px-2 py-0.5 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors">
+            className="text-sm px-2 py-0.5 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors">
             {s.name}
           </button>
         ))
       )}
       <button title="상용구 관리"
-        className="ml-auto text-[12px] text-[var(--text-tertiary)] hover:text-[var(--brand-primary)] px-1">
+        className="ml-auto text-md text-[var(--text-tertiary)] hover:text-[var(--brand-primary)] px-1">
         ⋯
       </button>
     </div>
@@ -168,7 +168,7 @@ export function SnippetRegisterModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-11 border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[14px] font-bold text-[var(--text-main)]">상용구 등록</span>
+          <span className="text-lg font-bold text-[var(--text-main)]">상용구 등록</span>
           <button
             onClick={onClose}
             className="w-6 h-6 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)]"
@@ -184,17 +184,17 @@ export function SnippetRegisterModal({
         <div className="px-4 py-3 flex flex-col gap-3">
           {/* 코드 + 즐겨찾기 */}
           <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-bold text-[var(--text-main)]">
+            <label className="text-sm font-bold text-[var(--text-main)]">
               코드 <span className="text-[var(--red-500)]">*</span>
             </label>
             <div className="flex items-center gap-1.5">
-              <span className="text-[12px] font-mono text-[var(--text-tertiary)] flex-shrink-0">/</span>
+              <span className="text-md font-mono text-[var(--text-tertiary)] flex-shrink-0">/</span>
               <input
                 value={code}
                 onChange={e => setCode(e.target.value.slice(0, 20))}
                 maxLength={20}
                 placeholder="코드를 입력해주세요 (최대 20자)"
-                className="flex-1 h-8 px-2.5 text-[12px] text-[var(--text-main)] border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)] placeholder:text-[var(--text-tertiary)]"
+                className="flex-1 h-8 px-2.5 text-md text-[var(--text-main)] border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)] placeholder:text-[var(--text-tertiary)]"
               />
               <button
                 onClick={() => setFavorite(f => !f)}
@@ -205,31 +205,31 @@ export function SnippetRegisterModal({
                     : "bg-white border-[var(--line-default)] text-[var(--text-tertiary)] hover:text-[var(--orange-500)]"
                 }`}
               >
-                <span className="text-[14px] leading-none">{favorite ? "★" : "☆"}</span>
+                <span className="text-lg leading-none">{favorite ? "★" : "☆"}</span>
               </button>
             </div>
-            <span className="text-[10px] text-[var(--text-tertiary)]">
+            <span className="text-xs text-[var(--text-tertiary)]">
               즐겨찾기로 등록하면 임상메모 하단에 빠른 입력 칩으로 노출됩니다.
             </span>
           </div>
 
           {/* 내용 */}
           <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-bold text-[var(--text-main)]">
+            <label className="text-sm font-bold text-[var(--text-main)]">
               내용 <span className="text-[var(--red-500)]">*</span>
             </label>
             <textarea
               value={text}
               onChange={e => setText(e.target.value)}
               rows={5}
-              className="w-full px-2.5 py-2 text-[12px] text-[var(--text-main)] leading-[18px] border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)] resize-none"
+              className="w-full px-2.5 py-2 text-md text-[var(--text-main)] leading-[18px] border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)] resize-none"
               placeholder="상용구 내용을 입력해주세요"
             />
           </div>
 
           {/* 사용처 */}
           <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-bold text-[var(--text-main)]">
+            <label className="text-sm font-bold text-[var(--text-main)]">
               사용처 <span className="text-[var(--red-500)]">*</span>
             </label>
             <div className="flex flex-wrap gap-1">
@@ -239,7 +239,7 @@ export function SnippetRegisterModal({
                   <button
                     key={t}
                     onClick={() => toggleTarget(t)}
-                    className={`h-7 px-2.5 text-[11px] rounded-md border transition-colors ${
+                    className={`h-7 px-2.5 text-sm rounded-md border transition-colors ${
                       active
                         ? "bg-[var(--bg-primary-subtle)] border-[var(--brand-primary)] text-[var(--brand-primary)] font-bold"
                         : "bg-white border-[var(--line-default)] text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]"
@@ -257,14 +257,14 @@ export function SnippetRegisterModal({
         <div className="flex items-center justify-end gap-2 px-4 h-12 border-t border-[var(--line-default)] flex-shrink-0 bg-[var(--bg-subtle)]">
           <button
             onClick={onClose}
-            className="h-8 px-3 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
+            className="h-8 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
           >
             취소
           </button>
           <button
             onClick={submit}
             disabled={!canSubmit}
-            className={`h-8 px-4 text-[12px] font-bold rounded-md text-white transition-colors ${
+            className={`h-8 px-4 text-md font-bold rounded-md text-white transition-colors ${
               canSubmit
                 ? "bg-[var(--brand-primary)] hover:opacity-90"
                 : "bg-[var(--text-disabled)] cursor-not-allowed"
@@ -330,7 +330,7 @@ function BannedDrugRegisterModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-11 border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[14px] font-bold text-[var(--text-main)]">처방금지 약품 등록</span>
+          <span className="text-lg font-bold text-[var(--text-main)]">처방금지 약품 등록</span>
           <button onClick={onClose} className="w-6 h-6 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)]" aria-label="닫기">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -341,7 +341,7 @@ function BannedDrugRegisterModal({
         {/* Body */}
         <div className="px-4 py-3 flex flex-col gap-3">
           {/* 등록일 / 약품명 / 주성분코드 — read-only info */}
-          <div className="grid grid-cols-[80px_1fr] gap-y-1.5 gap-x-3 text-[12px]">
+          <div className="grid grid-cols-[80px_1fr] gap-y-1.5 gap-x-3 text-md">
             <span className="text-[var(--text-sub)] font-medium">등록일</span>
             <span className="text-[var(--text-main)] tabular-nums">{today}</span>
             <span className="text-[var(--text-sub)] font-medium">약품명</span>
@@ -354,13 +354,13 @@ function BannedDrugRegisterModal({
 
           {/* 메모 */}
           <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-bold text-[var(--text-main)]">메모</label>
+            <label className="text-sm font-bold text-[var(--text-main)]">메모</label>
             <textarea
               value={memo}
               onChange={e => setMemo(e.target.value)}
               rows={3}
               placeholder="처방금지 사유를 입력해주세요 (예: 알러지 반응, 부작용 이력 등)"
-              className="w-full px-2.5 py-2 text-[12px] text-[var(--text-main)] leading-[18px] border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)] resize-none"
+              className="w-full px-2.5 py-2 text-md text-[var(--text-main)] leading-[18px] border border-[var(--line-default)] rounded-md outline-none focus:border-[var(--brand-primary)] resize-none"
             />
           </div>
 
@@ -374,8 +374,8 @@ function BannedDrugRegisterModal({
                 className="mt-0.5 accent-[var(--brand-primary)]"
               />
               <span className="flex flex-col gap-0.5">
-                <span className="text-[12px] font-medium text-[var(--text-main)]">동일성분금지</span>
-                <span className="text-[10px] text-[var(--text-tertiary)]">주성분코드가 같은 다른 약품도 함께 처방금지 처리</span>
+                <span className="text-md font-medium text-[var(--text-main)]">동일성분금지</span>
+                <span className="text-xs text-[var(--text-tertiary)]">주성분코드가 같은 다른 약품도 함께 처방금지 처리</span>
               </span>
             </label>
             <label className="flex items-start gap-2 cursor-pointer">
@@ -386,8 +386,8 @@ function BannedDrugRegisterModal({
                 className="mt-0.5 accent-[var(--brand-primary)]"
               />
               <span className="flex flex-col gap-0.5">
-                <span className="text-[12px] font-medium text-[var(--text-main)]">처방허용</span>
-                <span className="text-[10px] text-[var(--text-tertiary)]">금지 등록되어 있어도 의사 판단 시 처방 가능 (경고만 표시)</span>
+                <span className="text-md font-medium text-[var(--text-main)]">처방허용</span>
+                <span className="text-xs text-[var(--text-tertiary)]">금지 등록되어 있어도 의사 판단 시 처방 가능 (경고만 표시)</span>
               </span>
             </label>
           </div>
@@ -397,7 +397,7 @@ function BannedDrugRegisterModal({
         <div className="flex items-center justify-end gap-2 px-4 h-12 border-t border-[var(--line-default)] flex-shrink-0 bg-[var(--bg-subtle)]">
           <button
             onClick={onClose}
-            className="h-8 px-3 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
+            className="h-8 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
           >
             취소
           </button>
@@ -410,7 +410,7 @@ function BannedDrugRegisterModal({
               banSameIngredient: banSame,
               allowPrescribe,
             })}
-            className="h-8 px-4 text-[12px] font-bold rounded-md text-white bg-[var(--brand-primary)] hover:opacity-90"
+            className="h-8 px-4 text-md font-bold rounded-md text-white bg-[var(--brand-primary)] hover:opacity-90"
           >
             등록
           </button>
@@ -476,7 +476,7 @@ function BannedDrugListPopover({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3 h-9 border-b border-[var(--line-default)] bg-[var(--bg-subtle)]">
-          <span className="text-[12px] font-bold text-[var(--text-main)]">
+          <span className="text-md font-bold text-[var(--text-main)]">
             처방금지 약품 <span className="text-[var(--text-tertiary)] tabular-nums">({drugs.length})</span>
           </span>
           <button onClick={onClose} className="w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)]">
@@ -498,7 +498,7 @@ function BannedDrugListPopover({
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="처방 검색 — 코드 또는 명칭 입력"
-              className="flex-1 bg-transparent text-[11px] outline-none placeholder:text-[var(--text-tertiary)]"
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--text-tertiary)]"
             />
           </div>
           {/* 검색 결과 드롭다운 */}
@@ -511,10 +511,10 @@ function BannedDrugListPopover({
                   className="w-full flex items-center justify-between px-2.5 py-1.5 text-left hover:bg-[var(--bg-primary-subtle)]"
                 >
                   <span className="flex items-center gap-2 min-w-0">
-                    <span className="text-[10px] font-mono text-[var(--text-tertiary)] flex-shrink-0">{m.code}</span>
-                    <span className="text-[11px] text-[var(--text-main)] truncate">{m.name}</span>
+                    <span className="text-xs font-mono text-[var(--text-tertiary)] flex-shrink-0">{m.code}</span>
+                    <span className="text-sm text-[var(--text-main)] truncate">{m.name}</span>
                   </span>
-                  <span className="text-[10px] text-[var(--brand-primary)] font-bold flex-shrink-0">+ 등록</span>
+                  <span className="text-xs text-[var(--brand-primary)] font-bold flex-shrink-0">+ 등록</span>
                 </button>
               ))}
             </div>
@@ -526,18 +526,18 @@ function BannedDrugListPopover({
           {drugs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 gap-1.5">
               <span className="text-[24px] opacity-30">🚫</span>
-              <span className="text-[11px] text-[var(--text-tertiary)]">등록된 처방금지 약품이 없습니다</span>
-              <span className="text-[10px] text-[var(--text-tertiary)]">검색 후 즉시 등록할 수 있어요</span>
+              <span className="text-sm text-[var(--text-tertiary)]">등록된 처방금지 약품이 없습니다</span>
+              <span className="text-xs text-[var(--text-tertiary)]">검색 후 즉시 등록할 수 있어요</span>
             </div>
           ) : (
             <>
               {/* Column header — 컴팩트: 등록일 / 약품 / 동일·허용 / 삭제 */}
               <div className="grid bg-[var(--bg-base)] border-b border-[var(--line-default)] px-2 py-1 sticky top-0 z-10 gap-1"
                 style={{ gridTemplateColumns: "44px 1fr 32px 32px 20px" }}>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)]">등록</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)]">약품 / 주성분 / 메모</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)] text-center" title="동일성분금지">동일</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)] text-center" title="처방허용">허용</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)]">등록</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)]">약품 / 주성분 / 메모</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center" title="동일성분금지">동일</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center" title="처방허용">허용</span>
                 <span />
               </div>
               {drugs.map(d => (
@@ -546,18 +546,18 @@ function BannedDrugListPopover({
                   className="grid items-start px-2 py-1.5 border-b border-[var(--line-subtle)] hover:bg-[var(--bg-subtle)] gap-1"
                   style={{ gridTemplateColumns: "44px 1fr 32px 32px 20px" }}
                 >
-                  <span className="text-[10px] text-[var(--text-sub)] tabular-nums pt-0.5">{d.registeredAt.slice(5)}</span>
+                  <span className="text-xs text-[var(--text-sub)] tabular-nums pt-0.5">{d.registeredAt.slice(5)}</span>
                   {/* 약품명 / 주성분 / 메모 — 세로 스택 */}
                   <div className="flex flex-col min-w-0 gap-0.5">
-                    <span className="text-[11px] text-[var(--text-main)] truncate">{d.drugName}</span>
-                    <span className="text-[9px] text-[var(--text-tertiary)] font-mono truncate">{d.ingredientCode}</span>
+                    <span className="text-sm text-[var(--text-main)] truncate">{d.drugName}</span>
+                    <span className="text-micro text-[var(--text-tertiary)] font-mono truncate">{d.ingredientCode}</span>
                     <input
                       value={d.memo}
                       onChange={e => onUpdate(d.id, { memo: e.target.value })}
                       onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
                       placeholder="메모..."
                       title={d.memo || "클릭하여 메모 편집"}
-                      className="text-[10px] text-[var(--text-main)] placeholder:text-[var(--text-tertiary)] truncate bg-transparent outline-none border border-transparent hover:border-[var(--line-default)] focus:border-[var(--brand-primary)] focus:bg-white rounded px-1 py-0"
+                      className="text-xs text-[var(--text-main)] placeholder:text-[var(--text-tertiary)] truncate bg-transparent outline-none border border-transparent hover:border-[var(--line-default)] focus:border-[var(--brand-primary)] focus:bg-white rounded px-1 py-0"
                     />
                   </div>
                   <div className="flex justify-center pt-0.5">
@@ -664,7 +664,7 @@ function SpecialDetailModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-11 border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[14px] font-bold text-[var(--text-main)]">줄단위 특정내역</span>
+          <span className="text-lg font-bold text-[var(--text-main)]">줄단위 특정내역</span>
           <button onClick={onClose} className="w-6 h-6 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)]" aria-label="닫기">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -674,8 +674,8 @@ function SpecialDetailModal({
 
         {/* 선택된 오더명 — context bar */}
         <div className="px-4 py-2 bg-[var(--bg-subtle)] border-b border-[var(--line-default)] flex items-center gap-2 flex-shrink-0">
-          <span className="text-[11px] text-[var(--text-tertiary)]">선택된 오더명</span>
-          <span className="text-[12px] text-[var(--text-main)] truncate">{rxName}</span>
+          <span className="text-sm text-[var(--text-tertiary)]">선택된 오더명</span>
+          <span className="text-md text-[var(--text-main)] truncate">{rxName}</span>
         </div>
 
         {/* Body — 좌(코드 리스트) / 우(설명 + 입력) */}
@@ -692,16 +692,16 @@ function SpecialDetailModal({
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                   placeholder="검색"
-                  className="flex-1 bg-transparent text-[11px] outline-none placeholder:text-[var(--text-tertiary)]"
+                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-[var(--text-tertiary)]"
                 />
               </div>
             </div>
             {/* 헤더 */}
             <div className="grid items-center gap-2 px-2.5 py-1 bg-[var(--bg-subtle)] border-b border-[var(--line-default)] flex-shrink-0"
               style={{ gridTemplateColumns: "70px 1fr 36px" }}>
-              <span className="text-[10px] font-medium text-[var(--text-tertiary)]">코드</span>
-              <span className="text-[10px] font-medium text-[var(--text-tertiary)]">명칭</span>
-              <span className="text-[10px] font-medium text-[var(--text-tertiary)] text-right">등록</span>
+              <span className="text-xs font-medium text-[var(--text-tertiary)]">코드</span>
+              <span className="text-xs font-medium text-[var(--text-tertiary)]">명칭</span>
+              <span className="text-xs font-medium text-[var(--text-tertiary)] text-right">등록</span>
             </div>
             <div className="flex-1 overflow-y-auto">
               {filtered.map(c => {
@@ -713,9 +713,9 @@ function SpecialDetailModal({
                       active ? "bg-[var(--bg-primary-subtle)]" : "hover:bg-[var(--bg-subtle)]"
                     }`}
                     style={{ gridTemplateColumns: "70px 1fr 36px" }}>
-                    <span className={`text-[11px] font-mono ${active ? "text-[var(--brand-primary)] font-bold" : "text-[var(--text-link)]"}`}>{c.code}</span>
-                    <span className="text-[11px] text-[var(--text-main)] truncate">{c.name}</span>
-                    <span className="text-[10px] text-right" />
+                    <span className={`text-sm font-mono ${active ? "text-[var(--brand-primary)] font-bold" : "text-[var(--text-link)]"}`}>{c.code}</span>
+                    <span className="text-sm text-[var(--text-main)] truncate">{c.name}</span>
+                    <span className="text-xs text-right" />
                   </button>
                 );
               })}
@@ -726,8 +726,8 @@ function SpecialDetailModal({
           <div className="flex-1 flex flex-col min-h-0 min-w-0">
             {/* 코드 설명 박스 */}
             <div className="m-3 mb-0 p-3 bg-[var(--bg-subtle)] rounded-md border border-[var(--line-default)] flex-shrink-0">
-              <div className="text-[12px] font-bold text-[var(--text-main)] mb-1">{selected.code}</div>
-              <div className="text-[11px] text-[var(--text-sub)] leading-[16px] whitespace-pre-line">{selected.description}</div>
+              <div className="text-md font-bold text-[var(--text-main)] mb-1">{selected.code}</div>
+              <div className="text-sm text-[var(--text-sub)] leading-[16px] whitespace-pre-line">{selected.description}</div>
             </div>
             {/* 입력 textarea */}
             <div className="m-3 mt-2 flex-1 flex flex-col border border-[var(--line-default)] rounded-md overflow-hidden min-h-0">
@@ -736,17 +736,17 @@ function SpecialDetailModal({
                 value={content}
                 onChange={e => setContent(e.target.value)}
                 placeholder={selected.placeholder ?? "내용을 입력하세요. ('/' 입력하여 상용구 검색)"}
-                className="flex-1 p-3 text-[12px] text-[var(--text-main)] leading-[18px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent"
+                className="flex-1 p-3 text-md text-[var(--text-main)] leading-[18px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent"
               />
               <div className="px-3 py-1.5 border-t border-[var(--line-default)] bg-[var(--bg-base)] flex items-center justify-between flex-shrink-0">
                 <div className="flex items-center gap-1">
                   {["1st", "2nd", "abd"].map(t => (
-                    <button key={t} className="text-[10px] px-2 py-0.5 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">
+                    <button key={t} className="text-xs px-2 py-0.5 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]">
                       {t}
                     </button>
                   ))}
                 </div>
-                <span className="text-[10px] text-[var(--text-tertiary)] tabular-nums">{bytes} / 700 bytes (영문 700자, 한글 350자)</span>
+                <span className="text-xs text-[var(--text-tertiary)] tabular-nums">{bytes} / 700 bytes (영문 700자, 한글 350자)</span>
               </div>
             </div>
           </div>
@@ -754,12 +754,12 @@ function SpecialDetailModal({
 
         {/* Footer — 저장 */}
         <div className="flex items-center justify-end gap-2 px-4 h-12 border-t border-[var(--line-default)] flex-shrink-0 bg-white">
-          <button onClick={onClose} className="h-8 px-3 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+          <button onClick={onClose} className="h-8 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
             취소
           </button>
           <button
             onClick={() => onSave({ code: selectedCode, content: content.trim() || undefined })}
-            className="h-8 px-4 text-[12px] font-bold rounded-md text-white bg-[var(--text-main)] hover:opacity-90"
+            className="h-8 px-4 text-md font-bold rounded-md text-white bg-[var(--text-main)] hover:opacity-90"
           >
             저장
           </button>
@@ -873,7 +873,7 @@ function ReservedRxRegisterModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 h-11 border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[14px] font-bold text-[var(--text-main)]">
+          <span className="text-lg font-bold text-[var(--text-main)]">
             예약처방 등록 <span className="text-[var(--text-tertiary)] tabular-nums">({items.length}건)</span>
           </span>
           <button onClick={onClose} className="w-6 h-6 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)]" aria-label="닫기">
@@ -887,14 +887,14 @@ function ReservedRxRegisterModal({
         <div className="px-4 py-3 flex flex-col gap-3">
           {/* 일괄 적용 — 클릭 시 모든 항목 수행일에 동일 날짜 셋팅 */}
           <div className="flex items-center gap-2 flex-wrap bg-[var(--bg-base)] border border-[var(--line-default)] rounded-md px-2.5 py-2">
-            <span className="text-[11px] font-bold text-[var(--text-main)] flex-shrink-0">일괄 적용</span>
+            <span className="text-sm font-bold text-[var(--text-main)] flex-shrink-0">일괄 적용</span>
             {QUICK_DATE_OPTIONS.map(opt => {
               const active = bulkActiveLabel === opt.label;
               return (
                 <button
                   key={opt.label}
                   onClick={() => bulkApplyDate(addToTodayISO(opt))}
-                  className={`h-7 px-2.5 text-[11px] rounded-md border transition-colors ${
+                  className={`h-7 px-2.5 text-sm rounded-md border transition-colors ${
                     active
                       ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] font-bold"
                       : "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:bg-[var(--bg-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
@@ -906,7 +906,7 @@ function ReservedRxRegisterModal({
             })}
             <button
               onClick={() => bulkApplyDate("")}
-              className={`h-7 px-2.5 text-[11px] rounded-md border transition-colors ${
+              className={`h-7 px-2.5 text-sm rounded-md border transition-colors ${
                 allSameDate === ""
                   ? "bg-[var(--bg-subtle)] text-[var(--text-main)] border-[var(--text-disabled)] font-bold"
                   : "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:bg-[var(--bg-subtle)]"
@@ -914,24 +914,24 @@ function ReservedRxRegisterModal({
             >
               다음에
             </button>
-            <span className="ml-auto text-[10px] text-[var(--text-tertiary)]">항목별로 따로 지정 가능</span>
+            <span className="ml-auto text-xs text-[var(--text-tertiary)]">항목별로 따로 지정 가능</span>
           </div>
 
           {/* 예약할 처방 — 항목별 수행일 / 메모 입력 */}
           <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-bold text-[var(--text-main)]">예약할 처방 <span className="text-[10px] text-[var(--text-tertiary)] font-normal">— 행마다 수행일 / 메모를 다르게 지정 가능</span></span>
+            <span className="text-sm font-bold text-[var(--text-main)]">예약할 처방 <span className="text-xs text-[var(--text-tertiary)] font-normal">— 행마다 수행일 / 메모를 다르게 지정 가능</span></span>
             <div className="border border-[var(--line-default)] rounded-md overflow-hidden">
               {/* 헤더 */}
               <div className="grid items-center px-2.5 py-1 bg-[var(--bg-subtle)] border-b border-[var(--line-default)] gap-2"
                 style={{ gridTemplateColumns: "56px 1.4fr 28px 28px 28px 60px 130px 1.4fr" }}>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)]">코드</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)]">명칭</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)] text-center">용량</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)] text-center">일투</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)] text-center">일수</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)] text-right">단가</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)]">수행일</span>
-                <span className="text-[9px] font-medium text-[var(--text-tertiary)]">메모</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)]">코드</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)]">명칭</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center">용량</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center">일투</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center">일수</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)] text-right">단가</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)]">수행일</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)]">메모</span>
               </div>
               {/* 행 */}
               <div className="max-h-[320px] overflow-y-auto">
@@ -940,12 +940,12 @@ function ReservedRxRegisterModal({
                   return (
                     <div key={i} className="grid items-center px-2.5 py-1.5 border-b border-[var(--line-subtle)] last:border-b-0 gap-2"
                       style={{ gridTemplateColumns: "56px 1.4fr 28px 28px 28px 60px 130px 1.4fr" }}>
-                      <span className="text-[10px] font-mono text-[var(--text-tertiary)] truncate">{it.code}</span>
-                      <span className="text-[11px] text-[var(--text-main)] truncate">{it.name}</span>
-                      <span className="text-[10px] text-center tabular-nums text-[var(--text-sub)]">{it.dose}</span>
-                      <span className="text-[10px] text-center tabular-nums text-[var(--text-sub)]">{it.freq}</span>
-                      <span className="text-[10px] text-center tabular-nums text-[var(--text-sub)]">{it.days}</span>
-                      <span className="text-[10px] text-right tabular-nums text-[var(--text-main)]">{it.price.toLocaleString()}원</span>
+                      <span className="text-xs font-mono text-[var(--text-tertiary)] truncate">{it.code}</span>
+                      <span className="text-sm text-[var(--text-main)] truncate">{it.name}</span>
+                      <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{it.dose}</span>
+                      <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{it.freq}</span>
+                      <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{it.days}</span>
+                      <span className="text-xs text-right tabular-nums text-[var(--text-main)]">{it.price.toLocaleString()}원</span>
                       {/* 수행일 — 항목별 date input. 빈 값이면 회색으로 "다음에" 안내 */}
                       <div className="flex items-center gap-0.5">
                         <input
@@ -953,7 +953,7 @@ function ReservedRxRegisterModal({
                           value={rowDate}
                           onChange={e => updateDate(i, e.target.value)}
                           min={todayISO()}
-                          className={`flex-1 h-7 px-1.5 text-[11px] border rounded outline-none focus:border-[var(--brand-primary)] ${
+                          className={`flex-1 h-7 px-1.5 text-sm border rounded outline-none focus:border-[var(--brand-primary)] ${
                             rowDate
                               ? "border-[var(--line-default)] text-[var(--text-main)]"
                               : "border-[var(--line-default)] text-[var(--text-tertiary)] bg-[var(--bg-base)]"
@@ -976,7 +976,7 @@ function ReservedRxRegisterModal({
                         value={memos[i] ?? ""}
                         onChange={e => updateMemo(i, e.target.value)}
                         placeholder="메모 (선택)"
-                        className="h-7 px-2 text-[11px] text-[var(--text-main)] border border-[var(--line-default)] rounded outline-none focus:border-[var(--brand-primary)] placeholder:text-[var(--text-tertiary)] bg-white"
+                        className="h-7 px-2 text-sm text-[var(--text-main)] border border-[var(--line-default)] rounded outline-none focus:border-[var(--brand-primary)] placeholder:text-[var(--text-tertiary)] bg-white"
                       />
                     </div>
                   );
@@ -986,7 +986,7 @@ function ReservedRxRegisterModal({
           </div>
 
           {/* 등록자 정보 */}
-          <div className="flex items-center gap-3 text-[11px] text-[var(--text-sub)] border-t border-[var(--line-default)] pt-2">
+          <div className="flex items-center gap-3 text-sm text-[var(--text-sub)] border-t border-[var(--line-default)] pt-2">
             <span>등록일 <span className="font-mono tabular-nums text-[var(--text-main)]">{todayISO()}</span></span>
             <span>등록자 <span className="font-bold text-[var(--text-main)]">{doctorName}</span></span>
           </div>
@@ -994,12 +994,12 @@ function ReservedRxRegisterModal({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-4 h-12 border-t border-[var(--line-default)] flex-shrink-0 bg-[var(--bg-subtle)]">
-          <button onClick={onClose} className="h-8 px-3 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+          <button onClick={onClose} className="h-8 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
             취소
           </button>
           <button
             onClick={submit}
-            className="h-8 px-4 text-[12px] font-bold rounded-md text-white bg-[var(--brand-primary)] hover:opacity-90"
+            className="h-8 px-4 text-md font-bold rounded-md text-white bg-[var(--brand-primary)] hover:opacity-90"
           >
             {allUnscheduled ? "다음에 등록" : "예약 등록"}
           </button>
@@ -1053,7 +1053,7 @@ function ReservedRxListPopover({
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3 h-9 border-b border-[var(--line-default)] bg-[var(--bg-subtle)]">
-          <span className="text-[12px] font-bold text-[var(--text-main)]">
+          <span className="text-md font-bold text-[var(--text-main)]">
             예약처방 목록 <span className="text-[var(--text-tertiary)] tabular-nums">({items.length})</span>
           </span>
           <button onClick={onClose} className="w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)]">
@@ -1068,15 +1068,15 @@ function ReservedRxListPopover({
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 gap-1.5">
               <span className="text-[24px] opacity-30">📅</span>
-              <span className="text-[11px] text-[var(--text-tertiary)]">등록된 예약처방이 없습니다</span>
-              <span className="text-[10px] text-[var(--text-tertiary)]">처방을 우클릭 → '예약처방 등록' 으로 추가</span>
+              <span className="text-sm text-[var(--text-tertiary)]">등록된 예약처방이 없습니다</span>
+              <span className="text-xs text-[var(--text-tertiary)]">처방을 우클릭 → '예약처방 등록' 으로 추가</span>
             </div>
           ) : (
             <>
               <div className="grid bg-[var(--bg-base)] border-b border-[var(--line-default)] px-2.5 py-1.5 sticky top-0 z-10 gap-1"
                 style={{ gridTemplateColumns: "70px 64px 1fr 32px 32px 32px 1.4fr 64px 56px 24px" }}>
                 {["수행일","사용자코드","명칭","용량","일투","일수","메모","등록일","등록자",""].map((h, i) => (
-                  <span key={i} className={`text-[9px] font-medium text-[var(--text-tertiary)] ${i === 2 || i === 6 ? "text-left" : "text-center"}`}>{h}</span>
+                  <span key={i} className={`text-micro font-medium text-[var(--text-tertiary)] ${i === 2 || i === 6 ? "text-left" : "text-center"}`}>{h}</span>
                 ))}
               </div>
               {sorted.map(r => {
@@ -1087,15 +1087,15 @@ function ReservedRxListPopover({
                     style={{ gridTemplateColumns: "70px 64px 1fr 32px 32px 32px 1.4fr 64px 56px 24px" }}>
                     {/* 수행일 — null이면 "다음에" 칩 */}
                     {isUnscheduled ? (
-                      <span className="text-[9px] font-bold rounded-[3px] px-1 py-0.5 bg-[var(--bg-subtle)] text-[var(--text-tertiary)] border border-[var(--line-default)] text-center justify-self-center">다음에</span>
+                      <span className="text-micro font-bold rounded-[3px] px-1 py-0.5 bg-[var(--bg-subtle)] text-[var(--text-tertiary)] border border-[var(--line-default)] text-center justify-self-center">다음에</span>
                     ) : (
-                      <span className="text-[10px] tabular-nums text-center text-[var(--text-main)] font-medium">{r.scheduledDate?.slice(2).replace(/-/g, ".")}</span>
+                      <span className="text-xs tabular-nums text-center text-[var(--text-main)] font-medium">{r.scheduledDate?.slice(2).replace(/-/g, ".")}</span>
                     )}
-                    <span className="text-[10px] font-mono text-[var(--text-sub)] truncate">{r.code}</span>
-                    <span className="text-[11px] text-[var(--text-main)] truncate">{r.name}</span>
-                    <span className="text-[10px] text-center tabular-nums text-[var(--text-sub)]">{r.dose}</span>
-                    <span className="text-[10px] text-center tabular-nums text-[var(--text-sub)]">{r.freq}</span>
-                    <span className="text-[10px] text-center tabular-nums text-[var(--text-sub)]">{r.days}</span>
+                    <span className="text-xs font-mono text-[var(--text-sub)] truncate">{r.code}</span>
+                    <span className="text-sm text-[var(--text-main)] truncate">{r.name}</span>
+                    <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{r.dose}</span>
+                    <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{r.freq}</span>
+                    <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{r.days}</span>
                     {/* 메모 — 클릭 시 즉시 편집 모드. blur 또는 Enter 시 저장 */}
                     <input
                       value={r.memo ?? ""}
@@ -1103,10 +1103,10 @@ function ReservedRxListPopover({
                       onKeyDown={e => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
                       placeholder="메모 입력..."
                       title={r.memo || "클릭하여 메모 편집"}
-                      className="text-[10px] truncate text-[var(--text-main)] placeholder:text-[var(--text-tertiary)] bg-transparent outline-none border border-transparent rounded px-1 py-0.5 hover:border-[var(--line-default)] hover:bg-white focus:border-[var(--brand-primary)] focus:bg-white cursor-text transition-colors"
+                      className="text-xs truncate text-[var(--text-main)] placeholder:text-[var(--text-tertiary)] bg-transparent outline-none border border-transparent rounded px-1 py-0.5 hover:border-[var(--line-default)] hover:bg-white focus:border-[var(--brand-primary)] focus:bg-white cursor-text transition-colors"
                     />
-                    <span className="text-[10px] text-center tabular-nums text-[var(--text-sub)]">{r.registeredAt.slice(2).replace(/-/g, ".")}</span>
-                    <span className="text-[10px] text-center text-[var(--text-sub)] truncate">{r.registeredBy}</span>
+                    <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{r.registeredAt.slice(2).replace(/-/g, ".")}</span>
+                    <span className="text-xs text-center text-[var(--text-sub)] truncate">{r.registeredBy}</span>
                     <button
                       onClick={() => onDelete(r.id)}
                       title="삭제"
@@ -1148,7 +1148,7 @@ function AiSoapView({
       {/* AI SOAP 본문 — 본문이 길어지면 이 영역만 스크롤됨 */}
       <div className="flex-1 min-h-0 overflow-y-auto rounded-md border border-[var(--line-default)] bg-white px-4 py-3">
         {hasContent ? (
-          <div className="text-[12px] text-[var(--text-main)] leading-[20px] flex flex-col gap-3">
+          <div className="text-md text-[var(--text-main)] leading-[20px] flex flex-col gap-3">
             {SOAP_KEYS.map(k => {
               if (!soap[k]) return null;
               return (
@@ -1163,7 +1163,7 @@ function AiSoapView({
             })}
           </div>
         ) : (
-          <span className="text-[11px] text-[var(--text-tertiary)] italic">
+          <span className="text-sm text-[var(--text-tertiary)] italic">
             {isRecording ? "음성 인식 대기 중..." : "—"}
           </span>
         )}
@@ -1174,7 +1174,7 @@ function AiSoapView({
         <button
           disabled={!hasContent}
           onClick={onPaste}
-          className="h-9 px-4 text-[12px] font-bold rounded-md text-white shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+          className="h-9 px-4 text-md font-bold rounded-md text-white shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
           style={{ background: hasContent ? "var(--brand-primary)" : "var(--text-disabled)" }}
         >
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
@@ -1249,7 +1249,7 @@ function MiniDropdown({ value, label, options, color, onChange }: {
           open ? "border-[var(--brand-primary)]" : "border-[var(--line-default)] hover:border-[var(--brand-primary)]"
         }`}
       >
-        <span className="text-[10px] font-bold whitespace-nowrap" style={{ color }}>{value}</span>
+        <span className="text-xs font-bold whitespace-nowrap" style={{ color }}>{value}</span>
         <svg width="7" height="7" viewBox="0 0 8 8" fill="none" className={`transition-transform ${open ? "rotate-180" : ""}`}>
           <path d="M1.5 3L4 5.5L6.5 3" stroke="var(--text-tertiary)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -1264,13 +1264,13 @@ function MiniDropdown({ value, label, options, color, onChange }: {
             minWidth: Math.max(rect.width, 110),
           }}
           className="z-[9998] bg-white rounded-md shadow-[0_4px_16px_rgba(0,0,0,0.12)] border border-[var(--line-default)] overflow-hidden py-1">
-          <div className="px-3 pt-1 pb-1 text-[9px] font-bold text-[var(--text-tertiary)] uppercase tracking-wide border-b border-[var(--line-subtle)] mb-1">
+          <div className="px-3 pt-1 pb-1 text-micro font-bold text-[var(--text-tertiary)] uppercase tracking-wide border-b border-[var(--line-subtle)] mb-1">
             {label}
           </div>
           {options.map(opt => (
             <button key={opt}
               onClick={() => { onChange(opt); setRect(null); }}
-              className={`w-full text-left px-3 py-1.5 text-[12px] whitespace-nowrap transition-colors ${
+              className={`w-full text-left px-3 py-1.5 text-md whitespace-nowrap transition-colors ${
                 opt === value
                   ? "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] font-bold"
                   : "text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
@@ -1295,7 +1295,7 @@ function PrescSearchRow() {
           <circle cx="6.5" cy="6.5" r="4.5" stroke="var(--text-tertiary)" strokeWidth="1.4"/>
           <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.4" strokeLinecap="round"/>
         </svg>
-        <span className="text-[10px] text-[var(--text-placeholder)]">처방 검색 — 코드 또는 명칭 입력...</span>
+        <span className="text-xs text-[var(--text-placeholder)]">처방 검색 — 코드 또는 명칭 입력...</span>
       </div>
     </div>
   );
@@ -1810,7 +1810,7 @@ export function PanelD({
       {/* D1: 접수정보 바 (높이 고정 — PanelGroup 밖) */}
       <div className="bg-[var(--bg-primary-subtle)] rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-2.5 py-1.5 flex items-center gap-3 flex-shrink-0 overflow-hidden">
         {/* 날짜 */}
-        <span className="text-[13px] font-bold text-[var(--text-main)] whitespace-nowrap flex-shrink-0">2026.03.17 (화)</span>
+        <span className="text-lg font-bold text-[var(--text-main)] whitespace-nowrap flex-shrink-0">2026.03.17 (화)</span>
 
         {/* 접수정보 — 보험구분·진료유형·초재진·청구·시간·진료과·담당의 (드롭다운) */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -1828,8 +1828,8 @@ export function PanelD({
 
         {/* 접수메모 필드 (레이블 + 내용) */}
         <div className="flex-1 min-w-0 bg-white border border-[var(--line-default)] rounded-[4px] px-[11px] py-[6px] flex items-center gap-[6px]">
-          <span className="text-[11px] font-bold text-[var(--text-sub)] whitespace-nowrap flex-shrink-0">접수메모</span>
-          <span className="text-[11px] text-[var(--text-main)] truncate">MRI 촬영 원함, 보호자(따님) 동반</span>
+          <span className="text-sm font-bold text-[var(--text-sub)] whitespace-nowrap flex-shrink-0">접수메모</span>
+          <span className="text-sm text-[var(--text-main)] truncate">MRI 촬영 원함, 보호자(따님) 동반</span>
         </div>
 
         {/* 삼점 버튼 + 컨텍스트 메뉴 (portal로 클리핑 회피) */}
@@ -1906,7 +1906,7 @@ export function PanelD({
               <div className="flex items-center gap-1 px-3 pt-2 border-b border-[var(--line-default)] flex-shrink-0">
                 <button
                   onClick={() => setSymptomTab("증상")}
-                  className={`px-2.5 pb-2 text-[12px] font-bold border-b-2 transition-colors ${
+                  className={`px-2.5 pb-2 text-md font-bold border-b-2 transition-colors ${
                     symptomTab === "증상"
                       ? "border-[var(--text-main)] text-[var(--text-main)]"
                       : "border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-sub)]"
@@ -1914,7 +1914,7 @@ export function PanelD({
                 >증상</button>
                 <button
                   onClick={() => setSymptomTab("AI SOAP")}
-                  className={`flex items-center gap-1.5 px-2.5 pb-2 text-[12px] font-bold border-b-2 transition-colors ${
+                  className={`flex items-center gap-1.5 px-2.5 pb-2 text-md font-bold border-b-2 transition-colors ${
                     symptomTab === "AI SOAP"
                       ? "border-[var(--text-main)] text-[var(--text-main)]"
                       : "border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-sub)]"
@@ -1938,7 +1938,7 @@ export function PanelD({
                       value={symptom}
                       onChange={e => onChangeSymptom?.(e.target.value)}
                       placeholder="증상을 입력해주세요. ('/' 입력하여 상용구 검색)"
-                      className="flex-1 p-3 text-[11px] text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent overflow-y-auto"
+                      className="flex-1 p-3 text-sm text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent overflow-y-auto"
                     />
                     {/* 즐겨찾기 상용구 — 클릭 시 텍스트 추가 */}
                     <SnippetChips
@@ -1962,8 +1962,8 @@ export function PanelD({
             <div className="w-[160px] flex-shrink-0 p-2 overflow-y-auto flex flex-col">
               <div className="flex items-center justify-between mb-1.5 flex-shrink-0">
                 <div className="flex items-center gap-1 min-w-0">
-                  <span className="text-[11px] font-bold text-[var(--text-main)] truncate">이미지</span>
-                  <span className="text-[9px] bg-[var(--brand-primary)] text-white rounded-full w-4 h-4 flex items-center justify-center font-bold flex-shrink-0">3</span>
+                  <span className="text-sm font-bold text-[var(--text-main)] truncate">이미지</span>
+                  <span className="text-micro bg-[var(--brand-primary)] text-white rounded-full w-4 h-4 flex items-center justify-center font-bold flex-shrink-0">3</span>
                 </div>
                 <button title="이미지 업로드" className="w-5 h-5 flex items-center justify-center text-[var(--text-sub)] border border-[var(--line-default)] rounded-[3px] hover:bg-[var(--bg-subtle)] flex-shrink-0">
                   <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
@@ -1974,14 +1974,14 @@ export function PanelD({
               <div className="rounded-[4px] overflow-hidden relative flex-1 min-h-0">
                 <img src={medicalImages[0].url} alt={medicalImages[0].label} className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/30 flex items-end p-1">
-                  <span className="text-[9px] text-white font-medium drop-shadow truncate">{medicalImages[0].label}</span>
+                  <span className="text-micro text-white font-medium drop-shadow truncate">{medicalImages[0].label}</span>
                 </div>
               </div>
             </div>
           )}
           {/* 임상메모 sub-panel은 PanelB의 ClinicalNoteCard 로 이동됨 */}
           {d2Active.size === 0 && (
-            <div className="flex-1 flex items-center justify-center text-[11px] text-[var(--text-tertiary)]">
+            <div className="flex-1 flex items-center justify-center text-sm text-[var(--text-tertiary)]">
               우상단 ⚙ 버튼으로 표시할 항목을 선택하세요
             </div>
           )}
@@ -1989,7 +1989,7 @@ export function PanelD({
         <button
           ref={d2SettingsBtnRef}
           onClick={e => setD2SettingsRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
-          className="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[12px] transition-colors"
+          className="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-md transition-colors"
           title="표시 항목 설정"
         >⚙</button>
       </div>
@@ -2002,19 +2002,19 @@ export function PanelD({
       <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col h-full overflow-hidden">
         {/* Diagnosis Header */}
         <div className="flex items-center gap-2 px-2.5 py-1.5 border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[12px] font-bold text-[var(--text-main)] flex-shrink-0">진단 및 처방</span>
+          <span className="text-md font-bold text-[var(--text-main)] flex-shrink-0">진단 및 처방</span>
           <div className="flex items-center gap-1 bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-[6px] px-2 h-7 flex-1">
             <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 16 16">
               <circle cx="6.5" cy="6.5" r="4.5" stroke="var(--text-tertiary)" strokeWidth="1.4"/>
               <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.4" strokeLinecap="round"/>
             </svg>
-            <span className="text-[10px] text-[var(--text-tertiary)]">통합 검색 (코드/명칭/증상)</span>
+            <span className="text-xs text-[var(--text-tertiary)]">통합 검색 (코드/명칭/증상)</span>
           </div>
-          <button className="text-[11px] font-medium text-[var(--text-sub)] border border-[var(--line-default)] rounded-[4px] px-2 h-7 bg-white whitespace-nowrap flex-shrink-0">KOICD 분류</button>
+          <button className="text-sm font-medium text-[var(--text-sub)] border border-[var(--line-default)] rounded-[4px] px-2 h-7 bg-white whitespace-nowrap flex-shrink-0">KOICD 분류</button>
           {/* Settings button — 사전심사 범위 설정 */}
           <button
             onClick={e => setSettingsRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
-            className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[13px] px-1 transition-colors flex-shrink-0"
+            className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-lg px-1 transition-colors flex-shrink-0"
             title="사전심사 설정"
           >⚙</button>
         </div>
@@ -2031,7 +2031,7 @@ export function PanelD({
             <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-default)] px-2 py-1.5 sticky top-0 z-10"
               style={{ gridTemplateColumns: DIAG_COLS, minWidth: DIAG_MIN_WIDTH }}>
               {["상병코드","명칭","의증","배제","좌","우","진료과","특정기호","상해외인","수술","영문명"].map((h, i) => (
-                <span key={i} className={`text-[10px] font-medium text-[var(--text-tertiary)] truncate ${i === 0 || i === 1 || i === 6 || i === 7 || i === 8 || i === 10 ? "text-left" : "text-center"}`}>{h}</span>
+                <span key={i} className={`text-xs font-medium text-[var(--text-tertiary)] truncate ${i === 0 || i === 1 || i === 6 || i === 7 || i === 8 || i === 10 ? "text-left" : "text-center"}`}>{h}</span>
               ))}
             </div>
               {localDx.map((d, i) => {
@@ -2054,12 +2054,12 @@ export function PanelD({
                       <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${d.isNew ? "bg-[var(--green-500)]" : "bg-[var(--orange-500)]"}`} />
                     )}
                     {/* 상병코드 */}
-                    <span className="text-[11px] font-medium text-[var(--text-main)] truncate">{d.code}</span>
+                    <span className="text-sm font-medium text-[var(--text-main)] truncate">{d.code}</span>
                     {/* 명칭 */}
                     <div className="flex items-center gap-1 min-w-0">
-                      {d.isMain && <span className="text-[9px] bg-[var(--orange-500)] text-white rounded-[3px] px-1 py-0.5 flex-shrink-0">주</span>}
-                      {d.special && <span className="text-[9px] bg-[var(--status-error-bg-subtle)] text-[var(--red-500)] border border-[var(--red-200)] rounded-[3px] px-1 py-0.5 flex-shrink-0">{d.special}</span>}
-                      <span className="text-[11px] text-[var(--text-main)] truncate">{d.name}</span>
+                      {d.isMain && <span className="text-micro bg-[var(--orange-500)] text-white rounded-[3px] px-1 py-0.5 flex-shrink-0">주</span>}
+                      {d.special && <span className="text-micro bg-[var(--status-error-bg-subtle)] text-[var(--red-500)] border border-[var(--red-200)] rounded-[3px] px-1 py-0.5 flex-shrink-0">{d.special}</span>}
+                      <span className="text-sm text-[var(--text-main)] truncate">{d.name}</span>
                     </div>
                     {/* 의증 / 배제 / 좌 / 우 — 체크박스 */}
                     {["의증","배제","좌","우"].map(col => (
@@ -2069,19 +2069,19 @@ export function PanelD({
                     ))}
                     {/* 진료과 — 드롭다운 형태 */}
                     <div className="flex items-center justify-between gap-1 px-1.5 h-[18px] border border-[var(--line-default)] rounded-[3px] bg-white">
-                      <span className="text-[10px] text-[var(--text-main)] truncate">이비인후과</span>
-                      <span className="text-[8px] text-[var(--text-tertiary)] leading-none">▾</span>
+                      <span className="text-xs text-[var(--text-main)] truncate">이비인후과</span>
+                      <span className="text-micro text-[var(--text-tertiary)] leading-none">▾</span>
                     </div>
                     {/* 특정기호 */}
-                    <span className="text-[10px] text-[var(--text-sub)] truncate"></span>
+                    <span className="text-xs text-[var(--text-sub)] truncate"></span>
                     {/* 상해외인 */}
-                    <span className="text-[10px] text-[var(--text-sub)] truncate"></span>
+                    <span className="text-xs text-[var(--text-sub)] truncate"></span>
                     {/* 수술 — 체크박스 */}
                     <div className="flex justify-center">
                       <Checkbox checked={false} />
                     </div>
                     {/* 영문명 */}
-                    <span className="text-[10px] text-[var(--text-sub)] truncate"></span>
+                    <span className="text-xs text-[var(--text-sub)] truncate"></span>
                   </div>
 
                   {/* 사전점검 — 불완전상병 인라인 알림 */}
@@ -2141,7 +2141,7 @@ export function PanelD({
               <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-default)] px-2 py-1.5 sticky top-0 z-10"
                 style={{ gridTemplateColumns: PRESC_COLS, minWidth: PRESC_MIN_WIDTH }}>
                 {["사용자코드","명칭","용량","일투","일수","용법","특정내역","청구","수납방법","검체","단가","단위","청구코드","예외","가루","원내"].map((h, i) => (
-                  <span key={i} className={`text-[10px] font-medium text-[var(--text-tertiary)] truncate ${i === 1 ? "text-left" : i === 10 ? "text-right" : "text-center"}`}>{h}</span>
+                  <span key={i} className={`text-xs font-medium text-[var(--text-tertiary)] truncate ${i === 1 ? "text-left" : i === 10 ? "text-right" : "text-center"}`}>{h}</span>
                 ))}
               </div>
 
@@ -2195,7 +2195,7 @@ export function PanelD({
                     )}
                     {/* 사용자코드 — fromReservation 일 때 시계 아이콘 prefix */}
                     {p.fromReservation ? (
-                      <span className="flex items-center justify-center gap-1 text-[10px] text-[var(--orange-500)] truncate">
+                      <span className="flex items-center justify-center gap-1 text-xs text-[var(--orange-500)] truncate">
                         <svg width="11" height="11" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
                           <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
                           <path d="M8 5v3l2 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -2203,11 +2203,11 @@ export function PanelD({
                         <span className="truncate">{p.code}</span>
                       </span>
                     ) : (
-                      <span className="text-[10px] text-[var(--text-tertiary)] truncate text-center">{p.code}</span>
+                      <span className="text-xs text-[var(--text-tertiary)] truncate text-center">{p.code}</span>
                     )}
                     {/* 명칭 */}
                     <div className="flex items-center gap-1 min-w-0">
-                      <span className="text-[11px] text-[var(--text-main)] truncate">{p.name}</span>
+                      <span className="text-sm text-[var(--text-main)] truncate">{p.name}</span>
                     </div>
                     {/* 용량 / 일투 / 일수 — 인라인 편집. 다중선택 시 일괄변경됨.
                         stopPropagation 으로 행 클릭(선택 변경) 차단해서 multi-edit 유지. */}
@@ -2220,7 +2220,7 @@ export function PanelD({
                       onContextMenu={e => e.stopPropagation()}
                       onChange={e => updateRxField(p.code, "dose", e.target.value)}
                       title={isSelected && rowSelection!.codes.size > 1 ? `다중선택 일괄변경 (${rowSelection!.codes.size}건)` : "용량 편집"}
-                      className="text-[11px] text-[var(--text-main)] text-center tabular-nums w-full bg-transparent outline-none border border-transparent hover:border-[var(--line-default)] focus:border-[var(--brand-primary)] focus:bg-white rounded px-0.5 cursor-text transition-colors"
+                      className="text-sm text-[var(--text-main)] text-center tabular-nums w-full bg-transparent outline-none border border-transparent hover:border-[var(--line-default)] focus:border-[var(--brand-primary)] focus:bg-white rounded px-0.5 cursor-text transition-colors"
                     />
                     <input
                       type="text"
@@ -2231,7 +2231,7 @@ export function PanelD({
                       onContextMenu={e => e.stopPropagation()}
                       onChange={e => updateRxField(p.code, "freq", e.target.value)}
                       title={isSelected && rowSelection!.codes.size > 1 ? `다중선택 일괄변경 (${rowSelection!.codes.size}건)` : "일투 편집"}
-                      className="text-[11px] text-[var(--text-main)] text-center tabular-nums w-full bg-transparent outline-none border border-transparent hover:border-[var(--line-default)] focus:border-[var(--brand-primary)] focus:bg-white rounded px-0.5 cursor-text transition-colors"
+                      className="text-sm text-[var(--text-main)] text-center tabular-nums w-full bg-transparent outline-none border border-transparent hover:border-[var(--line-default)] focus:border-[var(--brand-primary)] focus:bg-white rounded px-0.5 cursor-text transition-colors"
                     />
                     <input
                       type="text"
@@ -2242,10 +2242,10 @@ export function PanelD({
                       onContextMenu={e => e.stopPropagation()}
                       onChange={e => updateRxField(p.code, "days", e.target.value)}
                       title={isSelected && rowSelection!.codes.size > 1 ? `다중선택 일괄변경 (${rowSelection!.codes.size}건)` : "일수 편집"}
-                      className="text-[11px] text-[var(--text-main)] text-center tabular-nums w-full bg-transparent outline-none border border-transparent hover:border-[var(--line-default)] focus:border-[var(--brand-primary)] focus:bg-white rounded px-0.5 cursor-text transition-colors"
+                      className="text-sm text-[var(--text-main)] text-center tabular-nums w-full bg-transparent outline-none border border-transparent hover:border-[var(--line-default)] focus:border-[var(--brand-primary)] focus:bg-white rounded px-0.5 cursor-text transition-colors"
                     />
                     {/* 용법 */}
-                    <span className="text-[10px] text-[var(--text-main)] text-center truncate">{p.method}</span>
+                    <span className="text-xs text-[var(--text-main)] text-center truncate">{p.method}</span>
                     {/* 특정내역 — 3-state 메모 아이콘:
                          · 내용 있음                          → 브랜드 컬러 메모 아이콘 (channel 채워짐)
                          · 기초자료 requiresSpecial + 미입력  → 회색 메모 아이콘 (미입력 알림)
@@ -2296,7 +2296,7 @@ export function PanelD({
                       <button
                         onClick={() => toggleClaim(p.code)}
                         title={p.claim ? "청구 → 클릭하여 비청구" : "비청구 → 클릭하여 청구"}
-                        className={`text-[9px] font-bold rounded-[3px] px-1 py-0.5 leading-none transition-colors ${
+                        className={`text-micro font-bold rounded-[3px] px-1 py-0.5 leading-none transition-colors ${
                           p.claim
                             ? "bg-[var(--orange-500)] text-white hover:opacity-80"
                             : "bg-[var(--bg-subtle)] text-[var(--text-tertiary)] border border-[var(--line-default)] hover:bg-[var(--bg-neutral)]"
@@ -2312,7 +2312,7 @@ export function PanelD({
                           setPayMenuFor(prev => prev?.code === p.code ? null : { code: p.code, rect });
                         }}
                         title="수납방법 선택"
-                        className={`flex items-center gap-0.5 text-[9px] bg-[var(--bg-subtle)] text-[var(--text-sub)] border border-[var(--line-default)] rounded-[3px] px-1 py-0.5 leading-none whitespace-nowrap hover:bg-[var(--bg-neutral)] transition-colors min-w-[40px] justify-center ${
+                        className={`flex items-center gap-0.5 text-micro bg-[var(--bg-subtle)] text-[var(--text-sub)] border border-[var(--line-default)] rounded-[3px] px-1 py-0.5 leading-none whitespace-nowrap hover:bg-[var(--bg-neutral)] transition-colors min-w-[40px] justify-center ${
                           payMenuFor?.code === p.code ? "border-[var(--brand-primary)] text-[var(--brand-primary)]" : ""
                         }`}
                       >
@@ -2323,13 +2323,13 @@ export function PanelD({
                       </button>
                     </div>
                     {/* 검체 */}
-                    <span className="text-[10px] text-[var(--text-sub)] text-center truncate">{p.specimen ?? ""}</span>
+                    <span className="text-xs text-[var(--text-sub)] text-center truncate">{p.specimen ?? ""}</span>
                     {/* 단가 */}
-                    <span className="text-[11px] text-[var(--text-main)] text-right">{p.price > 0 ? `${p.price.toLocaleString()}원` : "0원"}</span>
+                    <span className="text-sm text-[var(--text-main)] text-right">{p.price > 0 ? `${p.price.toLocaleString()}원` : "0원"}</span>
                     {/* 단위 */}
-                    <span className="text-[10px] text-[var(--text-sub)] text-center truncate">{p.unit ?? ""}</span>
+                    <span className="text-xs text-[var(--text-sub)] text-center truncate">{p.unit ?? ""}</span>
                     {/* 청구코드 */}
-                    <span className="text-[10px] text-[var(--text-sub)] text-center truncate">{p.billCode ?? ""}</span>
+                    <span className="text-xs text-[var(--text-sub)] text-center truncate">{p.billCode ?? ""}</span>
                     {/* 예외 */}
                     <div className="flex justify-center">
                       <Checkbox checked={!!p.exception} />
@@ -2340,7 +2340,7 @@ export function PanelD({
                     </div>
                     {/* 원내 — 검사는 텍스트(수탁/원내), 약품은 체크박스(체크=원내, 미체크=원외) */}
                     {p.kind === "lab" ? (
-                      <span className="text-[10px] text-[var(--text-sub)] text-center">
+                      <span className="text-xs text-[var(--text-sub)] text-center">
                         {p.isInternal ? "원내" : "수탁"}
                       </span>
                     ) : (
@@ -2435,7 +2435,7 @@ export function PanelD({
                       >
                         <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--violet-500)]" />
                         {/* 사용자코드 — 시계 아이콘 + 코드 */}
-                        <span className="flex items-center justify-center gap-1 text-[10px] text-[var(--violet-700)] truncate">
+                        <span className="flex items-center justify-center gap-1 text-xs text-[var(--violet-700)] truncate">
                           <svg width="11" height="11" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
                             <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
                             <path d="M8 5v3l2 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
@@ -2443,29 +2443,29 @@ export function PanelD({
                           <span className="truncate">{r.code}</span>
                         </span>
                         {/* 명칭 */}
-                        <span className="text-[11px] text-[var(--text-main)] truncate">{r.name}</span>
+                        <span className="text-sm text-[var(--text-main)] truncate">{r.name}</span>
                         {/* 용량 / 일투 / 일수 */}
-                        <span className="text-[11px] text-[var(--text-main)] text-center tabular-nums">{r.dose}</span>
-                        <span className="text-[11px] text-[var(--text-main)] text-center tabular-nums">{r.freq}</span>
-                        <span className="text-[11px] text-[var(--text-main)] text-center tabular-nums">{r.days}</span>
+                        <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.dose}</span>
+                        <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.freq}</span>
+                        <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.days}</span>
                         {/* 용법 */}
-                        <span className="text-[10px] text-[var(--text-main)] text-center truncate">{r.method ?? ""}</span>
+                        <span className="text-xs text-[var(--text-main)] text-center truncate">{r.method ?? ""}</span>
                         {/* 특정내역 — "다음에" / 수행일 */}
-                        <span className={`text-[9px] text-center truncate font-medium ${r.scheduledDate ? "text-[var(--violet-700)]" : "text-[var(--text-tertiary)]"}`}>
+                        <span className={`text-micro text-center truncate font-medium ${r.scheduledDate ? "text-[var(--violet-700)]" : "text-[var(--text-tertiary)]"}`}>
                           {r.scheduledDate ? r.scheduledDate.slice(5).replace("-", ".") : "다음에"}
                         </span>
                         {/* 청구 / 수납방법 / 검체 — 예약은 비활성 */}
-                        <span className="text-[9px] text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-[9px] text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-[9px] text-center text-[var(--text-tertiary)]">—</span>
+                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
                         {/* 단가 (보험가) */}
-                        <span className="text-[11px] text-[var(--text-main)] text-right tabular-nums">{r.insurancePrice.toLocaleString()}원</span>
+                        <span className="text-sm text-[var(--text-main)] text-right tabular-nums">{r.insurancePrice.toLocaleString()}원</span>
                         {/* 단위 / 청구코드 / 예외 / 가루 / 원내 — 예약은 비워둠 */}
-                        <span className="text-[9px] text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-[9px] text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-[9px] text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-[9px] text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-[9px] text-center text-[var(--text-tertiary)]">—</span>
+                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
                       </div>
                     ))}
                   </>
@@ -2486,8 +2486,8 @@ export function PanelD({
       {/* D3.5: 특정내역 — 가로로 길고 높이는 1줄로 컴팩트 */}
       <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-2.5 py-1.5 flex items-center gap-2 flex-shrink-0">
         {/* 라벨 */}
-        <span className="text-[12px] font-bold text-[var(--text-main)] flex-shrink-0">특정내역</span>
-        <span className="text-[10px] text-[var(--text-tertiary)] flex-shrink-0">(MX999)</span>
+        <span className="text-md font-bold text-[var(--text-main)] flex-shrink-0">특정내역</span>
+        <span className="text-xs text-[var(--text-tertiary)] flex-shrink-0">(MX999)</span>
         {/* 설정 + 더보기 */}
         <button title="특정내역 설정"
           className="w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)] flex-shrink-0">
@@ -2497,17 +2497,17 @@ export function PanelD({
         </button>
         <button title="더보기"
           className="w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)] flex-shrink-0">
-          <span className="text-[14px] leading-none">···</span>
+          <span className="text-lg leading-none">···</span>
         </button>
         {/* 입력 영역 */}
         <input
           type="text"
           placeholder="영문(700자), 한글(350자) 이내 입력"
-          className="flex-1 min-w-0 h-7 px-3 text-[12px] bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-[6px] outline-none focus:border-[var(--brand-primary)] focus:bg-white placeholder:text-[var(--text-placeholder)]"
+          className="flex-1 min-w-0 h-7 px-3 text-md bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-[6px] outline-none focus:border-[var(--brand-primary)] focus:bg-white placeholder:text-[var(--text-placeholder)]"
         />
         {/* 추가 버튼 */}
         <button
-          className="h-7 px-3 text-[12px] font-medium text-[var(--brand-primary)] bg-white border border-[var(--brand-primary)] rounded-[6px] hover:bg-[var(--bg-primary-subtle)] flex-shrink-0">
+          className="h-7 px-3 text-md font-medium text-[var(--brand-primary)] bg-white border border-[var(--brand-primary)] rounded-[6px] hover:bg-[var(--bg-primary-subtle)] flex-shrink-0">
           특정내역 추가
         </button>
       </div>
@@ -2531,7 +2531,7 @@ export function PanelD({
             <button
               onClick={e => setReserveListRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
               title="예약처방 목록 / 등록"
-              className={`flex items-center gap-1 text-[11px] rounded-[4px] px-2 py-1 transition-colors ${
+              className={`flex items-center gap-1 text-sm rounded-[4px] px-2 py-1 transition-colors ${
                 reserveListRect
                   ? "bg-[var(--bg-primary-subtle)] border border-[var(--brand-primary)] text-[var(--brand-primary)]"
                   : "bg-white border border-[var(--line-default)] text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]"
@@ -2539,16 +2539,16 @@ export function PanelD({
             >
               <span>📅</span> 예약처방
               {reservedRx.length > 0 && (
-                <span className={`text-[10px] font-bold tabular-nums ${reserveListRect ? "text-[var(--brand-primary)]" : "text-[var(--text-link)]"}`}>{reservedRx.length}</span>
+                <span className={`text-xs font-bold tabular-nums ${reserveListRect ? "text-[var(--brand-primary)]" : "text-[var(--text-link)]"}`}>{reservedRx.length}</span>
               )}
             </button>
-            <button className="flex items-center gap-1 text-[11px] bg-white border border-[var(--line-default)] text-[var(--text-sub)] rounded-[4px] px-2 py-1">
+            <button className="flex items-center gap-1 text-sm bg-white border border-[var(--line-default)] text-[var(--text-sub)] rounded-[4px] px-2 py-1">
               <span>👤</span> 환자예외
             </button>
             <button
               onClick={e => setBannedListRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
               title="처방금지 약품 목록 / 등록"
-              className={`flex items-center gap-1 text-[11px] rounded-[4px] px-2 py-1 transition-colors ${
+              className={`flex items-center gap-1 text-sm rounded-[4px] px-2 py-1 transition-colors ${
                 bannedListRect
                   ? "bg-[var(--bg-primary-subtle)] border border-[var(--brand-primary)] text-[var(--brand-primary)]"
                   : "bg-white border border-[var(--line-default)] text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]"
@@ -2556,14 +2556,14 @@ export function PanelD({
             >
               <span>🚫</span> 처방금지
               {bannedDrugs.length > 0 && (
-                <span className="text-[10px] font-bold tabular-nums text-[var(--red-500)]">{bannedDrugs.length}</span>
+                <span className="text-xs font-bold tabular-nums text-[var(--red-500)]">{bannedDrugs.length}</span>
               )}
             </button>
           </div>
           <div className="flex-1" />
           {/* 오늘 차트 합계 — 점검 버튼 좌측 */}
           <div className="flex items-baseline px-2">
-            <span className="text-[14px] font-bold text-[var(--text-main)] tabular-nums">
+            <span className="text-lg font-bold text-[var(--text-main)] tabular-nums">
               ₩{localRx.reduce((sum, p) => sum + (p.price ?? 0), 0).toLocaleString()}
             </span>
           </div>
@@ -2571,18 +2571,18 @@ export function PanelD({
             <button
               onClick={() => setDurChecked(c => !c)}
               aria-pressed={durChecked}
-              className={`h-7 px-3 rounded-md text-[12px] font-medium transition-colors inline-flex items-center gap-1 ${
+              className={`h-7 px-3 rounded-md text-md font-medium transition-colors inline-flex items-center gap-1 ${
                 durChecked
                   ? "border border-[var(--brand-primary)] bg-[var(--brand-primary)] text-white shadow-inner hover:bg-[var(--brand-primary-pressed)]"
                   : "border border-[var(--line-default)] text-[var(--text-main)] bg-white hover:bg-[var(--bg-subtle)]"
               }`}
             >
-              <span className={`text-[10px] leading-none ${durChecked ? "opacity-100" : "opacity-30"}`}>●</span>
+              <span className={`text-xs leading-none ${durChecked ? "opacity-100" : "opacity-30"}`}>●</span>
               점검
             </button>
-            <button className="h-7 px-3 border border-[var(--line-default)] rounded-md text-[12px] font-medium text-[var(--text-main)] bg-white hover:bg-[var(--bg-subtle)]">저장</button>
-            <button className="h-7 px-3 border border-[var(--line-default)] rounded-md text-[12px] font-medium text-[var(--text-main)] bg-white hover:bg-[var(--bg-subtle)]">저장전달</button>
-            <button className="h-7 px-3.5 rounded-md text-[12px] font-bold text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-pressed)]">출력전달</button>
+            <button className="h-7 px-3 border border-[var(--line-default)] rounded-md text-md font-medium text-[var(--text-main)] bg-white hover:bg-[var(--bg-subtle)]">저장</button>
+            <button className="h-7 px-3 border border-[var(--line-default)] rounded-md text-md font-medium text-[var(--text-main)] bg-white hover:bg-[var(--bg-subtle)]">저장전달</button>
+            <button className="h-7 px-3.5 rounded-md text-md font-bold text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-pressed)]">출력전달</button>
           </div>
         </div>
       </div>
@@ -2603,7 +2603,7 @@ export function PanelD({
             zIndex: 9999,
           }}
         >
-          <div className="px-3 pb-1 text-[10px] font-medium text-[var(--text-tertiary)]">표시 항목</div>
+          <div className="px-3 pb-1 text-xs font-medium text-[var(--text-tertiary)]">표시 항목</div>
           {D2_SUB_PANELS.map(name => {
             const checked = d2Active.has(name);
             return (
@@ -2617,7 +2617,7 @@ export function PanelD({
                     return next;
                   })}
                 />
-                <span className="text-[12px] text-[var(--text-main)]">{name}</span>
+                <span className="text-md text-[var(--text-main)]">{name}</span>
               </label>
             );
           })}
@@ -2646,7 +2646,7 @@ export function PanelD({
             <button
               key={item}
               onClick={() => setChartMenuRect(null)}
-              className="w-full text-left px-3 py-1.5 text-[12px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
+              className="w-full text-left px-3 py-1.5 text-md text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
             >
               {item}
             </button>
@@ -2682,7 +2682,7 @@ export function PanelD({
               setRowSelection(null);
               setRowContextMenu(null);
             }}
-            className="w-full text-left px-3 py-1.5 text-[12px] text-[var(--red-500)] hover:bg-[var(--status-error-bg-subtle)]"
+            className="w-full text-left px-3 py-1.5 text-md text-[var(--red-500)] hover:bg-[var(--status-error-bg-subtle)]"
           >
             선택삭제 ({rowContextMenu.selectedCount})
           </button>
@@ -2700,7 +2700,7 @@ export function PanelD({
               setRowSelection(null);
               setRowContextMenu(null);
             }}
-            className="w-full text-left px-3 py-1.5 text-[12px] text-[var(--red-500)] hover:bg-[var(--status-error-bg-subtle)]"
+            className="w-full text-left px-3 py-1.5 text-md text-[var(--red-500)] hover:bg-[var(--status-error-bg-subtle)]"
           >
             전체삭제
           </button>
@@ -2717,7 +2717,7 @@ export function PanelD({
                 showToast(rowContextMenu.singleKind === "lab" ? "검사정보 조회" : "DI 조회");
                 setRowContextMenu(null);
               }}
-              className="w-full text-left px-3 py-1.5 text-[12px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
+              className="w-full text-left px-3 py-1.5 text-md text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
             >
               {rowContextMenu.singleKind === "lab" ? "검사정보 조회" : "DI 조회"}
             </button>
@@ -2738,7 +2738,7 @@ export function PanelD({
                 }
                 setRowContextMenu(null);
               }}
-              className="w-full text-left px-3 py-1.5 text-[12px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
+              className="w-full text-left px-3 py-1.5 text-md text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
             >
               처방금지약품 등록
             </button>
@@ -2751,7 +2751,7 @@ export function PanelD({
                 showToast(`${rowContextMenu.selectedCount}개 항목을 묶음으로 추가`);
                 setRowContextMenu(null);
               }}
-              className="w-full text-left px-3 py-1.5 text-[12px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
+              className="w-full text-left px-3 py-1.5 text-md text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
             >
               묶음으로 추가
             </button>
@@ -2764,7 +2764,7 @@ export function PanelD({
                 showToast("PRN 처방 추가");
                 setRowContextMenu(null);
               }}
-              className="w-full text-left px-3 py-1.5 text-[12px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
+              className="w-full text-left px-3 py-1.5 text-md text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
             >
               PRN 처방 추가
             </button>
@@ -2792,7 +2792,7 @@ export function PanelD({
                 if (items.length > 0) setReserveModalItems(items);
                 setRowContextMenu(null);
               }}
-              className="w-full text-left px-3 py-1.5 text-[12px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
+              className="w-full text-left px-3 py-1.5 text-md text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
             >
               예약처방 등록
             </button>
@@ -2854,7 +2854,7 @@ export function PanelD({
                     setPayMethod(payMenuFor.code, item.value);
                     setPayMenuFor(null);
                   }}
-                  className={`w-full flex items-center gap-1.5 px-2.5 py-1 text-[11px] text-left hover:bg-[var(--bg-subtle)] ${
+                  className={`w-full flex items-center gap-1.5 px-2.5 py-1 text-sm text-left hover:bg-[var(--bg-subtle)] ${
                     active ? "text-[var(--brand-primary)] font-bold bg-[var(--bg-primary-subtle)]" : "text-[var(--text-main)]"
                   }`}
                 >
@@ -2975,10 +2975,10 @@ export function PanelD({
       {/* DUR Action Toast */}
       {toast && (
         <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-[9999] flex items-center gap-3 bg-[var(--bg-inverse)] text-white px-4 py-2.5 rounded-xl shadow-2xl">
-          <span className="text-[12px]">{toast.msg}</span>
+          <span className="text-md">{toast.msg}</span>
           {toast.undo && (
             <button onClick={() => { toast.undo!(); setToast(null); }}
-              className="text-[11px] text-[var(--blue-300)] hover:text-[var(--blue-200)] font-medium underline">
+              className="text-sm text-[var(--blue-300)] hover:text-[var(--blue-200)] font-medium underline">
               실행취소
             </button>
           )}

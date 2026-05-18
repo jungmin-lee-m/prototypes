@@ -254,15 +254,15 @@ function GreetingHeader({ onOpenWidgetSettings }: { onOpenWidgetSettings: () => 
         <h1 className="text-[20px] font-bold text-[var(--text-main)] mb-1">
           {DOCTOR_NAME} 원장님, 좋은 아침입니다
         </h1>
-        <p className="text-[14px] text-[var(--text-sub)]">{TODAY_DATE}</p>
+        <p className="text-lg text-[var(--text-sub)]">{TODAY_DATE}</p>
       </div>
       <div className="flex items-center gap-6 flex-shrink-0">
         <div className="text-right">
-          <p className="text-[12px] text-[var(--text-tertiary)] mb-0.5">오늘 예약</p>
+          <p className="text-md text-[var(--text-tertiary)] mb-0.5">오늘 예약</p>
           <div className="flex items-baseline gap-2 justify-end">
             <span className="text-[24px] font-bold text-[var(--text-main)] leading-none">{TODAY_PATIENTS}</span>
-            <span className="text-[14px] text-[var(--text-sub)]">명</span>
-            <span className="text-[12px] font-medium" style={{ color: deltaColor }}>
+            <span className="text-lg text-[var(--text-sub)]">명</span>
+            <span className="text-md font-medium" style={{ color: deltaColor }}>
               {deltaSign}{PATIENT_DELTA_VS_YESTERDAY} vs 어제
             </span>
           </div>
@@ -289,7 +289,7 @@ function TaskMetaPill({ meta }: { meta: TaskMeta }) {
     const fg = meta.tone === "loss" ? "var(--red-500)" : "var(--green-500)";
     const bg = meta.tone === "loss" ? "var(--status-error-bg-subtle)" : "var(--status-success-bg-subtle)";
     return (
-      <span className="inline-flex items-baseline gap-1 px-2 py-1 rounded-md text-[12px]" style={{ background: bg }}>
+      <span className="inline-flex items-baseline gap-1 px-2 py-1 rounded-md text-md" style={{ background: bg }}>
         <span className="text-[var(--text-tertiary)]">{meta.label}</span>
         <span className="font-bold" style={{ color: fg }}>{fmtKRW(meta.amount)}</span>
       </span>
@@ -298,21 +298,21 @@ function TaskMetaPill({ meta }: { meta: TaskMeta }) {
   if (meta.kind === "risk") {
     const t = RISK_TOKENS[meta.level];
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[12px] font-bold" style={{ background: t.bg, color: t.fg }}>
+      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-md font-bold" style={{ background: t.bg, color: t.fg }}>
         위험도 {meta.level}
       </span>
     );
   }
   if (meta.kind === "count") {
     return (
-      <span className="inline-flex items-baseline gap-1 px-2 py-1 rounded-md text-[12px] bg-[var(--bg-subtle)]">
+      <span className="inline-flex items-baseline gap-1 px-2 py-1 rounded-md text-md bg-[var(--bg-subtle)]">
         <span className="text-[var(--text-tertiary)]">{meta.label}</span>
         <span className="font-bold text-[var(--text-main)]">{meta.value.toLocaleString()}{meta.unit ?? ""}</span>
       </span>
     );
   }
   return (
-    <span className="inline-flex items-baseline gap-1 px-2 py-1 rounded-md text-[12px] bg-[var(--bg-subtle)]">
+    <span className="inline-flex items-baseline gap-1 px-2 py-1 rounded-md text-md bg-[var(--bg-subtle)]">
       <span className="text-[var(--text-tertiary)]">{meta.label}</span>
       <span className="font-medium text-[var(--text-main)]">{meta.value}</span>
     </span>
@@ -344,24 +344,24 @@ function BatchTaskCard({
         <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ background: tokens.fg }} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-2">
-            <span className="text-[11px] font-bold px-1.5 py-0.5 rounded" style={{ background: tokens.chip, color: tokens.chipFg }}>
+            <span className="text-sm font-bold px-1.5 py-0.5 rounded" style={{ background: tokens.chip, color: tokens.chipFg }}>
               {task.category}
             </span>
             {task.tag && (
-              <span className="text-[11px] text-[var(--text-tertiary)] px-1.5 py-0.5 rounded bg-[var(--bg-subtle)]">{task.tag}</span>
+              <span className="text-sm text-[var(--text-tertiary)] px-1.5 py-0.5 rounded bg-[var(--bg-subtle)]">{task.tag}</span>
             )}
-            <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: tokens.fg }}>일괄</span>
+            <span className="ml-auto text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: tokens.fg }}>일괄</span>
           </div>
           <div className="flex items-baseline gap-3 mb-1.5">
             {countMeta && (
               <span className="text-[28px] font-bold leading-none flex-shrink-0" style={{ color: tokens.fg }}>
                 {countMeta.value}
-                <span className="text-[14px] text-[var(--text-sub)] font-medium ml-0.5">{countMeta.unit}</span>
+                <span className="text-lg text-[var(--text-sub)] font-medium ml-0.5">{countMeta.unit}</span>
               </span>
             )}
-            <h3 className="text-[15px] font-bold text-[var(--text-main)] leading-snug flex-1 min-w-0">{task.title}</h3>
+            <h3 className="text-xl font-bold text-[var(--text-main)] leading-snug flex-1 min-w-0">{task.title}</h3>
           </div>
-          <p className="text-[12px] text-[var(--text-sub)] mb-3 leading-relaxed">
+          <p className="text-md text-[var(--text-sub)] mb-3 leading-relaxed">
             <span className="text-[var(--text-tertiary)]">근거 · </span>{task.reason}
           </p>
           {(moneyMetas.length + otherMetas.length) > 0 && (
@@ -374,7 +374,7 @@ function BatchTaskCard({
           <div className="flex items-center gap-2 pt-1">
             <button disabled={muted} onClick={onMute}
               title="앞으로 이 패턴의 알림을 받지 않습니다"
-              className="flex items-center gap-1 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] disabled:cursor-not-allowed disabled:opacity-40">
+              className="flex items-center gap-1 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] disabled:cursor-not-allowed disabled:opacity-40">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                 <path d="M2 2L14 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
                 <path d="M11.5 11H4.5l1-2V7a2.5 2.5 0 0 1 2.5-2.5h.5M12 9V7a4 4 0 0 0-4-4h-.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
@@ -385,13 +385,13 @@ function BatchTaskCard({
             {/* 핵심 액션 — 우하단. secondary가 먼저, primary가 가장 우측 */}
             {task.actions.filter(a => a.variant !== "primary").map((a, i) => (
               <button key={`s${i}`} disabled={muted} onClick={() => onAction(a.onAction)}
-                className="h-9 px-3 text-[13px] font-medium rounded-md bg-white border border-[var(--line-default)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)] disabled:cursor-not-allowed disabled:opacity-40">
+                className="h-9 px-3 text-lg font-medium rounded-md bg-white border border-[var(--line-default)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)] disabled:cursor-not-allowed disabled:opacity-40">
                 {a.label}
               </button>
             ))}
             {task.actions.filter(a => a.variant === "primary").map((a, i) => (
               <button key={`p${i}`} disabled={muted} onClick={() => onAction(a.onAction)}
-                className="h-10 px-5 text-[13px] font-bold text-white rounded-md shadow-sm hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-10 px-5 text-lg font-bold text-white rounded-md shadow-sm hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
                 style={{ background: tokens.fg }}>
                 {a.label}
               </button>
@@ -427,26 +427,26 @@ function CompactTaskRow({
         </svg>
       </button>
       <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: tokens.fg }} />
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: tokens.chip, color: tokens.chipFg }}>
+      <span className="text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: tokens.chip, color: tokens.chipFg }}>
         {task.tag ?? task.category}
       </span>
-      <span className="text-[13px] font-bold text-[var(--text-main)] flex-shrink-0 truncate max-w-[180px]">
+      <span className="text-lg font-bold text-[var(--text-main)] flex-shrink-0 truncate max-w-[180px]">
         {task.patient ?? task.title}
       </span>
-      <span className="text-[12px] text-[var(--text-sub)] flex-1 min-w-0 truncate">
+      <span className="text-md text-[var(--text-sub)] flex-1 min-w-0 truncate">
         {task.shortLine ?? task.reason}
       </span>
       {headlineMeta && <span className="flex-shrink-0"><TaskMetaPill meta={headlineMeta} /></span>}
       {/* 우측: 액션 — secondary 먼저, primary 우측 끝 */}
       {secondary && (
         <button disabled={muted} onClick={() => onAction(secondary.onAction)} title={secondary.label}
-          className="h-7 px-2 text-[11px] text-[var(--text-sub)] rounded-md hover:bg-white border border-transparent hover:border-[var(--line-default)] disabled:cursor-not-allowed flex-shrink-0">
+          className="h-7 px-2 text-sm text-[var(--text-sub)] rounded-md hover:bg-white border border-transparent hover:border-[var(--line-default)] disabled:cursor-not-allowed flex-shrink-0">
           {secondary.label}
         </button>
       )}
       {primary && (
         <button disabled={muted} onClick={() => onAction(primary.onAction)}
-          className="h-7 px-2.5 text-[11px] font-medium text-white rounded-md disabled:cursor-not-allowed disabled:opacity-40 flex-shrink-0"
+          className="h-7 px-2.5 text-sm font-medium text-white rounded-md disabled:cursor-not-allowed disabled:opacity-40 flex-shrink-0"
           style={{ background: tokens.fg }}>
           {primary.label}
         </button>
@@ -513,7 +513,7 @@ function EmptyTasks({ message }: { message: string }) {
   return (
     <div className="bg-white rounded-xl border border-[var(--line-default)] py-10 flex flex-col items-center gap-2">
       <span className="text-[28px]">🎉</span>
-      <p className="text-[13px] font-medium text-[var(--text-main)]">{message}</p>
+      <p className="text-lg font-medium text-[var(--text-main)]">{message}</p>
     </div>
   );
 }
@@ -527,9 +527,9 @@ function ReportStat({ label, value, sub, tone = "neutral" }: {
   const subColor = tone === "gain" ? "var(--green-500)" : tone === "loss" ? "var(--red-500)" : "var(--text-tertiary)";
   return (
     <div>
-      <p className="text-[11px] text-[var(--text-tertiary)] mb-1">{label}</p>
+      <p className="text-sm text-[var(--text-tertiary)] mb-1">{label}</p>
       <p className="text-[20px] font-bold text-[var(--text-main)] leading-tight">{value}</p>
-      {sub && <p className="text-[11px] mt-0.5" style={{ color: subColor }}>{sub}</p>}
+      {sub && <p className="text-sm mt-0.5" style={{ color: subColor }}>{sub}</p>}
     </div>
   );
 }
@@ -579,9 +579,9 @@ function RankList({ items }: { items: { label: string; value: string }[] }) {
     <ol className="flex flex-col gap-1.5">
       {items.map((it, i) => (
         <li key={i} className="flex items-center gap-2">
-          <span className="w-5 text-[11px] font-bold text-[var(--text-tertiary)]">{i + 1}</span>
-          <span className="flex-1 text-[13px] text-[var(--text-main)] truncate">{it.label}</span>
-          <span className="text-[12px] font-bold text-[var(--text-sub)]">{it.value}</span>
+          <span className="w-5 text-sm font-bold text-[var(--text-tertiary)]">{i + 1}</span>
+          <span className="flex-1 text-lg text-[var(--text-main)] truncate">{it.label}</span>
+          <span className="text-md font-bold text-[var(--text-sub)]">{it.value}</span>
         </li>
       ))}
     </ol>
@@ -594,8 +594,8 @@ function BigStat({ value, sub, tone = "neutral", caption }: {
   return (
     <div className="py-3">
       <p className="text-[28px] font-bold text-[var(--text-main)] leading-tight">{value}</p>
-      {sub && <p className="text-[12px] mt-1" style={{ color: subColor }}>{sub}</p>}
-      {caption && <p className="text-[11px] text-[var(--text-tertiary)] mt-1">{caption}</p>}
+      {sub && <p className="text-md mt-1" style={{ color: subColor }}>{sub}</p>}
+      {caption && <p className="text-sm text-[var(--text-tertiary)] mt-1">{caption}</p>}
     </div>
   );
 }
@@ -618,7 +618,7 @@ function Sparkline({ values, stroke, fill }: { values: number[]; stroke: string;
         <path d={pathD} stroke={stroke} strokeWidth="2.5" fill="none"
           vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
       </svg>
-      <p className="text-[11px] text-[var(--text-tertiary)] mt-1">최근 30일</p>
+      <p className="text-sm text-[var(--text-tertiary)] mt-1">최근 30일</p>
     </div>
   );
 }
@@ -638,7 +638,7 @@ function CatalogWidgetBody({ id }: { id: WidgetId }) {
                 <div className="flex-1 w-full flex items-end">
                   <div className="w-full rounded-t" style={{ height: `${(v / max) * 100}%`, background: "var(--brand-primary)" }} />
                 </div>
-                <span className="text-[10px] text-[var(--text-tertiary)]">{labels[i]}</span>
+                <span className="text-xs text-[var(--text-tertiary)]">{labels[i]}</span>
               </div>
             ))}
           </div>
@@ -649,20 +649,20 @@ function CatalogWidgetBody({ id }: { id: WidgetId }) {
         return (
           <div className="flex flex-col gap-2 py-2">
             <div className="flex items-center gap-2">
-              <span className="w-12 text-[12px] text-[var(--text-sub)]">급여</span>
+              <span className="w-12 text-md text-[var(--text-sub)]">급여</span>
               <div className="flex-1 h-5 rounded bg-[var(--bg-subtle)] overflow-hidden">
                 <div className="h-full" style={{ width: `${ins}%`, background: "var(--brand-primary)" }} />
               </div>
-              <span className="w-10 text-right text-[12px] font-bold text-[var(--text-main)]">{ins}%</span>
+              <span className="w-10 text-right text-md font-bold text-[var(--text-main)]">{ins}%</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-12 text-[12px] text-[var(--text-sub)]">비급여</span>
+              <span className="w-12 text-md text-[var(--text-sub)]">비급여</span>
               <div className="flex-1 h-5 rounded bg-[var(--bg-subtle)] overflow-hidden">
                 <div className="h-full" style={{ width: `${nonIns}%`, background: "var(--orange-500)" }} />
               </div>
-              <span className="w-10 text-right text-[12px] font-bold text-[var(--text-main)]">{nonIns}%</span>
+              <span className="w-10 text-right text-md font-bold text-[var(--text-main)]">{nonIns}%</span>
             </div>
-            <p className="text-[11px] text-[var(--text-tertiary)] mt-2">총 매출 ₩2,480,000</p>
+            <p className="text-sm text-[var(--text-tertiary)] mt-2">총 매출 ₩2,480,000</p>
           </div>
         );
       }
@@ -697,18 +697,18 @@ function CatalogWidgetBody({ id }: { id: WidgetId }) {
         return (
           <div className="flex flex-col gap-2 py-2">
             <div className="flex items-center gap-2">
-              <span className="w-12 text-[12px] text-[var(--text-sub)]">신환</span>
+              <span className="w-12 text-md text-[var(--text-sub)]">신환</span>
               <div className="flex-1 h-5 rounded bg-[var(--bg-subtle)] overflow-hidden">
                 <div className="h-full" style={{ width: `${ratio}%`, background: "var(--green-500)" }} />
               </div>
-              <span className="w-10 text-right text-[12px] font-bold text-[var(--text-main)]">{ratio}%</span>
+              <span className="w-10 text-right text-md font-bold text-[var(--text-main)]">{ratio}%</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-12 text-[12px] text-[var(--text-sub)]">재진</span>
+              <span className="w-12 text-md text-[var(--text-sub)]">재진</span>
               <div className="flex-1 h-5 rounded bg-[var(--bg-subtle)] overflow-hidden">
                 <div className="h-full" style={{ width: `${100 - ratio}%`, background: "var(--brand-primary)" }} />
               </div>
-              <span className="w-10 text-right text-[12px] font-bold text-[var(--text-main)]">{100 - ratio}%</span>
+              <span className="w-10 text-right text-md font-bold text-[var(--text-main)]">{100 - ratio}%</span>
             </div>
           </div>
         );
@@ -729,7 +729,7 @@ function CatalogWidgetBody({ id }: { id: WidgetId }) {
                 <div className="flex-1 w-full flex items-end">
                   <div className="w-full rounded-t" style={{ height: `${(v / max) * 100}%`, background: "var(--green-500)" }} />
                 </div>
-                <span className="text-[10px] text-[var(--text-tertiary)]">{labels[i]}</span>
+                <span className="text-xs text-[var(--text-tertiary)]">{labels[i]}</span>
               </div>
             ))}
           </div>
@@ -798,21 +798,21 @@ function WidgetWrapper({
             <circle cx="5" cy="13" r="1.2" /><circle cx="11" cy="13" r="1.2" />
           </svg>
         </span>
-        <h2 className="text-[16px] font-bold text-[var(--text-main)]">{def.title}</h2>
-        {def.subtitle && <span className="text-[12px] text-[var(--text-tertiary)]">· {def.subtitle}</span>}
+        <h2 className="text-xl font-bold text-[var(--text-main)]">{def.title}</h2>
+        {def.subtitle && <span className="text-md text-[var(--text-tertiary)]">· {def.subtitle}</span>}
         <div className="flex-1" />
         {/* 컨트롤 — hover 시 노출. 드래그 못 쓰는 환경 대비 */}
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button onClick={onMoveUp} disabled={isFirst} title="위로 이동"
-            className="w-7 h-7 flex items-center justify-center rounded-md text-[12px] text-[var(--text-tertiary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-main)] disabled:opacity-30 disabled:cursor-not-allowed">
+            className="w-7 h-7 flex items-center justify-center rounded-md text-md text-[var(--text-tertiary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-main)] disabled:opacity-30 disabled:cursor-not-allowed">
             ↑
           </button>
           <button onClick={onMoveDown} disabled={isLast} title="아래로 이동"
-            className="w-7 h-7 flex items-center justify-center rounded-md text-[12px] text-[var(--text-tertiary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-main)] disabled:opacity-30 disabled:cursor-not-allowed">
+            className="w-7 h-7 flex items-center justify-center rounded-md text-md text-[var(--text-tertiary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-main)] disabled:opacity-30 disabled:cursor-not-allowed">
             ↓
           </button>
           <button onClick={onRemove} title="위젯 제거"
-            className="w-7 h-7 flex items-center justify-center rounded-md text-[12px] text-[var(--text-tertiary)] hover:bg-[var(--status-error-bg-subtle)] hover:text-[var(--red-500)]">
+            className="w-7 h-7 flex items-center justify-center rounded-md text-md text-[var(--text-tertiary)] hover:bg-[var(--status-error-bg-subtle)] hover:text-[var(--red-500)]">
             ✕
           </button>
         </div>
@@ -851,7 +851,7 @@ function WidgetCatalogModal({
 
   const Section = ({ title, items }: { title: string; items: WidgetDef[] }) => (
     <div>
-      <p className="text-[11px] font-bold text-[var(--text-tertiary)] uppercase tracking-wide mb-2">{title}</p>
+      <p className="text-sm font-bold text-[var(--text-tertiary)] uppercase tracking-wide mb-2">{title}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {items.map(w => {
           const checked = draft.has(w.id);
@@ -873,8 +873,8 @@ function WidgetCatalogModal({
                 )}
               </span>
               <div className="min-w-0">
-                <p className="text-[13px] font-bold text-[var(--text-main)]">{w.title}</p>
-                <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">{w.desc}</p>
+                <p className="text-lg font-bold text-[var(--text-main)]">{w.title}</p>
+                <p className="text-sm text-[var(--text-tertiary)] mt-0.5">{w.desc}</p>
               </div>
             </label>
           );
@@ -889,8 +889,8 @@ function WidgetCatalogModal({
         onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--line-default)]">
           <div>
-            <h3 className="text-[16px] font-bold text-[var(--text-main)]">대시보드 위젯</h3>
-            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">표시할 위젯을 선택하세요. 순서는 대시보드에서 위/아래 화살표로 변경할 수 있습니다.</p>
+            <h3 className="text-xl font-bold text-[var(--text-main)]">대시보드 위젯</h3>
+            <p className="text-md text-[var(--text-tertiary)] mt-0.5">표시할 위젯을 선택하세요. 순서는 대시보드에서 위/아래 화살표로 변경할 수 있습니다.</p>
           </div>
           <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[18px]">✕</button>
         </div>
@@ -901,14 +901,14 @@ function WidgetCatalogModal({
         </div>
 
         <div className="flex items-center justify-between gap-2 px-6 py-4 border-t border-[var(--line-default)] bg-[var(--bg-base)]">
-          <p className="text-[12px] text-[var(--text-tertiary)]">{draft.size}개 선택됨</p>
+          <p className="text-md text-[var(--text-tertiary)]">{draft.size}개 선택됨</p>
           <div className="flex items-center gap-2">
             <button onClick={onClose}
-              className="h-9 px-4 text-[13px] border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+              className="h-9 px-4 text-lg border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
               취소
             </button>
             <button onClick={handleSave}
-              className="h-9 px-5 text-[13px] font-bold text-white rounded-md hover:opacity-90"
+              className="h-9 px-5 text-lg font-bold text-white rounded-md hover:opacity-90"
               style={{ background: "var(--brand-primary)" }}>
               적용
             </button>
@@ -925,7 +925,7 @@ function WidgetCatalogModal({
 function Toast({ msg }: { msg: string | null }) {
   if (!msg) return null;
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] bg-[var(--text-main)] text-white px-5 py-3 rounded-xl shadow-2xl text-[13px]">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] bg-[var(--text-main)] text-white px-5 py-3 rounded-xl shadow-2xl text-lg">
       {msg}
     </div>
   );
@@ -1077,15 +1077,15 @@ export function DashboardScreen() {
         <button onClick={() => setShowCatalog(true)}
           className="bg-white rounded-xl border-2 border-dashed border-[var(--line-default)] p-6 flex items-center justify-center gap-2 text-[var(--text-tertiary)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors">
           <span className="text-[18px] leading-none">＋</span>
-          <span className="text-[13px] font-medium">위젯 추가</span>
+          <span className="text-lg font-medium">위젯 추가</span>
         </button>
 
         {widgets.length === 0 && (
           <div className="bg-white rounded-xl border border-dashed border-[var(--line-default)] py-16 flex flex-col items-center gap-2">
             <span className="text-[28px]">📋</span>
-            <p className="text-[13px] text-[var(--text-sub)]">표시할 위젯이 없습니다</p>
+            <p className="text-lg text-[var(--text-sub)]">표시할 위젯이 없습니다</p>
             <button onClick={() => setShowCatalog(true)}
-              className="text-[12px] font-medium text-[var(--brand-primary)] hover:underline">
+              className="text-md font-medium text-[var(--brand-primary)] hover:underline">
               위젯 추가하기
             </button>
           </div>

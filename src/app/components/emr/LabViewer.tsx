@@ -277,21 +277,21 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
       <div className="flex items-center px-4 gap-2 flex-shrink-0" style={{ height: 40, backgroundColor: "var(--text-main)" }}>
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <span className="text-white font-bold" style={{ fontSize: 13 }}>김지영</span>
-          <span className="text-[var(--text-sub)] text-[11px]">|</span>
-          <span className="text-[var(--text-placeholder)] text-[11px]">차트번호 100236</span>
-          <span className="text-[var(--text-sub)] text-[11px]">|</span>
-          <span className="text-[var(--text-placeholder)] text-[11px]">1974.03.12</span>
-          <span className="text-[var(--text-sub)] text-[11px]">|</span>
-          <span className="text-[var(--text-placeholder)] text-[11px] tabular-nums">여/52</span>
+          <span className="text-[var(--text-sub)] text-sm">|</span>
+          <span className="text-[var(--text-placeholder)] text-sm">차트번호 100236</span>
+          <span className="text-[var(--text-sub)] text-sm">|</span>
+          <span className="text-[var(--text-placeholder)] text-sm">1974.03.12</span>
+          <span className="text-[var(--text-sub)] text-sm">|</span>
+          <span className="text-[var(--text-placeholder)] text-sm tabular-nums">여/52</span>
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {["PACS 연동","알림톡 발송","인쇄","Excel 내보내기"].map(lbl => (
-            <button key={lbl} className="h-7 px-2.5 rounded text-[10px] text-[var(--text-placeholder)] border border-[var(--text-main)] hover:border-[#666] hover:text-white transition-colors whitespace-nowrap">
+            <button key={lbl} className="h-7 px-2.5 rounded text-xs text-[var(--text-placeholder)] border border-[var(--text-main)] hover:border-[#666] hover:text-white transition-colors whitespace-nowrap">
               {lbl}
             </button>
           ))}
           <button onClick={() => onClose?.()}
-            className="h-7 px-2.5 rounded text-[10px] text-white bg-[var(--text-main)] hover:bg-[#555] ml-1 whitespace-nowrap">
+            className="h-7 px-2.5 rounded text-xs text-white bg-[var(--text-main)] hover:bg-[#555] ml-1 whitespace-nowrap">
             ✕ 닫기
           </button>
         </div>
@@ -305,21 +305,21 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
             const isSel   = selCats.has(cat);
             return (
               <button key={cat} onClick={() => hasData && toggleCat(cat)} disabled={!hasData}
-                className={`flex items-center gap-0.5 text-[11px] rounded border whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-0.5 text-sm rounded border whitespace-nowrap transition-colors ${
                   isSel && hasData
                     ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)]"
                     : hasData
                       ? "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]"
                       : "bg-white text-[var(--text-disabled)] border-[var(--line-default)] cursor-not-allowed"
                 }`} style={{ padding: "4px 10px" }}>
-                {isSel && hasData && <span className="text-[10px] mr-0.5">✓</span>}
+                {isSel && hasData && <span className="text-xs mr-0.5">✓</span>}
                 {cat}
               </button>
             );
           })}
           <div className="flex items-center gap-3 ml-auto pl-3 flex-shrink-0">
-            <button onClick={() => setSelCats(new Set(DATA_CATS))} className="text-[11px] text-[var(--brand-primary)] hover:underline whitespace-nowrap">전체선택</button>
-            <button onClick={() => setSelCats(new Set())}          className="text-[11px] text-[var(--text-tertiary)] hover:underline whitespace-nowrap">선택해제</button>
+            <button onClick={() => setSelCats(new Set(DATA_CATS))} className="text-sm text-[var(--brand-primary)] hover:underline whitespace-nowrap">전체선택</button>
+            <button onClick={() => setSelCats(new Set())}          className="text-sm text-[var(--text-tertiary)] hover:underline whitespace-nowrap">선택해제</button>
           </div>
         </div>
       </div>
@@ -334,7 +334,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
           { label:"그래프 보기",    active:showGraph,  fn:()=>setShowGraph(v=>!v), activeCls:"bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] border-[var(--brand-primary)]" },
         ].map(({ label, active, fn, activeCls }) => (
           <button key={label} onClick={fn}
-            className={`h-6 px-3 text-[11px] rounded border transition-colors whitespace-nowrap ${
+            className={`h-6 px-3 text-sm rounded border transition-colors whitespace-nowrap ${
               active ? activeCls : "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:border-[var(--text-tertiary)]"
             }`}>
             {label}
@@ -345,19 +345,19 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
         <div className="flex items-center gap-2" ref={presetRef}>
           <div className="relative">
             <button onClick={() => setPresetOpen(v => !v)}
-              className="h-6 px-3 text-[11px] bg-white border border-[var(--line-default)] rounded text-[var(--text-sub)] hover:border-[var(--text-tertiary)] whitespace-nowrap">
+              className="h-6 px-3 text-sm bg-white border border-[var(--line-default)] rounded text-[var(--text-sub)] hover:border-[var(--text-tertiary)] whitespace-nowrap">
               모아보기 세트 ▾
             </button>
             {presetOpen && (
               <div className="absolute top-7 right-0 bg-white border border-[var(--line-default)] rounded-lg shadow-xl w-44 z-50 py-1 overflow-hidden">
                 {PRESETS.map(ps => (
                   <button key={ps.name} onClick={() => applyRowPreset(ps.rows)}
-                    className="w-full text-left px-3 py-1.5 text-[11px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+                    className="w-full text-left px-3 py-1.5 text-sm text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
                     {ps.name}
                   </button>
                 ))}
                 <div className="border-t border-[var(--line-default)] mt-1">
-                  <button className="w-full text-left px-3 py-1.5 text-[11px] text-[var(--brand-primary)] hover:bg-[var(--bg-subtle)]">
+                  <button className="w-full text-left px-3 py-1.5 text-sm text-[var(--brand-primary)] hover:bg-[var(--bg-subtle)]">
                     + 세트 저장...
                   </button>
                 </div>
@@ -370,7 +370,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
               <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="검사명 검색..."
-              className="text-[11px] flex-1 outline-none placeholder:text-[var(--text-placeholder)] bg-transparent" />
+              className="text-sm flex-1 outline-none placeholder:text-[var(--text-placeholder)] bg-transparent" />
           </div>
         </div>
       </div>
@@ -382,7 +382,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
         <div className="flex flex-col flex-shrink-0 border-r border-[var(--line-default)] overflow-hidden"
           style={{ width: 88, backgroundColor: "var(--bg-subtle)" }}>
           <div className="px-2 pt-2 pb-1 flex-shrink-0">
-            <span className="text-[10px] text-[var(--text-tertiary)]">내원일</span>
+            <span className="text-xs text-[var(--text-tertiary)]">내원일</span>
           </div>
           {/* 프리셋 버튼 */}
           <div className="grid grid-cols-2 gap-0.5 px-1.5 pb-1.5 flex-shrink-0">
@@ -391,7 +391,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
               { label:"최근 1년", n:12 },{ label:"전체", n:99 },
             ].map(({ label, n }) => (
               <button key={label} onClick={() => applyDatePreset(n)}
-                className="text-[9px] text-[var(--text-sub)] bg-white border border-[var(--line-default)] rounded py-0.5 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors">
+                className="text-micro text-[var(--text-sub)] bg-white border border-[var(--line-default)] rounded py-0.5 hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors">
                 {label}
               </button>
             ))}
@@ -404,7 +404,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
                 <div key={date} onClick={() => toggleDate(date)}
                   className="flex items-center cursor-pointer hover:bg-white transition-colors"
                   style={{ height: 32, borderLeft: active ? "3px solid var(--brand-primary)" : "3px solid transparent", backgroundColor: active ? "white" : "transparent", paddingLeft: 6 }}>
-                  <span className={`text-[10px] leading-none ${active ? "text-[var(--text-main)] font-bold" : "text-[var(--text-tertiary)]"}`}>
+                  <span className={`text-xs leading-none ${active ? "text-[var(--text-main)] font-bold" : "text-[var(--text-tertiary)]"}`}>
                     {date.slice(2)}
                   </span>
                 </div>
@@ -420,7 +420,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
           <div ref={tableRef} onMouseLeave={() => setTooltip(null)}
             className={`overflow-auto ${showGraph ? "" : "flex-1"}`}
             style={showGraph ? { width: "50%", flexShrink: 0 } : {}}>
-            <table style={{ borderCollapse:"collapse", minWidth: W_STICKY + visibleDates.length * W_DATE }} className="text-[11px]">
+            <table style={{ borderCollapse:"collapse", minWidth: W_STICKY + visibleDates.length * W_DATE }} className="text-sm">
               {/* 고정 헤더 */}
               <thead>
                 <tr style={{ backgroundColor: "var(--bg-subtle)" }}>
@@ -457,7 +457,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
                         className="group-hover:brightness-[0.97]">
                         {!row.isHeader && (
                           <button onClick={e => { e.stopPropagation(); toggleFav(row.id); }}
-                            className={`text-[12px] leading-none transition-all ${isFav ? "text-[var(--orange-700)]" : "text-[var(--text-disabled)] hover:text-[var(--orange-700)]"}`}>
+                            className={`text-md leading-none transition-all ${isFav ? "text-[var(--orange-700)]" : "text-[var(--text-disabled)] hover:text-[var(--orange-700)]"}`}>
                             {isFav ? "★" : "☆"}
                           </button>
                         )}
@@ -474,12 +474,12 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
                         className="group-hover:brightness-[0.97]">
                         <div className="flex items-center gap-1">
                           {row.isCalc && (
-                            <span title={`계산식: ${row.calcFormula}`} className="cursor-help text-[10px] flex-shrink-0">🤖</span>
+                            <span title={`계산식: ${row.calcFormula}`} className="cursor-help text-xs flex-shrink-0">🤖</span>
                           )}
                           {isGRow && (
                             <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: GCOLS[Array.from(graphRows).indexOf(row.id) % GCOLS.length] }} />
                           )}
-                          <span className={`text-[11px] truncate ${row.isHeader ? "font-semibold text-[var(--text-main)]" : "text-[var(--text-main)]"}`}>
+                          <span className={`text-sm truncate ${row.isHeader ? "font-semibold text-[var(--text-main)]" : "text-[var(--text-main)]"}`}>
                             {row.name}
                           </span>
                         </div>
@@ -536,11 +536,11 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
               {/* 그래프 헤더 */}
               <div className="flex items-center gap-2 px-3 border-b border-[var(--line-default)] flex-shrink-0 flex-wrap"
                 style={{ minHeight: 36, backgroundColor: "var(--bg-subtle)", padding: "6px 12px" }}>
-                <span className="text-[11px] font-medium text-[var(--text-main)]">시계열 그래프</span>
-                <span className="text-[10px] text-[var(--text-tertiary)]">행 클릭으로 추가/제거</span>
+                <span className="text-sm font-medium text-[var(--text-main)]">시계열 그래프</span>
+                <span className="text-xs text-[var(--text-tertiary)]">행 클릭으로 추가/제거</span>
                 {graphRowList.map((r, ci) => (
                   <span key={r.id} onClick={() => toggleGRow(r.id)}
-                    className="flex items-center gap-1 text-[10px] rounded cursor-pointer px-1.5 py-0.5 border"
+                    className="flex items-center gap-1 text-xs rounded cursor-pointer px-1.5 py-0.5 border"
                     style={{ color: GCOLS[ci % GCOLS.length], borderColor: GCOLS[ci % GCOLS.length] + "60", backgroundColor: GCOLS[ci % GCOLS.length] + "15" }}>
                     <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: GCOLS[ci % GCOLS.length] }} />
                     {r.name}
@@ -552,7 +552,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
               {/* 그래프 영역 */}
               <div className="flex-1 p-2 min-h-0">
                 {graphRowList.length === 0
-                  ? <div className="h-full flex items-center justify-center text-[12px] text-[var(--text-tertiary)]">
+                  ? <div className="h-full flex items-center justify-center text-md text-[var(--text-tertiary)]">
                       테이블에서 검사 항목을 클릭하면 그래프가 표시됩니다
                     </div>
                   : <ResponsiveContainer width="100%" height="100%">
@@ -592,8 +592,8 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
       {tooltip && (
         <div style={{ position:"fixed", left: tooltip.x, top: tooltip.y, transform:"translateX(-50%)", zIndex:9999, pointerEvents:"none" }}
           className="bg-[var(--bg-inverse)] text-white rounded-lg shadow-2xl px-3 py-2">
-          <div className="text-[11px] font-medium mb-1 text-white">{tooltip.row.name}</div>
-          <div className="text-[10px] text-[var(--text-placeholder)] space-y-0.5">
+          <div className="text-sm font-medium mb-1 text-white">{tooltip.row.name}</div>
+          <div className="text-xs text-[var(--text-placeholder)] space-y-0.5">
             <div>날짜: {DATES[tooltip.di]}</div>
             <div>참조치: {tooltip.row.refRange}</div>
             {(() => {
@@ -620,31 +620,31 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
             style={{ width: 340, maxHeight: 420 }}>
             {/* 헤더 */}
             <div className="flex items-center px-3 border-b border-[var(--line-default)]" style={{ height: 36, backgroundColor:"var(--bg-subtle)" }}>
-              <span className="text-[11px] font-semibold text-[var(--text-main)] flex-1">오늘 차트 — 김지영</span>
-              <span className="text-[10px] text-[var(--text-tertiary)]">2026.03.17</span>
-              <button onClick={() => setMiniOpen(false)} className="ml-2 text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[13px]">✕</button>
+              <span className="text-sm font-semibold text-[var(--text-main)] flex-1">오늘 차트 — 김지영</span>
+              <span className="text-xs text-[var(--text-tertiary)]">2026.03.17</span>
+              <button onClick={() => setMiniOpen(false)} className="ml-2 text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-lg">✕</button>
             </div>
             {/* 진단 */}
             <div className="px-3 py-2 border-b border-[var(--line-subtle)]">
-              <p className="text-[10px] text-[var(--text-tertiary)] mb-1">진단</p>
+              <p className="text-xs text-[var(--text-tertiary)] mb-1">진단</p>
               {[
                 { code:"J00",   name:"급성비인두염[코감기]" },
                 { code:"I10",   name:"본태성(원발성) 고혈압" },
                 { code:"E11.9", name:"제2형 당뇨병, 합병증 없음" },
               ].map(d => (
                 <div key={d.code} className="flex items-center gap-2 py-0.5">
-                  <span className="text-[9px] text-[var(--text-tertiary)] w-12 flex-shrink-0">{d.code}</span>
-                  <span className="text-[10px] text-[var(--text-main)] truncate">{d.name}</span>
+                  <span className="text-micro text-[var(--text-tertiary)] w-12 flex-shrink-0">{d.code}</span>
+                  <span className="text-xs text-[var(--text-main)] truncate">{d.name}</span>
                 </div>
               ))}
             </div>
             {/* 처방 */}
             <div className="px-3 py-2 border-b border-[var(--line-subtle)] max-h-48 overflow-y-auto">
-              <p className="text-[10px] text-[var(--text-tertiary)] mb-1">오늘 처방</p>
+              <p className="text-xs text-[var(--text-tertiary)] mb-1">오늘 처방</p>
               {MINI_RX.map(rx => (
                 <div key={rx.name} className="flex items-center gap-2 py-0.5">
-                  <span className="text-[10px] text-[var(--text-main)] flex-1 truncate">{rx.name}</span>
-                  <span className="text-[9px] text-[var(--text-tertiary)] flex-shrink-0">1일 {rx.freq}회</span>
+                  <span className="text-xs text-[var(--text-main)] flex-1 truncate">{rx.name}</span>
+                  <span className="text-micro text-[var(--text-tertiary)] flex-shrink-0">1일 {rx.freq}회</span>
                 </div>
               ))}
             </div>
@@ -652,7 +652,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
             <div className="px-3 py-2 bg-[var(--bg-subtle)]">
               <button
                 onClick={() => { alert("메인 창 차트에 처방이 추가되었습니다.\n(실제 구현 시 postMessage로 메인 창과 통신)"); }}
-                className="w-full h-7 text-[11px] rounded text-white transition-colors"
+                className="w-full h-7 text-sm rounded text-white transition-colors"
                 style={{ backgroundColor: "var(--brand-primary)" }}>
                 + 처방 추가 (메인 창으로 전송)
               </button>
@@ -661,7 +661,7 @@ export function LabViewer({ onClose }: { onClose?: () => void }) {
         )}
         {/* 토글 버튼 */}
         <button onClick={() => setMiniOpen(v => !v)}
-          className="flex items-center gap-2 h-9 px-4 rounded-xl shadow-xl text-white text-[11px] font-medium transition-all"
+          className="flex items-center gap-2 h-9 px-4 rounded-xl shadow-xl text-white text-sm font-medium transition-all"
           style={{ backgroundColor: miniOpen ? "var(--text-main)" : "var(--brand-primary)" }}>
           {miniOpen ? "▼ 오늘 차트 접기" : "▲ 오늘 차트 보기"}
         </button>

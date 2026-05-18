@@ -37,7 +37,7 @@ export function PanelMemo() {
             <path d="M8.0625 5.08333H6.45833C6.09366 5.08333 5.74392 5.2282 5.48606 5.48606C5.2282 5.74392 5.08333 6.09366 5.08333 6.45833V8.0625M2.33333 2.33333H5.77083M2.33333 4.16667H4.625" stroke="var(--text-tertiary)" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div className="flex items-center gap-[3px]">
-            <span className="text-[12px] font-bold text-black">공유 메모</span>
+            <span className="text-md font-bold text-black">공유 메모</span>
             <div className="w-[8px] h-[8px] rounded-full bg-[var(--orange-500)]" />
           </div>
         </div>
@@ -58,7 +58,7 @@ export function PanelMemo() {
               <path d="M5 7.08333V9.16667" stroke="var(--orange-500)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.833333"/>
               <path d="M3.75 4.48333C3.74992 4.63837 3.70659 4.79031 3.62488 4.92206C3.54318 5.05382 3.42634 5.16018 3.2875 5.22917L2.54583 5.60417C2.40699 5.67316 2.29015 5.77951 2.20845 5.91127C2.12675 6.04303 2.08342 6.19496 2.08333 6.35V6.66667C2.08333 6.77717 2.12723 6.88315 2.20537 6.96129C2.28351 7.03943 2.38949 7.08333 2.5 7.08333H7.5C7.61051 7.08333 7.71649 7.03943 7.79463 6.96129C7.87277 6.88315 7.91667 6.77717 7.91667 6.66667V6.35C7.91658 6.19496 7.87325 6.04303 7.79155 5.91127C7.70985 5.77951 7.59301 5.67316 7.45417 5.60417L6.7125 5.22917C6.57366 5.16018 6.45682 5.05382 6.37512 4.92206C6.29341 4.79031 6.25008 4.63837 6.25 4.48333V2.91667C6.25 2.80616 6.2939 2.70018 6.37204 2.62204C6.45018 2.5439 6.55616 2.5 6.66667 2.5C6.88768 2.5 7.09964 2.4122 7.25592 2.25592C7.4122 2.09964 7.5 1.88768 7.5 1.66667C7.5 1.44565 7.4122 1.23369 7.25592 1.07741C7.09964 0.921131 6.88768 0.833333 6.66667 0.833333H3.33333C3.11232 0.833333 2.90036 0.921131 2.74408 1.07741C2.5878 1.23369 2.5 1.44565 2.5 1.66667C2.5 1.88768 2.5878 2.09964 2.74408 2.25592C2.90036 2.4122 3.11232 2.5 3.33333 2.5C3.44384 2.5 3.54982 2.5439 3.62796 2.62204C3.7061 2.70018 3.75 2.80616 3.75 2.91667V4.48333Z" stroke="var(--orange-500)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.833333"/>
             </svg>
-            <span className="text-[11px] font-medium text-[var(--orange-700)]">공지 1건</span>
+            <span className="text-sm font-medium text-[var(--orange-700)]">공지 1건</span>
           </div>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path
@@ -75,10 +75,10 @@ export function PanelMemo() {
                 <path d="M3.75 4.48333C3.74992 4.63837 3.70659 4.79031 3.62488 4.92206C3.54318 5.05382 3.42634 5.16018 3.2875 5.22917L2.54583 5.60417C2.40699 5.67316 2.29015 5.77951 2.20845 5.91127C2.12675 6.04303 2.08342 6.19496 2.08333 6.35V6.66667C2.08333 6.77717 2.12723 6.88315 2.20537 6.96129C2.28351 7.03943 2.38949 7.08333 2.5 7.08333H7.5C7.61051 7.08333 7.71649 7.03943 7.79463 6.96129C7.87277 6.88315 7.91667 6.77717 7.91667 6.66667V6.35C7.91658 6.19496 7.87325 6.04303 7.79155 5.91127C7.70985 5.77951 7.59301 5.67316 7.45417 5.60417L6.7125 5.22917C6.57366 5.16018 6.45682 5.05382 6.37512 4.92206C6.29341 4.79031 6.25008 4.63837 6.25 4.48333V2.91667C6.25 2.80616 6.2939 2.70018 6.37204 2.62204C6.45018 2.5439 6.55616 2.5 6.66667 2.5C6.88768 2.5 7.09964 2.4122 7.25592 2.25592C7.4122 2.09964 7.5 1.88768 7.5 1.66667C7.5 1.44565 7.4122 1.23369 7.25592 1.07741C7.09964 0.921131 6.88768 0.833333 6.66667 0.833333H3.33333C3.11232 0.833333 2.90036 0.921131 2.74408 1.07741C2.5878 1.23369 2.5 1.44565 2.5 1.66667C2.5 1.88768 2.5878 2.09964 2.74408 2.25592C2.90036 2.4122 3.11232 2.5 3.33333 2.5C3.44384 2.5 3.54982 2.5439 3.62796 2.62204C3.7061 2.70018 3.75 2.80616 3.75 2.91667V4.48333Z" stroke="var(--orange-500)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.833333"/>
               </svg>
               <div className="flex flex-col gap-[2px]">
-                <p className="text-[12px] text-[var(--text-main)] leading-[16.5px]">건보/자보 동시 진행 환자 — 차트 분리하여 청구</p>
+                <p className="text-md text-[var(--text-main)] leading-[16.5px]">건보/자보 동시 진행 환자 — 차트 분리하여 청구</p>
                 <div className="flex items-center gap-[3.5px]">
-                  <span className="text-[10px] font-medium text-[var(--orange-700)]">김원장</span>
-                  <span className="text-[10px] text-[var(--text-tertiary)]">3/12 10:00</span>
+                  <span className="text-xs font-medium text-[var(--orange-700)]">김원장</span>
+                  <span className="text-xs text-[var(--text-tertiary)]">3/12 10:00</span>
                 </div>
               </div>
             </div>
@@ -91,17 +91,17 @@ export function PanelMemo() {
         {memos.map((m) => (
           <div key={m.id} className="flex items-start gap-[5.25px]">
             <div
-              className="w-[22px] h-[22px] rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
+              className="w-[22px] h-[22px] rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
               style={{ backgroundColor: m.avatarBg, color: m.avatarColor }}
             >
               {m.avatar}
             </div>
             <div className="flex flex-col gap-0">
-              <span className="text-[10px] font-medium pl-[1.75px]" style={{ color: m.nameColor }}>{m.name}</span>
+              <span className="text-xs font-medium pl-[1.75px]" style={{ color: m.nameColor }}>{m.name}</span>
               <div className="bg-[var(--bg-subtle)] rounded-bl-[8px] rounded-br-[8px] rounded-tl-[2px] rounded-tr-[8px] px-[8.75px] pt-[5.25px] pb-[5.25px] mt-[2px]">
-                <p className="text-[12px] text-[var(--text-main)] leading-[17px] whitespace-pre-line">{m.content}</p>
+                <p className="text-md text-[var(--text-main)] leading-[17px] whitespace-pre-line">{m.content}</p>
               </div>
-              <span className="text-[9px] text-[var(--text-tertiary)] pl-[1.75px] mt-[2px]">{m.time}</span>
+              <span className="text-micro text-[var(--text-tertiary)] pl-[1.75px] mt-[2px]">{m.time}</span>
             </div>
           </div>
         ))}
@@ -111,7 +111,7 @@ export function PanelMemo() {
       <div className="border-t border-[var(--line-subtle)] px-[7px] pt-[5.917px] pb-[7px] flex-shrink-0">
         <div className="flex items-end gap-[5.25px]">
           <div className="flex-1 border border-[var(--line-default)] rounded-[6px] px-[8.75px] py-[5.25px] h-[30px] flex items-center">
-            <span className="text-[12px] text-[rgba(41,42,45,0.5)]">메모 입력...</span>
+            <span className="text-md text-[rgba(41,42,45,0.5)]">메모 입력...</span>
           </div>
           <div className="w-[30px] h-[30px] bg-[var(--bg-primary-subtle)] rounded-[6px] flex items-center justify-center flex-shrink-0">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">

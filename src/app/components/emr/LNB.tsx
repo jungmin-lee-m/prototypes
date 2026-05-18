@@ -34,7 +34,7 @@ export function LNB({ active, onChange }: Props) {
                 }`}
               />
               <span
-                className={`text-[10px] font-medium ${
+                className={`text-xs font-medium ${
                   isActive ? "text-white" : "text-[var(--text-tertiary)]"
                 }`}
               >

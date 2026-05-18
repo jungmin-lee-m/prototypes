@@ -8,6 +8,36 @@
  * 우선 PanelD에 적용. 추후 다른 패널에 확대 적용 시 동일 토큰 재사용.
  */
 
+/* ── Typography Scale (6-tier, dense EMR layout 전용) ──────────────
+ * 사용 규칙:
+ *   [표] 컬럼 헤더 = text-xs, 행 본문 = text-sm
+ *   [패널] 헤더 = text-md font-bold
+ *   [라벨/값] 라벨 = text-xs, 값 = text-md
+ *   [디스플레이] 환자명 = text-xl font-bold
+ *   [마이크로 칩] 검/주/약/방 = text-micro (60px 폭 chip 컬럼 전용)
+ *
+ * Tailwind v4 의 @theme 블록 — text-{tier} 유틸이 자동 생성됨.
+ */
+@theme {
+  --text-micro: 9px;
+  --text-micro--line-height: 13px;
+
+  --text-xs: 10px;
+  --text-xs--line-height: 14px;
+
+  --text-sm: 11px;
+  --text-sm--line-height: 15px;
+
+  --text-md: 12px;
+  --text-md--line-height: 17px;
+
+  --text-lg: 13px;
+  --text-lg--line-height: 18px;
+
+  --text-xl: 16px;
+  --text-xl--line-height: 24px;
+}
+
 :root {
   /* ── Primitives — Gray (DESIGN.md Light) ── */
   --gray-000: #FFFFFF;

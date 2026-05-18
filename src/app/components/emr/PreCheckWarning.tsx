@@ -58,12 +58,12 @@ function WarningRow({
         style={{ backgroundColor: "var(--bg-subtle)", borderTop: `1px solid var(--line-subtle)` }}>
         <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: "var(--text-disabled)" }} />
         <div className="flex items-center gap-2 pl-3 pr-3 h-8">
-          <span className="text-[10px] font-bold flex-shrink-0 px-1.5 py-0.5 rounded-[3px]"
+          <span className="text-xs font-bold flex-shrink-0 px-1.5 py-0.5 rounded-[3px]"
             style={{ color: "var(--text-tertiary)", backgroundColor: "var(--line-default)" }}>확인됨</span>
-          <span className="text-[11px] text-[var(--text-tertiary)] flex-1 truncate">{message}</span>
+          <span className="text-sm text-[var(--text-tertiary)] flex-1 truncate">{message}</span>
           {onUndo && (
             <button onClick={onUndo}
-              className="h-6 px-3 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">
+              className="h-6 px-3 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">
               되돌리기
             </button>
           )}
@@ -77,11 +77,11 @@ function WarningRow({
         style={{ backgroundColor: PRECHECK_BG, borderTop: `1px solid ${PRECHECK_BORDER}` }}>
         <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: "var(--green-500)" }} />
         <div className="flex items-center gap-2 pl-3 pr-3 min-h-8 py-1 flex-wrap">
-          <span className="text-[10px] font-bold flex-shrink-0 px-1.5 py-0.5 rounded-[3px] text-white"
+          <span className="text-xs font-bold flex-shrink-0 px-1.5 py-0.5 rounded-[3px] text-white"
             style={{ backgroundColor: "var(--green-500)" }}>처리됨</span>
-          <span className="text-[11px] text-[var(--text-sub)] flex-1 min-w-0 truncate">{summary ?? message}</span>
+          <span className="text-sm text-[var(--text-sub)] flex-1 min-w-0 truncate">{summary ?? message}</span>
           {appliedToMaster && (
-            <span className="flex items-center gap-1 text-[10px] font-medium flex-shrink-0 px-1.5 py-0.5 rounded-[3px]"
+            <span className="flex items-center gap-1 text-xs font-medium flex-shrink-0 px-1.5 py-0.5 rounded-[3px]"
               style={{ color: "var(--brand-primary)", backgroundColor: "var(--bg-primary-subtle)" }}>
               <svg width="10" height="8" viewBox="0 0 8 6" fill="none">
                 <path d="M1 3L3 5L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -91,14 +91,14 @@ function WarningRow({
           )}
           {!appliedToMaster && onApplyToMaster && (
             <button onClick={onApplyToMaster}
-              className="h-6 px-3 text-[11px] font-medium rounded-[4px] flex-shrink-0 hover:bg-[var(--bg-primary-subtle)] border"
+              className="h-6 px-3 text-sm font-medium rounded-[4px] flex-shrink-0 hover:bg-[var(--bg-primary-subtle)] border"
               style={{ color: "var(--brand-primary)", borderColor: "var(--brand-primary)", backgroundColor: "white" }}>
               {masterLabel}
             </button>
           )}
           {onUndo && (
             <button onClick={onUndo}
-              className="h-6 px-3 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">
+              className="h-6 px-3 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">
               되돌리기
             </button>
           )}
@@ -111,9 +111,9 @@ function WarningRow({
       style={{ backgroundColor: PRECHECK_BG, borderTop: `1px solid ${PRECHECK_BORDER}` }}>
       <div className="absolute left-0 top-0 bottom-0 w-1" style={{ backgroundColor: PRECHECK_COLOR }} />
       <div className="flex items-center gap-2 pl-3 pr-3 min-h-8 py-1.5 flex-wrap">
-        <span className="text-[10px] font-bold flex-shrink-0 px-1.5 py-0.5 rounded-[3px] text-white"
+        <span className="text-xs font-bold flex-shrink-0 px-1.5 py-0.5 rounded-[3px] text-white"
           style={{ backgroundColor: PRECHECK_COLOR }}>{label}</span>
-        <span className="text-[11px] font-medium flex-shrink-0" style={{ color: PRECHECK_COLOR }}>
+        <span className="text-sm font-medium flex-shrink-0" style={{ color: PRECHECK_COLOR }}>
           {message}
         </span>
         <div className="flex-1 min-w-[8px]" />
@@ -165,8 +165,8 @@ function PopoverWrap({
 function PopHead({ title, onClose }: { title: string; onClose: () => void }) {
   return (
     <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--line-default)]">
-      <span className="text-[12px] font-bold text-[var(--text-main)]">{title}</span>
-      <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[13px]">✕</button>
+      <span className="text-md font-bold text-[var(--text-main)]">{title}</span>
+      <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-lg">✕</button>
     </div>
   );
 }
@@ -219,12 +219,12 @@ export function IncompleteDxWarning({
           <button
             data-precheck-trigger
             onClick={e => setPickerRect(r => r ? null : e.currentTarget.getBoundingClientRect())}
-            className="h-6 px-3 text-[11px] text-white rounded-[4px] hover:opacity-90 flex-shrink-0"
+            className="h-6 px-3 text-sm text-white rounded-[4px] hover:opacity-90 flex-shrink-0"
             style={{ backgroundColor: PRECHECK_COLOR }}
           >완전상병 선택</button>
           <button
             onClick={() => onResolve({ status: "dismissed" })}
-            className="h-6 px-3 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
+            className="h-6 px-3 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
           >무시</button>
         </>
       )}
@@ -233,7 +233,7 @@ export function IncompleteDxWarning({
         <PopoverWrap rect={pickerRect} width={340} onClose={() => setPickerRect(null)} alignRight>
           <PopHead title="완전상병 선택" onClose={() => setPickerRect(null)} />
           <div className="px-3 py-1.5 border-b border-[var(--line-default)]" style={{ backgroundColor: PRECHECK_BG }}>
-            <p className="text-[10px]" style={{ color: PRECHECK_COLOR }}>
+            <p className="text-xs" style={{ color: PRECHECK_COLOR }}>
               {dxCode}({dxName})를 다음 중 하나로 교체합니다
             </p>
           </div>
@@ -245,21 +245,21 @@ export function IncompleteDxWarning({
               </svg>
               <input value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="코드 또는 명칭 검색..."
-                className="text-[11px] bg-transparent flex-1 outline-none placeholder:text-[var(--text-placeholder)]" />
+                className="text-sm bg-transparent flex-1 outline-none placeholder:text-[var(--text-placeholder)]" />
             </div>
           </div>
           <div className="max-h-[260px] overflow-y-auto">
             {filtered.map(o => (
               <div key={o.code} className="flex items-center gap-2 px-3 py-2 border-b border-[var(--line-subtle)] hover:bg-[var(--bg-subtle)]">
-                <span className="text-[10px] font-medium text-[var(--text-tertiary)] w-14 flex-shrink-0">{o.code}</span>
-                <span className="text-[11px] text-[var(--text-main)] flex-1 truncate">{o.name}</span>
+                <span className="text-xs font-medium text-[var(--text-tertiary)] w-14 flex-shrink-0">{o.code}</span>
+                <span className="text-sm text-[var(--text-main)] flex-1 truncate">{o.name}</span>
                 <button onClick={() => fix(o)}
-                  className="text-[10px] text-white rounded-[4px] px-2 py-1 flex-shrink-0 hover:opacity-90"
+                  className="text-xs text-white rounded-[4px] px-2 py-1 flex-shrink-0 hover:opacity-90"
                   style={{ backgroundColor: PRECHECK_COLOR }}>선택</button>
               </div>
             ))}
             {filtered.length === 0 && (
-              <div className="py-4 text-[11px] text-[var(--text-tertiary)] text-center">검색 결과 없음</div>
+              <div className="py-4 text-sm text-[var(--text-tertiary)] text-center">검색 결과 없음</div>
             )}
           </div>
         </PopoverWrap>
@@ -312,12 +312,12 @@ export function AnesthesiologistWarning({
           <>
             <button
               onClick={() => setModalOpen(true)}
-              className="h-6 px-3 text-[11px] text-white rounded-[4px] hover:opacity-90 flex-shrink-0"
+              className="h-6 px-3 text-sm text-white rounded-[4px] hover:opacity-90 flex-shrink-0"
               style={{ backgroundColor: PRECHECK_COLOR }}
             >전문의 선택</button>
             <button
               onClick={() => onResolve({ status: "dismissed" })}
-              className="h-6 px-3 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
+              className="h-6 px-3 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
             >무시</button>
           </>
         )}
@@ -380,16 +380,16 @@ function AnesthesiologistModal({
         onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--line-default)]">
-          <span className="text-[14px] font-bold text-[var(--text-main)]">마취통증의학과 전문의 목록</span>
+          <span className="text-lg font-bold text-[var(--text-main)]">마취통증의학과 전문의 목록</span>
           <button onClick={onClose}
-            className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[16px]">✕</button>
+            className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-xl">✕</button>
         </div>
 
         {/* Toolbar */}
         <div className="px-5 pt-4 flex justify-end">
           <button onClick={removeSelected}
             disabled={!selected}
-            className="h-7 px-3 text-[11px] border border-[var(--line-default)] rounded-[6px] bg-white text-[var(--text-sub)] disabled:opacity-40 hover:bg-[var(--bg-subtle)]">
+            className="h-7 px-3 text-sm border border-[var(--line-default)] rounded-[6px] bg-white text-[var(--text-sub)] disabled:opacity-40 hover:bg-[var(--bg-subtle)]">
             삭제
           </button>
         </div>
@@ -401,9 +401,9 @@ function AnesthesiologistModal({
             <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-default)] px-2 py-2"
               style={{ gridTemplateColumns: "32px 1fr 1.2fr 1.5fr" }}>
               <span />
-              <span className="text-[11px] font-medium text-[var(--text-sub)] text-center">이름</span>
-              <span className="text-[11px] font-medium text-[var(--text-sub)] text-center">면허번호</span>
-              <span className="text-[11px] font-medium text-[var(--text-sub)] text-center">주민등록번호</span>
+              <span className="text-sm font-medium text-[var(--text-sub)] text-center">이름</span>
+              <span className="text-sm font-medium text-[var(--text-sub)] text-center">면허번호</span>
+              <span className="text-sm font-medium text-[var(--text-sub)] text-center">주민등록번호</span>
             </div>
             {/* Rows */}
             {list.map((a) => (
@@ -424,9 +424,9 @@ function AnesthesiologistModal({
                     )}
                   </span>
                 </div>
-                <span className="text-[12px] text-[var(--text-main)] text-center">{a.name}</span>
-                <span className="text-[12px] text-[var(--text-main)] text-center">{a.license}</span>
-                <span className="text-[12px] text-[var(--text-main)] text-center">{a.rrn}</span>
+                <span className="text-md text-[var(--text-main)] text-center">{a.name}</span>
+                <span className="text-md text-[var(--text-main)] text-center">{a.license}</span>
+                <span className="text-md text-[var(--text-main)] text-center">{a.rrn}</span>
               </div>
             ))}
             {/* Draft row (placeholder style — 첨부 이미지의 마지막 회색 행) */}
@@ -435,15 +435,15 @@ function AnesthesiologistModal({
               <div />
               <input value={draftName} onChange={e => setDraftName(e.target.value)}
                 placeholder="이름"
-                className="text-[12px] text-center bg-transparent outline-none placeholder:text-[var(--text-tertiary)] focus:bg-white focus:border focus:border-[var(--brand-primary)] rounded-[3px] px-1 py-0.5" />
+                className="text-md text-center bg-transparent outline-none placeholder:text-[var(--text-tertiary)] focus:bg-white focus:border focus:border-[var(--brand-primary)] rounded-[3px] px-1 py-0.5" />
               <input value={draftLicense} onChange={e => setDraftLicense(e.target.value)}
                 placeholder="면허번호"
-                className="text-[12px] text-center bg-transparent outline-none placeholder:text-[var(--text-tertiary)] focus:bg-white focus:border focus:border-[var(--brand-primary)] rounded-[3px] px-1 py-0.5" />
+                className="text-md text-center bg-transparent outline-none placeholder:text-[var(--text-tertiary)] focus:bg-white focus:border focus:border-[var(--brand-primary)] rounded-[3px] px-1 py-0.5" />
               <input value={draftRrn} onChange={e => setDraftRrn(e.target.value)}
                 onBlur={addDraft}
                 onKeyDown={e => { if (e.key === "Enter") addDraft(); }}
                 placeholder="주민등록번호"
-                className="text-[12px] text-center bg-transparent outline-none placeholder:text-[var(--text-tertiary)] focus:bg-white focus:border focus:border-[var(--brand-primary)] rounded-[3px] px-1 py-0.5" />
+                className="text-md text-center bg-transparent outline-none placeholder:text-[var(--text-tertiary)] focus:bg-white focus:border focus:border-[var(--brand-primary)] rounded-[3px] px-1 py-0.5" />
             </div>
           </div>
 
@@ -462,19 +462,19 @@ function AnesthesiologistModal({
                 </svg>
               )}
             </span>
-            <span className="text-[12px] text-[var(--text-main)]">기본 마취과 전문의로 설정</span>
-            <span className="text-[10px] text-[var(--text-tertiary)]">— 이후 동일 청구코드 처방 시 자동으로 입력됩니다</span>
+            <span className="text-md text-[var(--text-main)]">기본 마취과 전문의로 설정</span>
+            <span className="text-xs text-[var(--text-tertiary)]">— 이후 동일 청구코드 처방 시 자동으로 입력됩니다</span>
           </label>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-[var(--line-default)]">
           <button onClick={onClose}
-            className="h-9 px-4 text-[12px] border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+            className="h-9 px-4 text-md border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
             취소
           </button>
           <button onClick={confirm} disabled={!selected}
-            className="h-9 px-5 text-[12px] font-bold text-white rounded-md disabled:opacity-40"
+            className="h-9 px-5 text-md font-bold text-white rounded-md disabled:opacity-40"
             style={{ backgroundColor: "var(--bg-inverse)" }}>
             저장
           </button>
@@ -525,22 +525,22 @@ export function ZeroDoseWarning({
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => setVal(v => String(Math.max(0, parseFloat(v || "0") - 0.5)))}
-              className="w-6 h-6 rounded-[3px] border border-[var(--line-default)] bg-white text-[12px] hover:bg-[var(--bg-subtle)]">−</button>
+              className="w-6 h-6 rounded-[3px] border border-[var(--line-default)] bg-white text-md hover:bg-[var(--bg-subtle)]">−</button>
             <input value={val} onChange={e => setVal(e.target.value)}
-              className="w-12 h-6 text-center text-[11px] border border-[var(--line-default)] rounded-[3px] outline-none focus:border-[var(--brand-primary)]" />
+              className="w-12 h-6 text-center text-sm border border-[var(--line-default)] rounded-[3px] outline-none focus:border-[var(--brand-primary)]" />
             <button
               onClick={() => setVal(v => String(parseFloat(v || "0") + 0.5))}
-              className="w-6 h-6 rounded-[3px] border border-[var(--line-default)] bg-white text-[12px] hover:bg-[var(--bg-subtle)]">＋</button>
-            <span className="text-[10px] text-[var(--text-tertiary)] ml-1">권장 {suggested ?? "1"}</span>
+              className="w-6 h-6 rounded-[3px] border border-[var(--line-default)] bg-white text-md hover:bg-[var(--bg-subtle)]">＋</button>
+            <span className="text-xs text-[var(--text-tertiary)] ml-1">권장 {suggested ?? "1"}</span>
           </div>
           <button
             onClick={apply}
-            className="h-6 px-3 text-[11px] text-white rounded-[4px] hover:opacity-90 flex-shrink-0"
+            className="h-6 px-3 text-sm text-white rounded-[4px] hover:opacity-90 flex-shrink-0"
             style={{ backgroundColor: PRECHECK_COLOR }}
           >적용</button>
           <button
             onClick={() => onResolve({ status: "dismissed" })}
-            className="h-6 px-3 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
+            className="h-6 px-3 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
           >무시</button>
         </>
       )}
@@ -567,14 +567,14 @@ export function DepartureBanner({
           backgroundColor: isFixed ? "var(--status-success-bg-subtle)" : "var(--bg-subtle)",
           borderColor: isFixed ? "var(--green-200)" : "var(--line-default)",
         }}>
-        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-[3px] text-white flex-shrink-0"
+        <span className="text-xs font-bold px-1.5 py-0.5 rounded-[3px] text-white flex-shrink-0"
           style={{ backgroundColor: isFixed ? "var(--green-500)" : "var(--text-disabled)" }}>
           {isFixed ? "처리됨" : "확인됨"}
         </span>
-        <span className="text-[11px] text-[var(--text-sub)] flex-1 min-w-0 truncate">{resolution.summary}</span>
+        <span className="text-sm text-[var(--text-sub)] flex-1 min-w-0 truncate">{resolution.summary}</span>
         {/* 출국 정보는 1회성 결정 — 기초자료 반영하지 않음 */}
         <button onClick={() => onResolve({ status: "pending" })}
-          className="h-6 px-2 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">되돌리기</button>
+          className="h-6 px-2 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">되돌리기</button>
       </div>
     );
   }
@@ -589,21 +589,21 @@ export function DepartureBanner({
   return (
     <div className="rounded-md border flex items-center gap-2 px-3 py-2 flex-shrink-0 flex-wrap"
       style={{ backgroundColor: PRECHECK_BG, borderColor: PRECHECK_BORDER }}>
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-[3px] text-white flex-shrink-0"
+      <span className="text-xs font-bold px-1.5 py-0.5 rounded-[3px] text-white flex-shrink-0"
         style={{ backgroundColor: PRECHECK_COLOR }}>출국자</span>
-      <span className="text-[11px] font-medium flex-shrink-0" style={{ color: PRECHECK_COLOR }}>
+      <span className="text-sm font-medium flex-shrink-0" style={{ color: PRECHECK_COLOR }}>
         {patientName} 환자는 {departureDate}에 출국 예정입니다. 비청구 내원일로 전환하시겠습니까?
       </span>
       <div className="flex-1 min-w-[8px]" />
       <button onClick={yes}
-        className="h-7 px-3 text-[11px] font-medium text-white rounded-[6px] hover:opacity-90 flex-shrink-0"
+        className="h-7 px-3 text-sm font-medium text-white rounded-[6px] hover:opacity-90 flex-shrink-0"
         style={{ backgroundColor: PRECHECK_COLOR }}
       >예 — 비청구 전환</button>
       <button onClick={no}
-        className="h-7 px-3 text-[11px] font-medium text-[var(--text-sub)] bg-white border border-[var(--line-default)] rounded-[6px] hover:bg-[var(--bg-subtle)] flex-shrink-0"
+        className="h-7 px-3 text-sm font-medium text-[var(--text-sub)] bg-white border border-[var(--line-default)] rounded-[6px] hover:bg-[var(--bg-subtle)] flex-shrink-0"
       >아니오 — 청구 유지</button>
       <button onClick={() => onResolve({ status: "dismissed", summary: `${patientName} 출국자 확인 무시` })}
-        className="h-7 px-2 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
+        className="h-7 px-2 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
       >무시</button>
     </div>
   );
@@ -649,14 +649,14 @@ export function TreatmentTimeBanner({
           backgroundColor: isFixed ? "var(--status-success-bg-subtle)" : "var(--bg-subtle)",
           borderColor: isFixed ? "var(--green-200)" : "var(--line-default)",
         }}>
-        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-[3px] text-white flex-shrink-0"
+        <span className="text-xs font-bold px-1.5 py-0.5 rounded-[3px] text-white flex-shrink-0"
           style={{ backgroundColor: isFixed ? "var(--green-500)" : "var(--text-disabled)" }}>
           {isFixed ? "수정됨" : "확인됨"}
         </span>
-        <span className="text-[11px] text-[var(--text-sub)] flex-1 truncate">{resolution.summary}</span>
+        <span className="text-sm text-[var(--text-sub)] flex-1 truncate">{resolution.summary}</span>
         {/* 진료시간은 마스터에 반영하지 않음 — 항상 1회성 수정 */}
         <button onClick={() => onResolve({ status: "pending" })}
-          className="h-6 px-2 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">되돌리기</button>
+          className="h-6 px-2 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0">되돌리기</button>
       </div>
     );
   }
@@ -672,25 +672,25 @@ export function TreatmentTimeBanner({
   return (
     <div className="rounded-md border flex items-center gap-2 px-3 py-2 flex-shrink-0 flex-wrap"
       style={{ backgroundColor: PRECHECK_BG, borderColor: PRECHECK_BORDER }}>
-      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-[3px] text-white flex-shrink-0"
+      <span className="text-xs font-bold px-1.5 py-0.5 rounded-[3px] text-white flex-shrink-0"
         style={{ backgroundColor: PRECHECK_COLOR }}>진료시간</span>
-      <span className="text-[11px] font-medium flex-shrink-0" style={{ color: PRECHECK_COLOR }}>
+      <span className="text-sm font-medium flex-shrink-0" style={{ color: PRECHECK_COLOR }}>
         진료일시({ZONE_LABEL[scheduleZone]})와 차트 구분({ZONE_LABEL[chartZone]})이 다릅니다
       </span>
 
       {!editing ? (
         <>
-          <span className="text-[11px] text-[var(--text-sub)] flex-shrink-0">현재 {scheduledAt.replace("T", " ")}</span>
+          <span className="text-sm text-[var(--text-sub)] flex-shrink-0">현재 {scheduledAt.replace("T", " ")}</span>
           <div className="flex-1 min-w-[8px]" />
           <button onClick={() => { setEditing(true); setVal(scheduledAt); }}
-            className="h-7 px-3 text-[11px] font-medium text-white rounded-[6px] hover:opacity-90 flex-shrink-0"
+            className="h-7 px-3 text-sm font-medium text-white rounded-[6px] hover:opacity-90 flex-shrink-0"
             style={{ backgroundColor: PRECHECK_COLOR }}
           >진료일시 수정</button>
           <button onClick={() => onResolve({
             status: "dismissed",
             summary: `진료시간 점검 — 차트(${ZONE_LABEL[chartZone]}) / 진료일시(${ZONE_LABEL[scheduleZone]}) 불일치 무시`,
           })}
-            className="h-7 px-2 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
+            className="h-7 px-2 text-sm text-[var(--text-tertiary)] hover:text-[var(--text-sub)] flex-shrink-0"
           >무시</button>
         </>
       ) : (
@@ -699,19 +699,19 @@ export function TreatmentTimeBanner({
             type="datetime-local"
             value={val}
             onChange={e => setVal(e.target.value)}
-            className="text-[11px] border border-[var(--line-default)] rounded-[6px] px-2 h-7 outline-none focus:border-[var(--brand-primary)] bg-white"
+            className="text-sm border border-[var(--line-default)] rounded-[6px] px-2 h-7 outline-none focus:border-[var(--brand-primary)] bg-white"
           />
-          <span className="text-[10px] flex-shrink-0"
+          <span className="text-xs flex-shrink-0"
             style={{ color: willMatch ? "var(--green-500)" : "var(--red-500)" }}>
             → {ZONE_LABEL[newZone]} {willMatch ? "✓ 일치" : "✗ 불일치"}
           </span>
           <div className="flex-1 min-w-[8px]" />
           <button onClick={apply} disabled={!willMatch}
-            className="h-7 px-3 text-[11px] font-medium text-white rounded-[6px] disabled:opacity-40"
+            className="h-7 px-3 text-sm font-medium text-white rounded-[6px] disabled:opacity-40"
             style={{ backgroundColor: PRECHECK_COLOR }}
           >적용</button>
           <button onClick={() => setEditing(false)}
-            className="h-7 px-3 text-[11px] text-[var(--text-sub)] bg-white border border-[var(--line-default)] rounded-[6px] hover:bg-[var(--bg-subtle)] flex-shrink-0"
+            className="h-7 px-3 text-sm text-[var(--text-sub)] bg-white border border-[var(--line-default)] rounded-[6px] hover:bg-[var(--bg-subtle)] flex-shrink-0"
           >취소</button>
         </>
       )}
@@ -734,10 +734,10 @@ export function PreCheckSummaryBar({
   return (
     <div className="flex items-center gap-2 px-3 py-1.5 flex-shrink-0 rounded-md border"
       style={{ backgroundColor: PRECHECK_BG, borderColor: PRECHECK_BORDER }}>
-      <span className="text-[11px] font-bold flex-shrink-0" style={{ color: PRECHECK_COLOR }}>
+      <span className="text-sm font-bold flex-shrink-0" style={{ color: PRECHECK_COLOR }}>
         사전점검 {pendingCount + fixedCount + dismissedCount}건
       </span>
-      <span className="text-[11px] text-[var(--text-sub)]">
+      <span className="text-sm text-[var(--text-sub)]">
         {pendingCount > 0 && <>미처리 <b style={{ color: PRECHECK_COLOR }}>{pendingCount}</b></>}
         {pendingCount > 0 && (fixedCount > 0 || dismissedCount > 0) && " · "}
         {fixedCount > 0 && <>수정 <b style={{ color: "var(--green-500)" }}>{fixedCount}</b></>}
@@ -747,7 +747,7 @@ export function PreCheckSummaryBar({
       <div className="flex-1" />
       {pendingCount > 0 && onScrollToFirst && (
         <button onClick={onScrollToFirst}
-          className="h-6 px-2 text-[11px] bg-white border border-[var(--line-default)] rounded-[4px] hover:shadow-sm whitespace-nowrap"
+          className="h-6 px-2 text-sm bg-white border border-[var(--line-default)] rounded-[4px] hover:shadow-sm whitespace-nowrap"
           style={{ color: PRECHECK_COLOR, borderColor: PRECHECK_COLOR }}>
           첫 미처리로 이동
         </button>

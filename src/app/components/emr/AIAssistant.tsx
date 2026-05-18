@@ -10,7 +10,7 @@ const TIME_SLOTS = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00
 
 function AiBubble({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[var(--bg-subtle)] rounded-[8px] px-3 py-3 max-w-[320px] text-[13px] text-[var(--text-main)] leading-[20px]">
+    <div className="bg-[var(--bg-subtle)] rounded-[8px] px-3 py-3 max-w-[320px] text-lg text-[var(--text-main)] leading-[20px]">
       {children}
     </div>
   );
@@ -18,7 +18,7 @@ function AiBubble({ children }: { children: React.ReactNode }) {
 
 function UserBubble({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-[var(--brand-primary-hover)] rounded-[8px] px-3 py-3 max-w-[320px] text-[13px] text-white leading-[20px] self-end ml-auto">
+    <div className="bg-[var(--brand-primary-hover)] rounded-[8px] px-3 py-3 max-w-[320px] text-lg text-white leading-[20px] self-end ml-auto">
       {children}
     </div>
   );
@@ -42,7 +42,7 @@ function InputArea({
     <div className="border-t border-[var(--line-default)] bg-white px-5 py-4 flex items-center gap-2.5 flex-shrink-0">
       <div className="flex-1 border border-[var(--line-default)] rounded-[22px] h-[44px] flex items-center px-5 bg-white overflow-hidden">
         {disabled ? (
-          <span className="text-[13px] text-[#999]">{placeholder}</span>
+          <span className="text-lg text-[#999]">{placeholder}</span>
         ) : (
           <input
             type="text"
@@ -50,7 +50,7 @@ function InputArea({
             onChange={(e) => onChange?.(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && active && onSend?.()}
             placeholder={placeholder}
-            className="w-full text-[13px] text-[var(--text-main)] placeholder-[#999] outline-none bg-transparent"
+            className="w-full text-lg text-[var(--text-main)] placeholder-[#999] outline-none bg-transparent"
           />
         )}
       </div>
@@ -60,7 +60,7 @@ function InputArea({
           active ? "bg-[var(--brand-primary-hover)] hover:bg-[var(--brand-primary-pressed)]" : "bg-[var(--line-subtle)]"
         }`}
       >
-        <span className={`text-[14px] font-bold leading-none ${active ? "text-white" : "text-[#999]"}`}>↑</span>
+        <span className={`text-lg font-bold leading-none ${active ? "text-white" : "text-[#999]"}`}>↑</span>
       </button>
     </div>
   );
@@ -71,13 +71,13 @@ function PanelHeader({ onClose }: { onClose: () => void }) {
     <div className="flex items-center justify-between px-5 h-[56px] border-b border-[var(--line-default)] flex-shrink-0 bg-white">
       <div className="flex items-center gap-2.5">
         <div className="w-[18px] h-[18px] bg-[var(--brand-primary-hover)] rounded-[4px] flex items-center justify-center flex-shrink-0">
-          <span className="text-white text-[11px] font-bold leading-none">✦</span>
+          <span className="text-white text-sm font-bold leading-none">✦</span>
         </div>
-        <span className="text-[14px] font-medium text-[var(--text-main)]">AI 어시스턴트</span>
+        <span className="text-lg font-medium text-[var(--text-main)]">AI 어시스턴트</span>
       </div>
       <div className="flex items-center gap-4">
-        <button className="text-[#999] text-[14px] hover:text-[#555] leading-none w-5 h-5 flex items-center justify-center">—</button>
-        <button onClick={onClose} className="text-[#999] text-[14px] hover:text-[#555] leading-none w-5 h-5 flex items-center justify-center">✕</button>
+        <button className="text-[#999] text-lg hover:text-[#555] leading-none w-5 h-5 flex items-center justify-center">—</button>
+        <button onClick={onClose} className="text-[#999] text-lg hover:text-[#555] leading-none w-5 h-5 flex items-center justify-center">✕</button>
       </div>
     </div>
   );
@@ -119,8 +119,8 @@ function HomeScreen({
   return (
     <>
       <div className="flex-1 overflow-y-auto px-5 pt-6 pb-2">
-        <p className="text-[15px] font-medium text-[var(--text-main)] mb-1.5">안녕하세요. 무엇을 도와드릴까요?</p>
-        <p className="text-[12px] text-[var(--text-sub)] mb-5">자주 쓰는 작업이나 무엇이든 자유롭게 말해주세요.</p>
+        <p className="text-xl font-medium text-[var(--text-main)] mb-1.5">안녕하세요. 무엇을 도와드릴까요?</p>
+        <p className="text-md text-[var(--text-sub)] mb-5">자주 쓰는 작업이나 무엇이든 자유롭게 말해주세요.</p>
         <div className="flex flex-col gap-2.5">
           {CARDS.map((card) => (
             <button
@@ -129,18 +129,18 @@ function HomeScreen({
               className="flex items-center gap-3 w-full bg-white border border-[var(--line-default)] rounded-[8px] px-4 h-[64px] hover:border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] transition-colors text-left relative"
             >
               <div
-                className="w-[28px] h-[28px] rounded-[6px] flex items-center justify-center flex-shrink-0 text-[14px] font-semibold"
+                className="w-[28px] h-[28px] rounded-[6px] flex items-center justify-center flex-shrink-0 text-lg font-semibold"
                 style={{ backgroundColor: card.iconBg, color: card.iconColor }}
               >
                 {card.icon}
               </div>
               <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                <span className="text-[13px] font-medium text-[var(--text-main)]">{card.title}</span>
-                <span className="text-[11px] text-[var(--text-sub)]">{card.desc}</span>
+                <span className="text-lg font-medium text-[var(--text-main)]">{card.title}</span>
+                <span className="text-sm text-[var(--text-sub)]">{card.desc}</span>
               </div>
               {card.badge && (
                 <div className="bg-[var(--blue-050)] rounded-[6px] px-1.5 py-0.5">
-                  <span className="text-[10px] font-medium text-[var(--blue-700)]">{card.badge}</span>
+                  <span className="text-xs font-medium text-[var(--blue-700)]">{card.badge}</span>
                 </div>
               )}
             </button>
@@ -166,18 +166,18 @@ function AnalyzingScreen({ phase, message }: { phase: number; message: string })
         <AiBubble>
           <p>어떤 작업을 빠른메뉴로 만들고 싶으세요?</p>
           <p>자유롭게 적어주시면 정리해드릴게요.</p>
-          <p className="text-[11px] text-[#999] mt-1.5">
+          <p className="text-sm text-[#999] mt-1.5">
             예: "위내시경 예약 후 공복 안내 문자를 3일 전, 1일 전에 보내줘"
           </p>
         </AiBubble>
         <UserBubble>{message}</UserBubble>
         <div className="bg-[var(--bg-subtle)] rounded-[8px] px-3 py-3 max-w-[320px]">
-          <p className="text-[11px] font-medium text-[var(--text-sub)] mb-2.5">분석 중...</p>
+          <p className="text-sm font-medium text-[var(--text-sub)] mb-2.5">분석 중...</p>
           {steps.map((s, i) =>
             phase > i ? (
               <p
                 key={i}
-                className="text-[13px] mb-1 last:mb-0 transition-all"
+                className="text-lg mb-1 last:mb-0 transition-all"
                 style={{ color: s.color }}
               >
                 {s.label}
@@ -226,14 +226,14 @@ function ChoiceList({
         <button
           key={t}
           onClick={() => onPick(t)}
-          className="text-[12px] text-left bg-white border border-[var(--line-default)] hover:border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] rounded-[8px] px-3 py-2.5 transition-colors"
+          className="text-md text-left bg-white border border-[var(--line-default)] hover:border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] rounded-[8px] px-3 py-2.5 transition-colors"
         >
           <span className="text-[var(--brand-primary-hover)] font-medium mr-1">📋</span>{t}
         </button>
       ))}
       <button
         onClick={onDirect}
-        className="text-[12px] text-left bg-white border border-dashed border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] text-[var(--brand-primary-hover)] rounded-[8px] px-3 py-2.5 transition-colors"
+        className="text-md text-left bg-white border border-dashed border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] text-[var(--brand-primary-hover)] rounded-[8px] px-3 py-2.5 transition-colors"
       >
         ✏️ 직접 입력하기
       </button>
@@ -253,15 +253,15 @@ function DirectComposer({
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder={placeholder}
-        className="text-[12px] resize-none outline-none border border-[var(--line-default)] rounded-[6px] p-2 min-h-[64px] focus:border-[var(--brand-primary-hover)]"
+        className="text-md resize-none outline-none border border-[var(--line-default)] rounded-[6px] p-2 min-h-[64px] focus:border-[var(--brand-primary-hover)]"
         autoFocus
       />
       <div className="flex gap-2 justify-end">
-        <button onClick={onCancel} className="text-[11px] text-[var(--text-sub)] hover:text-[var(--text-main)] px-2">취소</button>
+        <button onClick={onCancel} className="text-sm text-[var(--text-sub)] hover:text-[var(--text-main)] px-2">취소</button>
         <button
           onClick={onSend}
           disabled={!value.trim()}
-          className="text-[11px] bg-[var(--brand-primary-hover)] text-white px-3 py-1 rounded-[6px] disabled:bg-[var(--blue-100)] disabled:cursor-not-allowed"
+          className="text-sm bg-[var(--brand-primary-hover)] text-white px-3 py-1 rounded-[6px] disabled:bg-[var(--blue-100)] disabled:cursor-not-allowed"
         >
           전송
         </button>
@@ -320,16 +320,16 @@ function ConfirmScreen({
         <div className="bg-[var(--bg-base)] border border-[var(--green-200)] rounded-[8px] p-3 self-start max-w-[320px]">
           <div className="flex items-center gap-1.5 mb-2">
             <div className="w-[14px] h-[14px] bg-[var(--green-500)] rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-[9px] font-bold leading-none">✓</span>
+              <span className="text-white text-micro font-bold leading-none">✓</span>
             </div>
-            <span className="text-[11px] font-medium text-[var(--green-700)]">예약 + 알림 자동화</span>
+            <span className="text-sm font-medium text-[var(--green-700)]">예약 + 알림 자동화</span>
           </div>
           {RECOG_ROWS.map((row, i) => (
             <div key={row.label} className={`flex items-center py-1 ${i === 0 ? "" : "border-t border-[var(--status-success-bg-subtle)]"}`}>
-              <span className="text-[11px] text-[var(--text-sub)] w-[68px] flex-shrink-0">{row.label}</span>
+              <span className="text-sm text-[var(--text-sub)] w-[68px] flex-shrink-0">{row.label}</span>
               <div className="flex items-center gap-1.5">
                 {row.dot && <div className="w-[8px] h-[8px] rounded-full flex-shrink-0" style={{ backgroundColor: row.dot }} />}
-                <span className="text-[11px] font-medium text-[var(--text-main)]">{row.value}</span>
+                <span className="text-sm font-medium text-[var(--text-main)]">{row.value}</span>
               </div>
             </div>
           ))}
@@ -338,7 +338,7 @@ function ConfirmScreen({
         {/* === Q1: 3일 전 문자 === */}
         <AiBubble>
           <p className="font-medium mb-1">📨 3일 전엔 어떤 내용으로 보낼까요?</p>
-          <p className="text-[12px] text-[var(--text-sub)]">템플릿을 골라도 되고, 직접 적어도 돼요.</p>
+          <p className="text-md text-[var(--text-sub)]">템플릿을 골라도 되고, 직접 적어도 돼요.</p>
         </AiBubble>
 
         {!template3 ? (
@@ -360,7 +360,7 @@ function ConfirmScreen({
         {showQ2 && (
           <AiBubble>
             <p className="font-medium mb-1">📨 1일 전 문자는 어떤 내용으로 보낼까요?</p>
-            <p className="text-[12px] text-[var(--text-sub)]">템플릿 또는 직접 입력 가능해요.</p>
+            <p className="text-md text-[var(--text-sub)]">템플릿 또는 직접 입력 가능해요.</p>
           </AiBubble>
         )}
         {showQ2 && (
@@ -384,7 +384,7 @@ function ConfirmScreen({
         {showQ3 && (
           <AiBubble>
             <p className="font-medium mb-1">⏰ 몇 시에 보낼까요?</p>
-            <p className="text-[12px] text-[var(--text-sub)]">자주 쓰는 시각을 골라도 되고, 직접 지정할 수 있어요.</p>
+            <p className="text-md text-[var(--text-sub)]">자주 쓰는 시각을 골라도 되고, 직접 지정할 수 있어요.</p>
           </AiBubble>
         )}
         {showQ3 && (
@@ -392,19 +392,19 @@ function ConfirmScreen({
             directTimeMode ? (
               <div className="flex flex-col gap-2 self-end ml-auto max-w-[320px] w-full bg-white border border-[var(--brand-primary-hover)] rounded-[8px] p-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-[var(--text-sub)]">발송 시각</span>
+                  <span className="text-sm text-[var(--text-sub)]">발송 시각</span>
                   <input
                     type="time"
                     value={directTimeVal}
                     onChange={(e) => setDirectTimeVal(e.target.value)}
-                    className="flex-1 text-[13px] outline-none border border-[var(--line-default)] rounded-[6px] px-2 py-1 focus:border-[var(--brand-primary-hover)]"
+                    className="flex-1 text-lg outline-none border border-[var(--line-default)] rounded-[6px] px-2 py-1 focus:border-[var(--brand-primary-hover)]"
                   />
                 </div>
                 <div className="flex gap-2 justify-end">
-                  <button onClick={() => setDirectTimeMode(false)} className="text-[11px] text-[var(--text-sub)] hover:text-[var(--text-main)] px-2">취소</button>
+                  <button onClick={() => setDirectTimeMode(false)} className="text-sm text-[var(--text-sub)] hover:text-[var(--text-main)] px-2">취소</button>
                   <button
                     onClick={() => pickTime(formatTimeLabel(directTimeVal))}
-                    className="text-[11px] bg-[var(--brand-primary-hover)] text-white px-3 py-1 rounded-[6px]"
+                    className="text-sm bg-[var(--brand-primary-hover)] text-white px-3 py-1 rounded-[6px]"
                   >
                     확인
                   </button>
@@ -417,7 +417,7 @@ function ConfirmScreen({
                     <button
                       key={t}
                       onClick={() => pickTime(t)}
-                      className="text-[12px] bg-white border border-[var(--line-default)] hover:border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] rounded-full px-4 py-1.5 transition-colors"
+                      className="text-md bg-white border border-[var(--line-default)] hover:border-[var(--brand-primary-hover)] hover:bg-[var(--blue-025)] rounded-full px-4 py-1.5 transition-colors"
                     >
                       {t}
                     </button>
@@ -425,7 +425,7 @@ function ConfirmScreen({
                 </div>
                 <button
                   onClick={() => setDirectTimeMode(true)}
-                  className="text-[12px] text-[var(--brand-primary-hover)] hover:underline self-end"
+                  className="text-md text-[var(--brand-primary-hover)] hover:underline self-end"
                 >
                   ✏️ 직접 시간 지정하기
                 </button>
@@ -441,14 +441,14 @@ function ConfirmScreen({
           <>
             <AiBubble>
               <p className="font-medium mb-1">✅ 이렇게 만들어드릴게요</p>
-              <p className="text-[12px] text-[var(--text-sub)]">아래 내용으로 빠른메뉴를 등록할까요?</p>
+              <p className="text-md text-[var(--text-sub)]">아래 내용으로 빠른메뉴를 등록할까요?</p>
             </AiBubble>
             <div className="bg-[var(--blue-025)] border border-[var(--blue-100)] rounded-[8px] p-3 self-start max-w-[320px]">
               <div className="flex items-center gap-1.5 mb-2 pb-2 border-b border-[var(--blue-050)]">
-                <span className="text-[10px] font-medium text-[var(--blue-700)] bg-[var(--blue-050)] rounded-[4px] px-1.5 py-0.5">예약</span>
-                <span className="text-[12px] font-medium text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
+                <span className="text-xs font-medium text-[var(--blue-700)] bg-[var(--blue-050)] rounded-[4px] px-1.5 py-0.5">예약</span>
+                <span className="text-md font-medium text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
               </div>
-              <div className="text-[11px] text-[var(--text-main)] flex flex-col gap-1.5">
+              <div className="text-sm text-[var(--text-main)] flex flex-col gap-1.5">
                 <div className="flex gap-1.5"><span className="text-[#888] flex-shrink-0">📨 3일 전</span><span className="break-words">{template3}</span></div>
                 <div className="flex gap-1.5"><span className="text-[#888] flex-shrink-0">📨 1일 전</span><span className="break-words">{template1}</span></div>
                 <div className="flex gap-1.5"><span className="text-[#888] flex-shrink-0">⏰ 발송시각</span><span>{sendTime}</span></div>
@@ -462,14 +462,14 @@ function ConfirmScreen({
       <div className="flex gap-2 px-5 py-3 border-t border-[var(--line-default)] flex-shrink-0">
         <button
           onClick={onBack}
-          className="w-[90px] h-[40px] border border-[var(--line-default)] rounded-[8px] text-[13px] text-[var(--text-sub)] flex-shrink-0 hover:bg-[var(--bg-subtle)] transition-colors"
+          className="w-[90px] h-[40px] border border-[var(--line-default)] rounded-[8px] text-lg text-[var(--text-sub)] flex-shrink-0 hover:bg-[var(--bg-subtle)] transition-colors"
         >
           ← 처음으로
         </button>
         <button
           onClick={showReview ? () => onSave({ template3, template1, sendTime }) : undefined}
           disabled={!showReview}
-          className={`flex-1 h-[40px] rounded-[8px] text-[13px] font-medium transition-colors ${
+          className={`flex-1 h-[40px] rounded-[8px] text-lg font-medium transition-colors ${
             showReview
               ? "bg-[var(--brand-primary-hover)] text-white hover:bg-[var(--brand-primary-pressed)] cursor-pointer"
               : "bg-[var(--line-subtle)] text-[#999] cursor-not-allowed"
@@ -509,24 +509,24 @@ function CompleteScreen({
         <div className="w-[56px] h-[56px] bg-[var(--status-success-bg-subtle)] rounded-full flex items-center justify-center mb-4">
           <span className="text-[24px] text-[var(--green-700)] font-bold leading-none">✓</span>
         </div>
-        <p className="text-[16px] font-medium text-[var(--text-main)] mb-1.5">빠른메뉴에 추가했어요</p>
-        <p className="text-[12px] text-[var(--text-sub)]">우측 빠른메뉴 영역에서 새 버튼을 확인하세요</p>
+        <p className="text-xl font-medium text-[var(--text-main)] mb-1.5">빠른메뉴에 추가했어요</p>
+        <p className="text-md text-[var(--text-sub)]">우측 빠른메뉴 영역에서 새 버튼을 확인하세요</p>
       </div>
 
       {/* 미리보기 */}
-      <p className="text-[11px] text-[#999] mb-2">미리보기</p>
+      <p className="text-sm text-[#999] mb-2">미리보기</p>
       <div className="border border-[var(--line-default)] rounded-[8px] px-4 py-3 mb-6">
         <div className="mb-2">
-          <span className="text-[10px] font-medium text-[var(--blue-700)] bg-[var(--blue-050)] rounded-[4px] px-1.5 py-0.5">예약</span>
+          <span className="text-xs font-medium text-[var(--blue-700)] bg-[var(--blue-050)] rounded-[4px] px-1.5 py-0.5">예약</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-[6px] h-[6px] rounded-full bg-[var(--orange-500)] flex-shrink-0" />
-          <span className="text-[13px] font-medium text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
+          <span className="text-lg font-medium text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
         </div>
       </div>
 
       {/* 다음 작업 */}
-      <p className="text-[11px] font-medium text-[var(--text-sub)] mb-2.5">다음 작업</p>
+      <p className="text-sm font-medium text-[var(--text-sub)] mb-2.5">다음 작업</p>
       <div className="flex flex-col gap-2.5">
         {follow.map((f) => (
           <button
@@ -538,10 +538,10 @@ function CompleteScreen({
                 : "bg-white border border-[var(--line-default)] hover:border-[#999]"
             }`}
           >
-            <span className={`text-[14px] font-bold mt-0.5 flex-shrink-0 ${f.accent ? "text-[var(--blue-700)]" : "text-[var(--text-main)]"}`}>{f.emoji}</span>
+            <span className={`text-lg font-bold mt-0.5 flex-shrink-0 ${f.accent ? "text-[var(--blue-700)]" : "text-[var(--text-main)]"}`}>{f.emoji}</span>
             <div>
-              <p className={`text-[13px] font-medium ${f.accent ? "text-[var(--blue-800)]" : "text-[var(--text-main)]"}`}>{f.title}</p>
-              <p className={`text-[11px] mt-0.5 ${f.accent ? "text-[var(--blue-700)]" : "text-[var(--text-sub)]"}`}>{f.sub}</p>
+              <p className={`text-lg font-medium ${f.accent ? "text-[var(--blue-800)]" : "text-[var(--text-main)]"}`}>{f.title}</p>
+              <p className={`text-sm mt-0.5 ${f.accent ? "text-[var(--blue-700)]" : "text-[var(--text-sub)]"}`}>{f.sub}</p>
             </div>
           </button>
         ))}
@@ -569,29 +569,29 @@ function UseMenuScreen({
       {/* 헤더 */}
       <div className="flex items-center justify-between px-5 h-[52px] border-b border-[var(--line-default)] flex-shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-[var(--brand-primary-hover)] text-[14px] font-bold leading-none">✦</span>
-          <span className="text-[15px] font-bold text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
+          <span className="text-[var(--brand-primary-hover)] text-lg font-bold leading-none">✦</span>
+          <span className="text-xl font-bold text-[var(--text-main)]">위내시경 예약 + 공복 안내</span>
         </div>
-        <button onClick={onClose} className="text-[#999] text-[14px] hover:text-[#555] leading-none">✕</button>
+        <button onClick={onClose} className="text-[#999] text-lg hover:text-[#555] leading-none">✕</button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
         {/* 날짜 */}
         <div>
-          <p className="text-[12px] font-medium text-[var(--text-main)] mb-2">📅 예약 날짜</p>
+          <p className="text-md font-medium text-[var(--text-main)] mb-2">📅 예약 날짜</p>
           <div className="relative">
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => { setSelectedDate(e.target.value); setSelectedTimeSlot(""); }}
-              className="w-full h-[38px] bg-[var(--status-warning-bg-subtle)] border border-[var(--orange-700)] rounded-[6px] px-3 text-[13px] text-[var(--orange-700)] outline-none cursor-pointer"
+              className="w-full h-[38px] bg-[var(--status-warning-bg-subtle)] border border-[var(--orange-700)] rounded-[6px] px-3 text-lg text-[var(--orange-700)] outline-none cursor-pointer"
             />
           </div>
         </div>
 
         {/* 시간 */}
         <div>
-          <p className="text-[12px] font-medium text-[var(--text-main)] mb-2">⏰ 예약 시간</p>
+          <p className="text-md font-medium text-[var(--text-main)] mb-2">⏰ 예약 시간</p>
           <div className="grid grid-cols-4 gap-2">
             {TIME_SLOTS.map((slot) => {
               const isSelected = selectedTimeSlot === slot;
@@ -599,7 +599,7 @@ function UseMenuScreen({
                 <button
                   key={slot}
                   onClick={() => dateSelected && setSelectedTimeSlot(slot)}
-                  className={`h-[32px] rounded-[6px] border text-[12px] transition-colors ${
+                  className={`h-[32px] rounded-[6px] border text-md transition-colors ${
                     !dateSelected
                       ? "opacity-50 border-[var(--line-default)] text-[#999] cursor-not-allowed"
                       : isSelected
@@ -619,12 +619,12 @@ function UseMenuScreen({
       <div className="flex justify-end gap-2 px-5 py-3 border-t border-[var(--line-default)] flex-shrink-0">
         <button
           onClick={onCancel}
-          className="w-[80px] h-[40px] border border-[var(--line-default)] rounded-[8px] text-[13px] text-[var(--text-sub)] hover:bg-[var(--bg-subtle)] transition-colors"
+          className="w-[80px] h-[40px] border border-[var(--line-default)] rounded-[8px] text-lg text-[var(--text-sub)] hover:bg-[var(--bg-subtle)] transition-colors"
         >
           취소
         </button>
         <button
-          className={`w-[92px] h-[40px] rounded-[8px] text-[13px] font-bold transition-colors ${
+          className={`w-[92px] h-[40px] rounded-[8px] text-lg font-bold transition-colors ${
             canReserve
               ? "bg-[var(--brand-primary-hover)] text-white hover:bg-[var(--brand-primary-pressed)] cursor-pointer"
               : "bg-[var(--line-subtle)] text-[#999] cursor-not-allowed"

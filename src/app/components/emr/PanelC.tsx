@@ -502,18 +502,18 @@ export function PanelC({
       <div className="flex-1 bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] flex flex-col min-h-0">
         {/* Header */}
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--line-default)] flex-shrink-0">
-          <span className="text-[13px] font-bold text-[var(--text-main)] flex-shrink-0">내원이력</span>
+          <span className="text-lg font-bold text-[var(--text-main)] flex-shrink-0">내원이력</span>
           <div className="flex items-center gap-1 bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-[6px] px-2 h-6 flex-1">
             <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 16 16">
               <circle cx="6.5" cy="6.5" r="4.5" stroke="var(--text-tertiary)" strokeWidth="1.4"/>
               <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.4" strokeLinecap="round"/>
             </svg>
-            <span className="text-[10px] text-[var(--text-tertiary)] truncate">기록 검색 (상병/처방/의사)</span>
+            <span className="text-xs text-[var(--text-tertiary)] truncate">기록 검색 (상병/처방/의사)</span>
           </div>
           {/* 펼쳐보기 trigger */}
           <button
             onClick={openExpanded}
-            className="flex items-center gap-1 text-[10px] text-[var(--brand-primary)] border border-[var(--brand-primary)]/40 bg-[var(--bg-primary-subtle)] rounded-[5px] px-1.5 h-6 whitespace-nowrap flex-shrink-0 hover:bg-[var(--blue-100)]"
+            className="flex items-center gap-1 text-xs text-[var(--brand-primary)] border border-[var(--brand-primary)]/40 bg-[var(--bg-primary-subtle)] rounded-[5px] px-1.5 h-6 whitespace-nowrap flex-shrink-0 hover:bg-[var(--blue-100)]"
           >
             <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
               <rect x="1" y="1" width="6" height="6" rx="1" stroke="var(--brand-primary)" strokeWidth="1.3"/>
@@ -531,7 +531,7 @@ export function PanelC({
             {/* 즐겨찾기 토글 */}
             <button
               onClick={() => setFilterFavorite(p => !p)}
-              className={`flex items-center gap-1 text-[10px] rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1 text-xs rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
                 filterFavorite
                   ? "bg-[var(--status-warning-bg-subtle)] text-[var(--orange-700)] border-[var(--orange-200)] font-bold"
                   : "bg-[var(--bg-subtle)] text-[var(--text-sub)] border-[var(--line-default)]"
@@ -550,7 +550,7 @@ export function PanelC({
                     key={t}
                     onClick={() => togglePrescType(t)}
                     title={cfg.desc}
-                    className={`w-7 h-[22px] text-[10px] font-bold rounded-[4px] border transition-colors flex-shrink-0 ${active ? cfg.active : cfg.inactive}`}
+                    className={`w-7 h-[22px] text-xs font-bold rounded-[4px] border transition-colors flex-shrink-0 ${active ? cfg.active : cfg.inactive}`}
                   >
                     {cfg.label}
                   </button>
@@ -570,11 +570,11 @@ export function PanelC({
               const active = !!value;
               return (
                 <div key={label} className="flex items-center gap-1">
-                  <span className="text-[10px] text-[var(--text-tertiary)] flex-shrink-0">{label}</span>
+                  <span className="text-xs text-[var(--text-tertiary)] flex-shrink-0">{label}</span>
                   <select
                     value={value}
                     onChange={e => setter(e.target.value)}
-                    className={`text-[10px] rounded-[4px] border px-1 py-0.5 cursor-pointer transition-colors focus:outline-none focus:border-[var(--brand-primary)] ${
+                    className={`text-xs rounded-[4px] border px-1 py-0.5 cursor-pointer transition-colors focus:outline-none focus:border-[var(--brand-primary)] ${
                       active
                         ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)]"
                         : "bg-[var(--bg-subtle)] text-[var(--text-sub)] border-[var(--line-default)]"
@@ -589,7 +589,7 @@ export function PanelC({
             {hasActiveFilters && (
               <button
                 onClick={resetFilters}
-                className="text-[10px] text-[var(--red-500)] ml-auto whitespace-nowrap"
+                className="text-xs text-[var(--red-500)] ml-auto whitespace-nowrap"
               >
                 ⟳ 초기화
               </button>
@@ -619,7 +619,7 @@ export function PanelC({
                   {!v.isDraft && (
                     <button
                       onClick={e => { e.stopPropagation(); toggleStar(v.id); }}
-                      className="absolute top-0 right-0 leading-none text-[8px] p-0.5"
+                      className="absolute top-0 right-0 leading-none text-micro p-0.5"
                     >
                       <span style={{ color: starredDates.has(v.id) ? "var(--orange-500)" : "var(--text-disabled)" }}>
                         {starredDates.has(v.id) ? "★" : "☆"}
@@ -627,14 +627,14 @@ export function PanelC({
                     </button>
                   )}
                   {/* Date — 한 줄 강제 */}
-                  <span className={`block text-[10px] font-bold leading-none whitespace-nowrap pr-3 ${v.isDraft ? "text-[var(--brand-primary)]" : "text-[var(--text-main)]"}`}>{v.date}</span>
+                  <span className={`block text-xs font-bold leading-none whitespace-nowrap pr-3 ${v.isDraft ? "text-[var(--brand-primary)]" : "text-[var(--text-main)]"}`}>{v.date}</span>
                   {/* visitType (재/초) + prescTypes 한 줄 */}
                   <div className="flex items-center gap-0.5 mt-0.5">
-                    <span className="text-[8px] font-bold rounded-[2px] px-1 leading-[13px] bg-[var(--bg-subtle)] text-[var(--text-sub)] border border-[var(--line-default)]">{v.visitType[0]}</span>
+                    <span className="text-micro font-bold rounded-[2px] px-1 leading-[13px] bg-[var(--bg-subtle)] text-[var(--text-sub)] border border-[var(--line-default)]">{v.visitType[0]}</span>
                     {v.prescTypes.map(pt => (
                       <span
                         key={pt}
-                        className={`text-[8px] font-bold rounded-[2px] px-1 leading-[13px] ${
+                        className={`text-micro font-bold rounded-[2px] px-1 leading-[13px] ${
                           pt === "주" ? "bg-[var(--status-error-bg-subtle)] text-[var(--red-500)]"
                           : pt === "물" ? "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)]"
                           : pt === "방" ? "bg-[var(--status-warning-bg-subtle)] text-[var(--orange-500)]"
@@ -682,17 +682,17 @@ export function PanelC({
                   >
                     {/* 편집중 배지 — draft일 때만 노출 */}
                     {v.isDraft && (
-                      <span className="text-[9px] font-bold rounded-[3px] px-1.5 py-0.5 bg-[var(--brand-primary)] text-white whitespace-nowrap mr-0.5">
+                      <span className="text-micro font-bold rounded-[3px] px-1.5 py-0.5 bg-[var(--brand-primary)] text-white whitespace-nowrap mr-0.5">
                         편집중
                       </span>
                     )}
-                    <span className={`text-[11px] font-bold ${v.isDraft ? "text-[var(--brand-primary)]" : "text-[var(--text-main)]"}`}>{v.date}</span>
-                    {v.time && <span className="text-[10px] text-[var(--text-sub)]">{v.time}</span>}
-                    <span className="text-[9px] rounded-[2px] px-1 py-0.5 bg-white text-[var(--text-sub)] border border-[var(--line-default)]">{v.visitType[0]}</span>
-                    <span className="text-[9px] bg-white text-[var(--text-sub)] border border-[var(--line-default)] rounded-[2px] px-1 py-0.5">{v.insType}</span>
-                    {v.special && <span className="text-[9px] bg-[var(--status-success-bg-subtle)] text-[var(--green-500)] rounded-[2px] px-1 py-0.5">{v.special}</span>}
+                    <span className={`text-sm font-bold ${v.isDraft ? "text-[var(--brand-primary)]" : "text-[var(--text-main)]"}`}>{v.date}</span>
+                    {v.time && <span className="text-xs text-[var(--text-sub)]">{v.time}</span>}
+                    <span className="text-micro rounded-[2px] px-1 py-0.5 bg-white text-[var(--text-sub)] border border-[var(--line-default)]">{v.visitType[0]}</span>
+                    <span className="text-micro bg-white text-[var(--text-sub)] border border-[var(--line-default)] rounded-[2px] px-1 py-0.5">{v.insType}</span>
+                    {v.special && <span className="text-micro bg-[var(--status-success-bg-subtle)] text-[var(--green-500)] rounded-[2px] px-1 py-0.5">{v.special}</span>}
                     {v.prescTypes.map(pt => (
-                      <span key={pt} className={`text-[8px] font-bold rounded-[2px] px-1 py-0.5 ${
+                      <span key={pt} className={`text-micro font-bold rounded-[2px] px-1 py-0.5 ${
                         pt === "주" ? "bg-[var(--status-error-bg-subtle)] text-[var(--red-500)]"
                         : pt === "물" ? "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)]"
                         : pt === "방" ? "bg-[var(--status-warning-bg-subtle)] text-[var(--orange-500)]"
@@ -706,10 +706,10 @@ export function PanelC({
                           <circle cx="4.5" cy="5.5" r="1" fill="var(--blue-700)"/>
                           <path d="M1.5 10L4.5 7L6.5 9L9 6.5L12.5 10" stroke="var(--blue-700)" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span className="text-[9px] font-medium text-[var(--blue-700)]">{v.imageCount}</span>
+                        <span className="text-micro font-medium text-[var(--blue-700)]">{v.imageCount}</span>
                       </span>
                     ) : null}
-                    {starredDates.has(v.id) && <span className="text-[10px]" style={{ color: "var(--orange-500)" }}>★</span>}
+                    {starredDates.has(v.id) && <span className="text-xs" style={{ color: "var(--orange-500)" }}>★</span>}
                     {/* 삭감 기록 인디케이터 */}
                     {v.deduction && (
                       <div className="relative">
@@ -720,7 +720,7 @@ export function PanelC({
                             setDeductionPopoverId(prev => prev === v.id ? null : v.id);
                           }}
                           title="삭감 기록 보기"
-                          className="flex items-center gap-0.5 text-[9px] font-bold bg-[var(--status-error-bg-subtle)] text-[var(--red-500)] border border-[var(--red-200)] rounded-[3px] px-1 py-0.5 hover:bg-[var(--red-100)]"
+                          className="flex items-center gap-0.5 text-micro font-bold bg-[var(--status-error-bg-subtle)] text-[var(--red-500)] border border-[var(--red-200)] rounded-[3px] px-1 py-0.5 hover:bg-[var(--red-100)]"
                         >
                           <span className="leading-none">⚠</span>
                           <span>삭감</span>
@@ -732,23 +732,23 @@ export function PanelC({
                             className="absolute top-full left-0 mt-1 w-[260px] bg-white border border-[var(--red-200)] rounded-md shadow-lg p-2.5 z-50"
                           >
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[11px] font-bold text-[var(--red-700)]">⚠ 삭감 기록{typeof v.deduction.amount === "number" && ` — ${v.deduction.amount.toLocaleString()}원`}</span>
+                              <span className="text-sm font-bold text-[var(--red-700)]">⚠ 삭감 기록{typeof v.deduction.amount === "number" && ` — ${v.deduction.amount.toLocaleString()}원`}</span>
                               <button
                                 onClick={e => { e.stopPropagation(); setDeductionPopoverId(null); }}
-                                className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-main)]"
+                                className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-main)]"
                               >✕</button>
                             </div>
-                            <div className="text-[10px] font-medium text-[var(--text-main)] mb-1">{v.deduction.reason}</div>
-                            <div className="text-[10px] text-[var(--text-sub)] leading-[15px] whitespace-pre-line">{v.deduction.details}</div>
+                            <div className="text-xs font-medium text-[var(--text-main)] mb-1">{v.deduction.reason}</div>
+                            <div className="text-xs text-[var(--text-sub)] leading-[15px] whitespace-pre-line">{v.deduction.details}</div>
                           </div>
                         )}
                       </div>
                     )}
                     <div className="ml-auto flex items-center gap-1.5">
                       {!v.isDraft && (
-                        <span className="text-[9px] text-[var(--green-500)] opacity-0 group-hover:opacity-100 flex items-center gap-0.5 whitespace-nowrap">↩ 전체 리피트</span>
+                        <span className="text-micro text-[var(--green-500)] opacity-0 group-hover:opacity-100 flex items-center gap-0.5 whitespace-nowrap">↩ 전체 리피트</span>
                       )}
-                      {v.amount && <span className="text-[10px] font-medium text-[var(--text-main)]">{v.amount}</span>}
+                      {v.amount && <span className="text-xs font-medium text-[var(--text-main)]">{v.amount}</span>}
                     </div>
                   </div>
 
@@ -756,7 +756,7 @@ export function PanelC({
                   {!v.isDraft && (
                   <>
                   {/* ── Symptom (라벨 없이 본문만) ── */}
-                  <div className="px-2 py-1.5 text-[10px] leading-[15px] text-[var(--text-sub)] line-clamp-2 border-b border-[var(--line-subtle)]">
+                  <div className="px-2 py-1.5 text-xs leading-[15px] text-[var(--text-sub)] line-clamp-2 border-b border-[var(--line-subtle)]">
                     {v.symptom}
                   </div>
 
@@ -769,7 +769,7 @@ export function PanelC({
                         style={{ gridTemplateColumns: "56px 1fr 28px 28px 22px 22px 50px" }}
                       >
                         {[["상병코드","left"],["명칭","left"],["의증","center"],["배제","center"],["좌","center"],["우","center"],["진료과","left"]].map(([label, align]) => (
-                          <span key={label} className={`text-[9px] font-medium text-[var(--text-tertiary)] text-${align}`}>{label}</span>
+                          <span key={label} className={`text-micro font-medium text-[var(--text-tertiary)] text-${align}`}>{label}</span>
                         ))}
                       </div>
                       {/* 행 */}
@@ -781,16 +781,16 @@ export function PanelC({
                           onClick={e => { e.stopPropagation(); onRepeatDx([d]); }}
                           title={`${d.code} 리피트`}
                         >
-                          <span className="text-[10px] font-medium text-[var(--text-main)]">{d.code}</span>
-                          <span className="text-[10px] text-[var(--text-main)] truncate">{d.name}</span>
+                          <span className="text-xs font-medium text-[var(--text-main)]">{d.code}</span>
+                          <span className="text-xs text-[var(--text-main)] truncate">{d.name}</span>
                           {/* 의증 / 배제 / 좌 / 우 — 빈 체크박스 */}
                           {["의증","배제","좌","우"].map(col => (
                             <div key={col} className="flex justify-center">
                               <div className="w-3 h-3 border border-[var(--line-default)] rounded-[2px]" />
                             </div>
                           ))}
-                          <span className="text-[10px] text-[var(--text-sub)]">내과</span>
-                          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] text-[var(--green-500)] opacity-0 group-hover/dxrow:opacity-100 pointer-events-none">↩</span>
+                          <span className="text-xs text-[var(--text-sub)]">내과</span>
+                          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-micro text-[var(--green-500)] opacity-0 group-hover/dxrow:opacity-100 pointer-events-none">↩</span>
                         </div>
                       ))}
                     </div>
@@ -805,7 +805,7 @@ export function PanelC({
                         style={{ gridTemplateColumns: "44px 1fr 22px 20px 22px 28px 40px 24px 56px" }}
                       >
                         {[["사용자코드","left"],["명칭","left"],["용량","center"],["일투","center"],["일수","center"],["용법","center"],["특정내역","left"],["청구","center"],["수납방법","left"]].map(([label, align]) => (
-                          <span key={label} className={`text-[9px] font-medium text-[var(--text-tertiary)] text-${align} truncate`}>{label}</span>
+                          <span key={label} className={`text-micro font-medium text-[var(--text-tertiary)] text-${align} truncate`}>{label}</span>
                         ))}
                       </div>
                       {/* 행 */}
@@ -817,16 +817,16 @@ export function PanelC({
                           onClick={e => { e.stopPropagation(); onRepeatRx([p]); }}
                           title={`${p.name} 리피트`}
                         >
-                          <span className="text-[10px] text-[var(--text-tertiary)] truncate">{p.code ?? ""}</span>
-                          <span className="text-[10px] truncate text-[var(--text-main)]">{p.name}</span>
-                          <span className="text-[10px] text-center text-[var(--text-sub)]">{p.dose}</span>
-                          <span className="text-[10px] text-center text-[var(--text-sub)]">{p.freq}</span>
-                          <span className="text-[10px] text-center text-[var(--text-sub)]">{p.days}</span>
-                          <span className="text-[9px] text-center text-[var(--text-sub)]">{p.method ?? "경구"}</span>
-                          <span className="text-[9px] text-[var(--orange-700)] truncate">{p.special ?? ""}</span>
-                          <span className="text-[10px] text-center text-[var(--text-sub)]">{p.claim === false ? "" : "✓"}</span>
-                          <span className="text-[9px] text-[var(--text-sub)] truncate">{p.payMethod ?? "보험가"}</span>
-                          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] text-[var(--green-500)] opacity-0 group-hover/rxrow:opacity-100 pointer-events-none">↩</span>
+                          <span className="text-xs text-[var(--text-tertiary)] truncate">{p.code ?? ""}</span>
+                          <span className="text-xs truncate text-[var(--text-main)]">{p.name}</span>
+                          <span className="text-xs text-center text-[var(--text-sub)]">{p.dose}</span>
+                          <span className="text-xs text-center text-[var(--text-sub)]">{p.freq}</span>
+                          <span className="text-xs text-center text-[var(--text-sub)]">{p.days}</span>
+                          <span className="text-micro text-center text-[var(--text-sub)]">{p.method ?? "경구"}</span>
+                          <span className="text-micro text-[var(--orange-700)] truncate">{p.special ?? ""}</span>
+                          <span className="text-xs text-center text-[var(--text-sub)]">{p.claim === false ? "" : "✓"}</span>
+                          <span className="text-micro text-[var(--text-sub)] truncate">{p.payMethod ?? "보험가"}</span>
+                          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-micro text-[var(--green-500)] opacity-0 group-hover/rxrow:opacity-100 pointer-events-none">↩</span>
                         </div>
                       ))}
                     </div>
@@ -834,7 +834,7 @@ export function PanelC({
 
                   {/* ── Note ── */}
                   {v.note && (
-                    <div className="text-[10px] italic px-2 py-1.5 text-[var(--text-sub)]">
+                    <div className="text-xs italic px-2 py-1.5 text-[var(--text-sub)]">
                       · {v.note}
                     </div>
                   )}
@@ -846,8 +846,8 @@ export function PanelC({
             {filteredPastVisits.length === 0 && hasActiveFilters && (
               <div className="flex flex-col items-center justify-center h-24 gap-1.5 mt-2">
                 <span className="text-[20px] opacity-30">🔍</span>
-                <span className="text-[11px] text-[var(--text-tertiary)]">필터 조건에 맞는 과거 내원이력이 없습니다</span>
-                <button onClick={resetFilters} className="text-[10px] text-[var(--brand-primary)] underline">필터 초기화</button>
+                <span className="text-sm text-[var(--text-tertiary)]">필터 조건에 맞는 과거 내원이력이 없습니다</span>
+                <button onClick={resetFilters} className="text-xs text-[var(--brand-primary)] underline">필터 초기화</button>
               </div>
             )}
           </div>
@@ -896,7 +896,7 @@ export function PanelC({
           {/* 1. 차트 열기 — 과거 차트 조회 (primary action) */}
           <button
             onClick={() => setVisitContextMenu(null)}
-            className="w-full px-3 py-1.5 text-[12px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)] text-left"
+            className="w-full px-3 py-1.5 text-md text-[var(--text-main)] hover:bg-[var(--bg-subtle)] text-left"
           >
             차트 열기
           </button>
@@ -908,7 +908,7 @@ export function PanelC({
             <button
               key={label}
               onClick={() => setVisitContextMenu(null)}
-              className="w-full px-3 py-1.5 text-[12px] text-[var(--text-main)] hover:bg-[var(--bg-subtle)] text-left"
+              className="w-full px-3 py-1.5 text-md text-[var(--text-main)] hover:bg-[var(--bg-subtle)] text-left"
             >
               {label}
             </button>
@@ -919,7 +919,7 @@ export function PanelC({
           {/* 3. 차트 삭제 — 파괴적 액션 (red) */}
           <button
             onClick={() => setVisitContextMenu(null)}
-            className="w-full px-3 py-1.5 text-[12px] text-[var(--red-500)] hover:bg-[var(--status-error-bg-subtle)] text-left"
+            className="w-full px-3 py-1.5 text-md text-[var(--red-500)] hover:bg-[var(--status-error-bg-subtle)] text-left"
           >
             차트 삭제
           </button>

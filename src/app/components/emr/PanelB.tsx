@@ -91,8 +91,8 @@ const memos = [
 function InfoRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center px-2.5 min-h-[22px] py-0.5 border-b border-[var(--line-subtle)] last:border-b-0">
-      <span className="text-[11px] text-[var(--text-tertiary)] w-[56px] flex-shrink-0">{label}</span>
-      <div className="text-[12px] text-[var(--text-main)] flex-1 min-w-0">{children}</div>
+      <span className="text-sm text-[var(--text-tertiary)] w-[56px] flex-shrink-0">{label}</span>
+      <div className="text-md text-[var(--text-main)] flex-1 min-w-0">{children}</div>
     </div>
   );
 }
@@ -100,8 +100,8 @@ function InfoRow({ label, children }: { label: string; children: React.ReactNode
 // 차트번호 badge — 환자대기목록과 동일 형식, 아웃라인 두른 미니 뱃지
 function ChartNoBadge({ no, size = "sm" }: { no: string; size?: "sm" | "xs" }) {
   const cls = size === "xs"
-    ? "text-[10px] px-1 py-0 leading-tight"
-    : "text-[11px] px-1.5 py-0 leading-snug";
+    ? "text-xs px-1 py-0 leading-tight"
+    : "text-sm px-1.5 py-0 leading-snug";
   return (
     <span className={`${cls} font-medium rounded-[3px] border border-[var(--line-default)] text-[var(--text-sub)] tabular-nums`}>
       {no}
@@ -136,18 +136,18 @@ function BannedDrugsPopover({ rect, onClose }: { rect: DOMRect; onClose: () => v
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--red-200)] bg-[var(--status-error-bg-subtle)]">
         <div className="flex items-center gap-1.5">
           <span className="w-3.5 h-3.5 bg-[var(--red-500)] rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-[9px] font-bold leading-none">!</span>
+            <span className="text-white text-micro font-bold leading-none">!</span>
           </span>
-          <span className="text-[12px] font-bold text-[var(--red-700)]">처방금지 약품</span>
-          <span className="text-[10px] text-[var(--red-700)] tabular-nums">({BANNED_DRUGS.length})</span>
+          <span className="text-md font-bold text-[var(--red-700)]">처방금지 약품</span>
+          <span className="text-xs text-[var(--red-700)] tabular-nums">({BANNED_DRUGS.length})</span>
         </div>
-        <button onClick={onClose} className="text-[var(--red-700)] hover:text-[var(--red-500)] text-[14px] leading-none">✕</button>
+        <button onClick={onClose} className="text-[var(--red-700)] hover:text-[var(--red-500)] text-lg leading-none">✕</button>
       </div>
       <div>
         {BANNED_DRUGS.map((d, i) => (
           <div key={d.name} className={`px-3 py-1.5 ${i > 0 ? "border-t border-[var(--line-subtle)]" : ""}`}>
-            <div className="text-[12px] font-medium text-[var(--text-main)]">{d.name}</div>
-            <div className="text-[10px] text-[var(--text-tertiary)] mt-0.5">{d.reason}</div>
+            <div className="text-md font-medium text-[var(--text-main)]">{d.name}</div>
+            <div className="text-xs text-[var(--text-tertiary)] mt-0.5">{d.reason}</div>
           </div>
         ))}
       </div>
@@ -178,10 +178,10 @@ function InsurancePopover({ rect, onClose }: { rect: DOMRect; onClose: () => voi
       style={{ top, left, width }}>
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--line-default)] bg-[var(--bg-subtle)]">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-[12px] font-bold text-[var(--text-main)]">보험정보</span>
-          <span className="text-[10px] text-[var(--text-tertiary)]">수진자조회 결과</span>
+          <span className="text-md font-bold text-[var(--text-main)]">보험정보</span>
+          <span className="text-xs text-[var(--text-tertiary)]">수진자조회 결과</span>
         </div>
-        <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[14px] leading-none">✕</button>
+        <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-lg leading-none">✕</button>
       </div>
       <div>
         <InfoRow label="보험구분">{ins.type} · {ins.subType}</InfoRow>
@@ -194,7 +194,7 @@ function InsurancePopover({ rect, onClose }: { rect: DOMRect; onClose: () => voi
         </InfoRow>
       </div>
       <div className="px-2.5 py-1 bg-[var(--bg-subtle)] border-t border-[var(--line-default)]">
-        <span className="text-[9px] text-[var(--text-tertiary)]">조회 {ins.lastLookup}</span>
+        <span className="text-micro text-[var(--text-tertiary)]">조회 {ins.lastLookup}</span>
       </div>
     </div>,
     document.body
@@ -228,26 +228,26 @@ function CheckupPopover({ rect, onClose }: { rect: DOMRect; onClose: () => void 
       style={{ top, left, width }}>
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-[var(--line-default)] bg-[var(--bg-subtle)]">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-[12px] font-bold text-[var(--text-main)]">공단검진</span>
-          <span className="text-[10px] text-[var(--text-tertiary)]">{CHECKUP_DETAILS.length}건 대상</span>
+          <span className="text-md font-bold text-[var(--text-main)]">공단검진</span>
+          <span className="text-xs text-[var(--text-tertiary)]">{CHECKUP_DETAILS.length}건 대상</span>
         </div>
-        <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[14px] leading-none">✕</button>
+        <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-lg leading-none">✕</button>
       </div>
       <div>
         {CHECKUP_DETAILS.map(c => (
           <div key={c.name} className="flex items-center px-2.5 py-1.5 border-b border-[var(--line-subtle)] last:border-b-0">
             <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-medium text-[var(--text-main)]">{c.name}</p>
-              <p className="text-[10px] text-[var(--text-tertiary)]">최근 수검 · {c.lastDone}</p>
+              <p className="text-md font-medium text-[var(--text-main)]">{c.name}</p>
+              <p className="text-xs text-[var(--text-tertiary)]">최근 수검 · {c.lastDone}</p>
             </div>
-            <span className="text-[10px] font-bold text-[var(--brand-primary)] bg-[var(--bg-primary-subtle)] rounded-[3px] px-1.5 py-0.5 flex-shrink-0">
+            <span className="text-xs font-bold text-[var(--brand-primary)] bg-[var(--bg-primary-subtle)] rounded-[3px] px-1.5 py-0.5 flex-shrink-0">
               {c.eligible}
             </span>
           </div>
         ))}
       </div>
       <div className="px-2.5 py-1.5 border-t border-[var(--line-default)]">
-        <button className="w-full h-7 text-[11px] font-medium text-[var(--brand-primary)] hover:bg-[var(--bg-primary-subtle)] rounded-md">
+        <button className="w-full h-7 text-sm font-medium text-[var(--brand-primary)] hover:bg-[var(--bg-primary-subtle)] rounded-md">
           검진 안내 SMS 발송
         </button>
       </div>
@@ -268,20 +268,20 @@ function PatientEditModal({ onClose }: { onClose: () => void }) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--line-default)]">
           <div>
-            <h3 className="text-[15px] font-bold text-[var(--text-main)]">환자 정보 편집</h3>
-            <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5 flex items-center gap-1.5">
+            <h3 className="text-xl font-bold text-[var(--text-main)]">환자 정보 편집</h3>
+            <p className="text-sm text-[var(--text-tertiary)] mt-0.5 flex items-center gap-1.5">
               <span>{PATIENT_PROFILE.name}</span>
               <ChartNoBadge no={PATIENT_PROFILE.chartNo} />
             </p>
           </div>
-          <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[16px]">✕</button>
+          <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-xl">✕</button>
         </div>
 
         {/* Tabs */}
         <div className="flex items-center gap-0 px-5 border-b border-[var(--line-default)] flex-shrink-0">
           {TABS.map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className={`px-3 py-2 text-[12px] font-bold border-b-2 transition-colors ${
+              className={`px-3 py-2 text-md font-bold border-b-2 transition-colors ${
                 tab === t
                   ? "border-[var(--brand-primary)] text-[var(--brand-primary)]"
                   : "border-transparent text-[var(--text-tertiary)] hover:text-[var(--text-sub)]"
@@ -300,9 +300,9 @@ function PatientEditModal({ onClose }: { onClose: () => void }) {
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-5 py-3 border-t border-[var(--line-default)]">
-          <button onClick={onClose} className="h-9 px-4 text-[12px] border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">취소</button>
+          <button onClick={onClose} className="h-9 px-4 text-md border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">취소</button>
           <button onClick={() => { onClose(); }}
-            className="h-9 px-5 text-[12px] font-bold text-white rounded-md hover:opacity-90"
+            className="h-9 px-5 text-md font-bold text-white rounded-md hover:opacity-90"
             style={{ background: "var(--brand-primary)" }}>
             저장
           </button>
@@ -316,9 +316,9 @@ function PatientEditModal({ onClose }: { onClose: () => void }) {
 function FormField({ label, value, type = "text" }: { label: string; value: string; type?: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-[11px] font-medium text-[var(--text-tertiary)]">{label}</label>
+      <label className="text-sm font-medium text-[var(--text-tertiary)]">{label}</label>
       <input type={type} defaultValue={value}
-        className="h-9 px-3 text-[12px] border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)]" />
+        className="h-9 px-3 text-md border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)]" />
     </div>
   );
 }
@@ -337,9 +337,9 @@ function PersonalTab() {
         <FormField label="주소" value="서울특별시 용산구 한강대로 100 GC빌딩 5층" />
       </div>
       <div className="col-span-2 flex flex-col gap-1">
-        <label className="text-[11px] font-medium text-[var(--text-tertiary)]">메모</label>
+        <label className="text-sm font-medium text-[var(--text-tertiary)]">메모</label>
         <textarea defaultValue="진료 시 보호자(따님 김허나) 동반 희망"
-          className="px-3 py-2 text-[12px] border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)] resize-none h-16" />
+          className="px-3 py-2 text-md border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)] resize-none h-16" />
       </div>
     </div>
   );
@@ -348,29 +348,29 @@ function PersonalTab() {
 function FamilyTab({ adding, setAdding }: { adding: boolean; setAdding: (v: boolean) => void }) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-[11px] text-[var(--text-tertiary)]">등록된 가족 {FAMILY_MEMBERS.length}명</p>
+      <p className="text-sm text-[var(--text-tertiary)]">등록된 가족 {FAMILY_MEMBERS.length}명</p>
       {FAMILY_MEMBERS.map(f => (
         <div key={f.chartNo} className="flex items-center gap-3 px-3 py-2 border border-[var(--line-default)] rounded-md">
-          <span className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0"
+          <span className="w-8 h-8 rounded-full flex items-center justify-center text-md font-bold flex-shrink-0"
             style={{ background: f.bg, color: f.fg }}>{f.avatar}</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-[13px] font-medium text-[var(--text-main)]">{f.name}</span>
-              <span className="text-[11px] text-[var(--text-tertiary)] tabular-nums">{f.relation} · {f.age}</span>
+              <span className="text-lg font-medium text-[var(--text-main)]">{f.name}</span>
+              <span className="text-sm text-[var(--text-tertiary)] tabular-nums">{f.relation} · {f.age}</span>
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <ChartNoBadge no={f.chartNo} size="xs" />
-              {f.lastVisit && <span className="text-[10px] text-[var(--text-tertiary)]">최근내원 {f.lastVisit}</span>}
+              {f.lastVisit && <span className="text-xs text-[var(--text-tertiary)]">최근내원 {f.lastVisit}</span>}
             </div>
           </div>
-          <button className="h-7 px-2 text-[11px] text-[var(--text-sub)] border border-[var(--line-default)] rounded hover:bg-[var(--bg-subtle)]">수정</button>
-          <button className="h-7 px-2 text-[11px] text-[var(--red-500)] border border-[var(--line-default)] rounded hover:bg-[var(--status-error-bg-subtle)]">삭제</button>
+          <button className="h-7 px-2 text-sm text-[var(--text-sub)] border border-[var(--line-default)] rounded hover:bg-[var(--bg-subtle)]">수정</button>
+          <button className="h-7 px-2 text-sm text-[var(--red-500)] border border-[var(--line-default)] rounded hover:bg-[var(--status-error-bg-subtle)]">삭제</button>
         </div>
       ))}
 
       {adding ? (
         <div className="border border-[var(--brand-primary)] rounded-md p-3 bg-[var(--bg-primary-subtle)]">
-          <p className="text-[12px] font-bold text-[var(--text-main)] mb-2">새 가족 등록</p>
+          <p className="text-md font-bold text-[var(--text-main)] mb-2">새 가족 등록</p>
           <div className="grid grid-cols-2 gap-2">
             <FormField label="이름" value="" />
             <FormField label="관계" value="" />
@@ -381,15 +381,15 @@ function FamilyTab({ adding, setAdding }: { adding: boolean; setAdding: (v: bool
             </div>
           </div>
           <div className="flex items-center justify-end gap-2 mt-3">
-            <button onClick={() => setAdding(false)} className="h-7 px-3 text-[11px] text-[var(--text-sub)] border border-[var(--line-default)] rounded bg-white">취소</button>
+            <button onClick={() => setAdding(false)} className="h-7 px-3 text-sm text-[var(--text-sub)] border border-[var(--line-default)] rounded bg-white">취소</button>
             <button onClick={() => setAdding(false)}
-              className="h-7 px-3 text-[11px] font-bold text-white rounded"
+              className="h-7 px-3 text-sm font-bold text-white rounded"
               style={{ background: "var(--brand-primary)" }}>등록</button>
           </div>
         </div>
       ) : (
         <button onClick={() => setAdding(true)}
-          className="w-full py-2.5 text-[12px] font-medium text-[var(--brand-primary)] border border-dashed border-[var(--line-default)] rounded-md hover:border-[var(--brand-primary)] hover:bg-[var(--bg-primary-subtle)] transition-colors">
+          className="w-full py-2.5 text-md font-medium text-[var(--brand-primary)] border border-dashed border-[var(--line-default)] rounded-md hover:border-[var(--brand-primary)] hover:bg-[var(--bg-primary-subtle)] transition-colors">
           ＋ 가족 추가
         </button>
       )}
@@ -402,19 +402,19 @@ function ClassificationTab() {
     <div className="flex flex-col gap-3">
       <FormField label="환자그룹" value="GC Cell" />
       <div className="flex flex-col gap-1">
-        <label className="text-[11px] font-medium text-[var(--text-tertiary)]">환자유형</label>
+        <label className="text-sm font-medium text-[var(--text-tertiary)]">환자유형</label>
         <div className="flex gap-1.5 flex-wrap">
           {["만성질환", "고혈압", "당뇨", "임산부", "어린이", "고령자"].map((t, i) => (
             <label key={t} className="flex items-center gap-1.5 cursor-pointer px-2 py-1 border border-[var(--line-default)] rounded-md bg-white hover:bg-[var(--bg-subtle)]">
               <input type="checkbox" defaultChecked={i < 3} className="accent-[var(--brand-primary)]" />
-              <span className="text-[11px] text-[var(--text-main)]">{t}</span>
+              <span className="text-sm text-[var(--text-main)]">{t}</span>
             </label>
           ))}
         </div>
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-[11px] font-medium text-[var(--text-tertiary)]">처방금지 / 알러지</label>
-        <input defaultValue="페니실린, 조영제" className="h-9 px-3 text-[12px] border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)]" />
+        <label className="text-sm font-medium text-[var(--text-tertiary)]">처방금지 / 알러지</label>
+        <input defaultValue="페니실린, 조영제" className="h-9 px-3 text-md border border-[var(--line-default)] rounded-md bg-white outline-none focus:border-[var(--brand-primary)]" />
       </div>
     </div>
   );
@@ -453,7 +453,7 @@ export function PatientInfoCard() {
       {/* ── 헤더 — [chart#] 환자명 + 처방금지 아이콘 + 보험·검진 chip 한 줄 ── */}
       <div className="flex items-center gap-2 px-2.5 pt-1.5 pb-1 pr-9 flex-shrink-0">
         <ChartNoBadge no={p.chartNo} />
-        <span className="text-[16px] font-bold text-[var(--text-main)]">{p.name}</span>
+        <span className="text-xl font-bold text-[var(--text-main)]">{p.name}</span>
         {/* 처방금지 아이콘 — 클릭 시 약품 리스트 팝오버 */}
         {BANNED_DRUGS.length > 0 && (
           <button
@@ -470,7 +470,7 @@ export function PatientInfoCard() {
               <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.4" fill="none"/>
               <path d="M3.5 3.5L12.5 12.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
             </svg>
-            <span className="text-[10px] font-bold tabular-nums leading-none">{BANNED_DRUGS.length}</span>
+            <span className="text-xs font-bold tabular-nums leading-none">{BANNED_DRUGS.length}</span>
           </button>
         )}
         <div className="ml-auto flex items-center gap-1">
@@ -482,7 +482,7 @@ export function PatientInfoCard() {
               setInsRect(r => r ? null : insBtnRef.current?.getBoundingClientRect() ?? null);
             }}
             title="보험정보 자세히 (수진자조회 결과)"
-            className="flex items-center gap-1 text-[10px] font-medium text-[var(--brand-primary)] bg-white border border-[var(--blue-200)] hover:bg-[var(--brand-primary)] hover:text-white hover:border-[var(--brand-primary)] rounded-[3px] px-1.5 py-0.5 transition-colors">
+            className="flex items-center gap-1 text-xs font-medium text-[var(--brand-primary)] bg-white border border-[var(--blue-200)] hover:bg-[var(--brand-primary)] hover:text-white hover:border-[var(--brand-primary)] rounded-[3px] px-1.5 py-0.5 transition-colors">
             {ins.type}
             <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
               <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
@@ -497,21 +497,21 @@ export function PatientInfoCard() {
               setCheckupRect(r => r ? null : checkupBtnRef.current?.getBoundingClientRect() ?? null);
             }}
             title="공단검진 대상 자세히"
-            className="flex items-center gap-1 text-[10px] font-bold text-[var(--brand-primary)] bg-[var(--bg-primary-subtle)] border border-[var(--brand-primary)] hover:bg-[var(--brand-primary)] hover:text-white rounded-[3px] px-1.5 py-0.5 transition-colors">
+            className="flex items-center gap-1 text-xs font-bold text-[var(--brand-primary)] bg-[var(--bg-primary-subtle)] border border-[var(--brand-primary)] hover:bg-[var(--brand-primary)] hover:text-white rounded-[3px] px-1.5 py-0.5 transition-colors">
             공단검진 {ins.checkups.length}
           </button>
         </div>
       </div>
 
       {/* ── 인적사항 (DOB · 성별/나이 · 전화 · RRN) — 한 줄 inline. 성별/나이는 통합 표기 ── */}
-      <div className="flex items-center gap-1.5 text-[11px] text-[var(--text-sub)] px-2.5 pb-1.5 border-b border-[var(--line-default)] flex-wrap flex-shrink-0">
+      <div className="flex items-center gap-1.5 text-sm text-[var(--text-sub)] px-2.5 pb-1.5 border-b border-[var(--line-default)] flex-wrap flex-shrink-0">
         <span>{p.dob}</span>
         <span className="text-[var(--text-tertiary)]">|</span>
         <span className="tabular-nums">{p.gender}/{p.age}</span>
         <span className="text-[var(--text-tertiary)]">|</span>
         <span>{p.phone}</span>
         <span className="text-[var(--text-tertiary)] ml-2">·</span>
-        <span className="text-[10px] text-[var(--text-tertiary)]">{p.rrn}</span>
+        <span className="text-xs text-[var(--text-tertiary)]">{p.rrn}</span>
       </div>
 
       {/* ── 본문 — 좌(일정+분류+가족) / 우(최근 바이탈 표) 2-col ── */}
@@ -520,36 +520,36 @@ export function PatientInfoCard() {
         {/* ── 좌 col: 진료 일정 + 환자 분류 + 가족 ── */}
         <div className="flex-1 px-2.5 py-1.5 flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[var(--text-tertiary)] w-14 flex-shrink-0">최근내원</span>
-            <span className="text-[12px] font-medium text-[var(--text-main)] tabular-nums">2026-04-12</span>
+            <span className="text-xs text-[var(--text-tertiary)] w-14 flex-shrink-0">최근내원</span>
+            <span className="text-md font-medium text-[var(--text-main)] tabular-nums">2026-04-12</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[var(--text-tertiary)] w-14 flex-shrink-0">예약일</span>
-            <span className="text-[12px] font-medium text-[var(--red-500)] tabular-nums">2026-05-20</span>
+            <span className="text-xs text-[var(--text-tertiary)] w-14 flex-shrink-0">예약일</span>
+            <span className="text-md font-medium text-[var(--red-500)] tabular-nums">2026-05-20</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[var(--text-tertiary)] w-14 flex-shrink-0">환자그룹</span>
-            <span className="text-[12px] font-medium text-[var(--text-main)]">GC Cell</span>
+            <span className="text-xs text-[var(--text-tertiary)] w-14 flex-shrink-0">환자그룹</span>
+            <span className="text-md font-medium text-[var(--text-main)]">GC Cell</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[var(--text-tertiary)] w-14 flex-shrink-0">환자유형</span>
+            <span className="text-xs text-[var(--text-tertiary)] w-14 flex-shrink-0">환자유형</span>
             <div className="flex gap-1 flex-wrap">
-              <span className="text-[10px] font-medium text-[var(--brand-primary)] bg-[var(--bg-primary-subtle)] rounded-[3px] px-1.5 py-0.5">만성질환</span>
-              <span className="text-[10px] font-medium text-[var(--text-link)] bg-[var(--bg-primary-subtle)] rounded-[3px] px-1.5 py-0.5">고혈압</span>
-              <span className="text-[10px] font-medium text-[var(--red-500)] bg-[var(--status-error-bg-subtle)] rounded-[3px] px-1.5 py-0.5">당뇨</span>
+              <span className="text-xs font-medium text-[var(--brand-primary)] bg-[var(--bg-primary-subtle)] rounded-[3px] px-1.5 py-0.5">만성질환</span>
+              <span className="text-xs font-medium text-[var(--text-link)] bg-[var(--bg-primary-subtle)] rounded-[3px] px-1.5 py-0.5">고혈압</span>
+              <span className="text-xs font-medium text-[var(--red-500)] bg-[var(--status-error-bg-subtle)] rounded-[3px] px-1.5 py-0.5">당뇨</span>
             </div>
           </div>
           <div className="flex items-start gap-1.5">
-            <span className="text-[10px] text-[var(--text-tertiary)] w-14 flex-shrink-0 pt-0.5">가족</span>
+            <span className="text-xs text-[var(--text-tertiary)] w-14 flex-shrink-0 pt-0.5">가족</span>
             <div className="flex items-center gap-1.5 flex-wrap min-w-0">
               {FAMILY_MEMBERS.map((f, i) => (
                 <span key={f.chartNo} className="flex items-center gap-0.5">
                   {i > 0 && <span className="text-[var(--text-tertiary)] mr-1">·</span>}
                   <button title={`${f.name} 차트로 이동`}
-                    className="text-[12px] text-[var(--text-main)] hover:text-[var(--brand-primary)] hover:underline">
+                    className="text-md text-[var(--text-main)] hover:text-[var(--brand-primary)] hover:underline">
                     {f.name}
                   </button>
-                  <span className="text-[12px] text-[var(--text-tertiary)]">({f.relation})</span>
+                  <span className="text-md text-[var(--text-tertiary)]">({f.relation})</span>
                 </span>
               ))}
             </div>
@@ -559,26 +559,26 @@ export function PatientInfoCard() {
         {/* ── 우 col: 최근 바이탈 (3일치 mini 테이블) — 폭 좌측보다 넓게 (1.4) ── */}
         <div className="flex-[1.4] py-1.5 flex flex-col min-w-0">
           <div className="flex items-center justify-between mb-1 flex-shrink-0 px-2.5">
-            <span className="text-[10px] font-medium text-[var(--text-tertiary)]">최근 바이탈</span>
-            <button className="text-[9px] text-[var(--text-tertiary)] hover:text-[var(--brand-primary)]">+ 기록</button>
+            <span className="text-xs font-medium text-[var(--text-tertiary)]">최근 바이탈</span>
+            <button className="text-micro text-[var(--text-tertiary)] hover:text-[var(--brand-primary)]">+ 기록</button>
           </div>
           {/* 헤더 — 진단/처방 표와 동일한 회색 배경 + 라벨 스타일 */}
           <div className="grid items-center gap-1 px-2.5 py-1 bg-[var(--bg-subtle)] border-y border-[var(--line-default)] flex-shrink-0"
             style={{ gridTemplateColumns: "56px 1fr 40px 44px" }}>
-            <span className="text-[10px] font-medium text-[var(--text-tertiary)]">일자</span>
-            <span className="text-[10px] font-medium text-[var(--text-tertiary)] text-center">BP</span>
-            <span className="text-[10px] font-medium text-[var(--text-tertiary)] text-center">HR</span>
-            <span className="text-[10px] font-medium text-[var(--text-tertiary)] text-center">T(°)</span>
+            <span className="text-xs font-medium text-[var(--text-tertiary)]">일자</span>
+            <span className="text-xs font-medium text-[var(--text-tertiary)] text-center">BP</span>
+            <span className="text-xs font-medium text-[var(--text-tertiary)] text-center">HR</span>
+            <span className="text-xs font-medium text-[var(--text-tertiary)] text-center">T(°)</span>
           </div>
           {/* 행 — 최근 3건 */}
           {vitals.slice(0, 3).map(v => (
             <div key={v.date}
               className="grid items-center gap-1 px-2.5 py-0.5 border-b border-[var(--line-subtle)] last:border-b-0"
               style={{ gridTemplateColumns: "56px 1fr 40px 44px" }}>
-              <span className="text-[10px] text-[var(--text-sub)] tabular-nums">{v.date}</span>
-              <span className={`text-[11px] tabular-nums text-center font-medium ${v.bpHigh ? "text-[var(--red-500)]" : "text-[var(--text-main)]"}`}>{v.bp}</span>
-              <span className="text-[11px] tabular-nums text-center text-[var(--text-main)]">{v.hr}</span>
-              <span className="text-[11px] tabular-nums text-center text-[var(--text-main)]">{v.temp}</span>
+              <span className="text-xs text-[var(--text-sub)] tabular-nums">{v.date}</span>
+              <span className={`text-sm tabular-nums text-center font-medium ${v.bpHigh ? "text-[var(--red-500)]" : "text-[var(--text-main)]"}`}>{v.bp}</span>
+              <span className="text-sm tabular-nums text-center text-[var(--text-main)]">{v.hr}</span>
+              <span className="text-sm tabular-nums text-center text-[var(--text-main)]">{v.temp}</span>
             </div>
           ))}
         </div>
@@ -608,12 +608,12 @@ export function AISummaryCard() {
     <div className="bg-white rounded-md h-full overflow-hidden flex flex-col">
       <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-[var(--line-default)] flex-shrink-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-[var(--brand-primary)] text-[12px]">✨</span>
-          <span className="text-[12px] font-bold text-[var(--text-main)]">AI 진료이력 요약</span>
+          <span className="text-[var(--brand-primary)] text-md">✨</span>
+          <span className="text-md font-bold text-[var(--text-main)]">AI 진료이력 요약</span>
         </div>
-        <button className="text-[10px] text-[var(--brand-primary)] font-medium">더보기 ›</button>
+        <button className="text-xs text-[var(--brand-primary)] font-medium">더보기 ›</button>
       </div>
-      <p className="text-[11px] text-[var(--text-sub)] leading-[17px] px-2.5 py-2 flex-1 overflow-y-auto">
+      <p className="text-sm text-[var(--text-sub)] leading-[17px] px-2.5 py-2 flex-1 overflow-y-auto">
         당뇨·고혈압 정기 관리 중. 메트포르민·라미프릴 장기복용. 최근 HbA1c 7.2% (3개월전). 9/20일자 알러지 검사 결과 확인 필요.
       </p>
     </div>
@@ -628,8 +628,8 @@ export function RecentVitalsCard() {
     <div className="bg-white rounded-md h-full overflow-hidden flex flex-col">
       {/* 헤더 */}
       <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-[var(--line-default)] flex-shrink-0">
-        <span className="text-[12px] font-bold text-[var(--text-main)]">최근 바이탈</span>
-        <button className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--brand-primary)]">+ 기록</button>
+        <span className="text-md font-bold text-[var(--text-main)]">최근 바이탈</span>
+        <button className="text-xs text-[var(--text-tertiary)] hover:text-[var(--brand-primary)]">+ 기록</button>
       </div>
       {/* 표 — 내원이력 스타일: bg-subtle 컬럼 헤더, 9px 라벨, 컴팩트 행 */}
       <div className="flex-1 overflow-y-auto">
@@ -637,7 +637,7 @@ export function RecentVitalsCard() {
         <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-default)] px-2 py-1 gap-1 sticky top-0 z-10"
           style={{ gridTemplateColumns: VITAL_COLS }}>
           {[["일자","left"],["혈압","center"],["맥박","center"],["체온","center"]].map(([label, align]) => (
-            <span key={label} className={`text-[9px] font-medium text-[var(--text-tertiary)] text-${align} truncate`}>
+            <span key={label} className={`text-micro font-medium text-[var(--text-tertiary)] text-${align} truncate`}>
               {label}
             </span>
           ))}
@@ -647,12 +647,12 @@ export function RecentVitalsCard() {
           <div key={v.date}
             className="grid items-center px-2 py-1 border-b border-[var(--line-subtle)] gap-1 hover:bg-[var(--status-success-bg-subtle)]"
             style={{ gridTemplateColumns: VITAL_COLS }}>
-            <span className="text-[10px] font-medium text-[var(--text-main)]">{v.date}</span>
-            <span className={`text-[10px] font-medium text-center tabular-nums ${
+            <span className="text-xs font-medium text-[var(--text-main)]">{v.date}</span>
+            <span className={`text-xs font-medium text-center tabular-nums ${
               v.bpHigh ? "text-[var(--red-500)]" : "text-[var(--text-main)]"
             }`}>{v.bp}</span>
-            <span className="text-[10px] font-medium text-[var(--text-main)] text-center tabular-nums">{v.hr}</span>
-            <span className="text-[10px] font-medium text-[var(--text-main)] text-center tabular-nums">{v.temp}</span>
+            <span className="text-xs font-medium text-[var(--text-main)] text-center tabular-nums">{v.hr}</span>
+            <span className="text-xs font-medium text-[var(--text-main)] text-center tabular-nums">{v.temp}</span>
           </div>
         ))}
       </div>
@@ -673,7 +673,7 @@ export function SharedMemoCard() {
             <path d="M8.0625 5.08333H6.45833C6.09366 5.08333 5.74392 5.2282 5.48606 5.48606C5.2282 5.74392 5.08333 6.09366 5.08333 6.45833V8.0625M2.33333 2.33333H5.77083M2.33333 4.16667H4.625" stroke="var(--text-tertiary)" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div className="flex items-center gap-[3px]">
-            <span className="text-[12px] font-bold text-black">공유 메모</span>
+            <span className="text-md font-bold text-black">공유 메모</span>
             <div className="w-[8px] h-[8px] rounded-full bg-[var(--orange-500)]" />
           </div>
         </div>
@@ -694,7 +694,7 @@ export function SharedMemoCard() {
               <path d="M5 7.08333V9.16667" stroke="var(--orange-500)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.833333"/>
               <path d="M3.75 4.48333C3.74992 4.63837 3.70659 4.79031 3.62488 4.92206C3.54318 5.05382 3.42634 5.16018 3.2875 5.22917L2.54583 5.60417C2.40699 5.67316 2.29015 5.77951 2.20845 5.91127C2.12675 6.04303 2.08342 6.19496 2.08333 6.35V6.66667C2.08333 6.77717 2.12723 6.88315 2.20537 6.96129C2.28351 7.03943 2.38949 7.08333 2.5 7.08333H7.5C7.61051 7.08333 7.71649 7.03943 7.79463 6.96129C7.87277 6.88315 7.91667 6.77717 7.91667 6.66667V6.35C7.91658 6.19496 7.87325 6.04303 7.79155 5.91127C7.70985 5.77951 7.59301 5.67316 7.45417 5.60417L6.7125 5.22917C6.57366 5.16018 6.45682 5.05382 6.37512 4.92206C6.29341 4.79031 6.25008 4.63837 6.25 4.48333V2.91667C6.25 2.80616 6.2939 2.70018 6.37204 2.62204C6.45018 2.5439 6.55616 2.5 6.66667 2.5C6.88768 2.5 7.09964 2.4122 7.25592 2.25592C7.4122 2.09964 7.5 1.88768 7.5 1.66667C7.5 1.44565 7.4122 1.23369 7.25592 1.07741C7.09964 0.921131 6.88768 0.833333 6.66667 0.833333H3.33333C3.11232 0.833333 2.90036 0.921131 2.74408 1.07741C2.5878 1.23369 2.5 1.44565 2.5 1.66667C2.5 1.88768 2.5878 2.09964 2.74408 2.25592C2.90036 2.4122 3.11232 2.5 3.33333 2.5C3.44384 2.5 3.54982 2.5439 3.62796 2.62204C3.7061 2.70018 3.75 2.80616 3.75 2.91667V4.48333Z" stroke="var(--orange-500)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.833333"/>
             </svg>
-            <span className="text-[11px] font-medium text-[var(--orange-700)]">공지 1건</span>
+            <span className="text-sm font-medium text-[var(--orange-700)]">공지 1건</span>
           </div>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path
@@ -711,10 +711,10 @@ export function SharedMemoCard() {
                 <path d="M3.75 4.48333C3.74992 4.63837 3.70659 4.79031 3.62488 4.92206C3.54318 5.05382 3.42634 5.16018 3.2875 5.22917L2.54583 5.60417C2.40699 5.67316 2.29015 5.77951 2.20845 5.91127C2.12675 6.04303 2.08342 6.19496 2.08333 6.35V6.66667C2.08333 6.77717 2.12723 6.88315 2.20537 6.96129C2.28351 7.03943 2.38949 7.08333 2.5 7.08333H7.5C7.61051 7.08333 7.71649 7.03943 7.79463 6.96129C7.87277 6.88315 7.91667 6.77717 7.91667 6.66667V6.35C7.91658 6.19496 7.87325 6.04303 7.79155 5.91127C7.70985 5.77951 7.59301 5.67316 7.45417 5.60417L6.7125 5.22917C6.57366 5.16018 6.45682 5.05382 6.37512 4.92206C6.29341 4.79031 6.25008 4.63837 6.25 4.48333V2.91667C6.25 2.80616 6.2939 2.70018 6.37204 2.62204C6.45018 2.5439 6.55616 2.5 6.66667 2.5C6.88768 2.5 7.09964 2.4122 7.25592 2.25592C7.4122 2.09964 7.5 1.88768 7.5 1.66667C7.5 1.44565 7.4122 1.23369 7.25592 1.07741C7.09964 0.921131 6.88768 0.833333 6.66667 0.833333H3.33333C3.11232 0.833333 2.90036 0.921131 2.74408 1.07741C2.5878 1.23369 2.5 1.44565 2.5 1.66667C2.5 1.88768 2.5878 2.09964 2.74408 2.25592C2.90036 2.4122 3.11232 2.5 3.33333 2.5C3.44384 2.5 3.54982 2.5439 3.62796 2.62204C3.7061 2.70018 3.75 2.80616 3.75 2.91667V4.48333Z" stroke="var(--orange-500)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.833333"/>
               </svg>
               <div className="flex flex-col gap-[2px]">
-                <p className="text-[12px] text-[var(--text-main)] leading-[16.5px]">건보/자보 동시 진행 환자 — 차트 분리하여 청구</p>
+                <p className="text-md text-[var(--text-main)] leading-[16.5px]">건보/자보 동시 진행 환자 — 차트 분리하여 청구</p>
                 <div className="flex items-center gap-[3.5px]">
-                  <span className="text-[10px] font-medium text-[var(--orange-700)]">김원장</span>
-                  <span className="text-[10px] text-[var(--text-tertiary)]">3/12 10:00</span>
+                  <span className="text-xs font-medium text-[var(--orange-700)]">김원장</span>
+                  <span className="text-xs text-[var(--text-tertiary)]">3/12 10:00</span>
                 </div>
               </div>
             </div>
@@ -727,17 +727,17 @@ export function SharedMemoCard() {
         {memos.map((m) => (
           <div key={m.id} className="flex items-start gap-[5.25px]">
             <div
-              className="w-[22px] h-[22px] rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
+              className="w-[22px] h-[22px] rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
               style={{ backgroundColor: m.avatarBg, color: m.avatarColor }}
             >
               {m.avatar}
             </div>
             <div className="flex flex-col gap-0">
-              <span className="text-[10px] font-medium pl-[1.75px]" style={{ color: m.nameColor }}>{m.name}</span>
+              <span className="text-xs font-medium pl-[1.75px]" style={{ color: m.nameColor }}>{m.name}</span>
               <div className="bg-[var(--bg-subtle)] rounded-bl-[8px] rounded-br-[8px] rounded-tl-[2px] rounded-tr-[8px] px-[8.75px] pt-[5.25px] pb-[5.25px] mt-[2px]">
-                <p className="text-[12px] text-[var(--text-main)] leading-[17px] whitespace-pre-line">{m.content}</p>
+                <p className="text-md text-[var(--text-main)] leading-[17px] whitespace-pre-line">{m.content}</p>
               </div>
-              <span className="text-[9px] text-[var(--text-tertiary)] pl-[1.75px] mt-[2px]">{m.time}</span>
+              <span className="text-micro text-[var(--text-tertiary)] pl-[1.75px] mt-[2px]">{m.time}</span>
             </div>
           </div>
         ))}
@@ -747,7 +747,7 @@ export function SharedMemoCard() {
       <div className="border-t border-[var(--line-subtle)] px-[7px] pt-[5.917px] pb-[7px] flex-shrink-0">
         <div className="flex items-end gap-[5.25px]">
           <div className="flex-1 border border-[var(--line-default)] rounded-[6px] px-[8.75px] py-[5.25px] h-[30px] flex items-center">
-            <span className="text-[12px] text-[rgba(41,42,45,0.5)]">메모 입력...</span>
+            <span className="text-md text-[rgba(41,42,45,0.5)]">메모 입력...</span>
           </div>
           <div className="w-[30px] h-[30px] bg-[var(--bg-primary-subtle)] rounded-[6px] flex items-center justify-center flex-shrink-0">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none">

@@ -147,7 +147,7 @@ function Chip({ label, active, onClick, activeCls = "bg-[var(--brand-primary)] t
 }) {
   return (
     <button onClick={onClick}
-      className={`text-[11px] rounded-[5px] border px-[8px] py-[2px] whitespace-nowrap transition-colors ${active ? activeCls : inactiveCls}`}>
+      className={`text-sm rounded-[5px] border px-[8px] py-[2px] whitespace-nowrap transition-colors ${active ? activeCls : inactiveCls}`}>
       {label}
     </button>
   );
@@ -159,11 +159,11 @@ function MiniChart({ minimized, onToggle }: { minimized: boolean; onToggle: () =
     <div className="overflow-hidden border-l border-[var(--line-default)] bg-[var(--bg-primary-subtle)] flex flex-col h-full">
       <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--line-default)] bg-[var(--bg-subtle)] flex-shrink-0">
         <div className="flex items-center gap-2">
-          <span className="text-[12px]">🗒</span>
-          <span className="text-[11px] font-bold text-[var(--text-main)]">오늘 차트</span>
-          <span className="text-[10px] text-[var(--text-tertiary)]">2026-03-17</span>
+          <span className="text-md">🗒</span>
+          <span className="text-sm font-bold text-[var(--text-main)]">오늘 차트</span>
+          <span className="text-xs text-[var(--text-tertiary)]">2026-03-17</span>
         </div>
-        <button onClick={onToggle} className="text-[10px] text-[var(--text-sub)] border border-[var(--line-default)] rounded-[4px] px-1.5 py-0.5 bg-white">
+        <button onClick={onToggle} className="text-xs text-[var(--text-sub)] border border-[var(--line-default)] rounded-[4px] px-1.5 py-0.5 bg-white">
           {minimized ? "▲ 확장" : "▼ 최소화"}
         </button>
       </div>
@@ -171,24 +171,24 @@ function MiniChart({ minimized, onToggle }: { minimized: boolean; onToggle: () =
         <div className="flex flex-col overflow-y-auto flex-1">
           <div className="border-b border-[var(--line-default)]">
             <div className="flex items-center justify-between px-3 py-1 bg-[var(--bg-subtle)]">
-              <span className="text-[10px] font-medium text-[var(--text-tertiary)]">진단</span>
+              <span className="text-xs font-medium text-[var(--text-tertiary)]">진단</span>
             </div>
             {TODAY_DX.map(d => (
               <div key={d.code} className="flex items-center gap-2 px-3 py-1 border-b border-[var(--bg-subtle)] last:border-b-0">
-                {d.isMain && <span className="text-[8px] bg-[var(--orange-500)] text-white rounded-[2px] px-0.5 flex-shrink-0">주</span>}
-                <span className="text-[10px] font-medium text-[var(--brand-primary)] flex-shrink-0">{d.code}</span>
-                <span className="text-[10px] text-[var(--text-main)] truncate flex-1">{d.name}</span>
+                {d.isMain && <span className="text-micro bg-[var(--orange-500)] text-white rounded-[2px] px-0.5 flex-shrink-0">주</span>}
+                <span className="text-xs font-medium text-[var(--brand-primary)] flex-shrink-0">{d.code}</span>
+                <span className="text-xs text-[var(--text-main)] truncate flex-1">{d.name}</span>
               </div>
             ))}
           </div>
           <div>
             <div className="flex items-center justify-between px-3 py-1 bg-[var(--bg-subtle)]">
-              <span className="text-[10px] font-medium text-[var(--text-tertiary)]">처방</span>
+              <span className="text-xs font-medium text-[var(--text-tertiary)]">처방</span>
             </div>
             {TODAY_RX.map((p, i) => (
               <div key={i} className="flex items-center justify-between px-3 py-1 border-b border-[var(--bg-subtle)] last:border-b-0">
-                <span className="text-[10px] text-[var(--text-main)] flex-1 truncate">{p.name}</span>
-                <span className="text-[9px] text-[var(--text-tertiary)] flex-shrink-0 ml-2">{p.days}일 · {p.method}</span>
+                <span className="text-xs text-[var(--text-main)] flex-1 truncate">{p.name}</span>
+                <span className="text-micro text-[var(--text-tertiary)] flex-shrink-0 ml-2">{p.days}일 · {p.method}</span>
               </div>
             ))}
           </div>
@@ -471,18 +471,18 @@ export function EMRExpandedHistory({
             <rect x="1" y="9" width="6" height="6" rx="1" stroke="var(--brand-primary)" strokeWidth="1.3"/>
             <rect x="9" y="9" width="6" height="6" rx="1" stroke="var(--brand-primary)" strokeWidth="1.3"/>
           </svg>
-          <span className="text-[13px] font-bold text-[var(--text-main)]">내원이력 펼쳐보기</span>
+          <span className="text-lg font-bold text-[var(--text-main)]">내원이력 펼쳐보기</span>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-[11px] font-medium text-[var(--text-tertiary)]">100236</span>
-            <span className="text-[13px] font-bold text-[var(--text-main)]">황미진</span>
-            <span className="text-[11px] text-[var(--text-sub)] tabular-nums">여/45</span>
+            <span className="text-sm font-medium text-[var(--text-tertiary)]">100236</span>
+            <span className="text-lg font-bold text-[var(--text-main)]">황미진</span>
+            <span className="text-sm text-[var(--text-sub)] tabular-nums">여/45</span>
           </div>
           {allFiltersActive && (
-            <span className="text-[10px] bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] border border-[var(--brand-primary)]/30 rounded-full px-2 py-0.5">필터 적용 중</span>
+            <span className="text-xs bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] border border-[var(--brand-primary)]/30 rounded-full px-2 py-0.5">필터 적용 중</span>
           )}
         </div>
         <div className="flex items-center gap-1.5">
-          <button onClick={onClose} className="flex items-center gap-1 text-[11px] text-[var(--text-sub)] border border-[var(--line-default)] rounded-[6px] px-2.5 h-7 bg-white hover:bg-[var(--bg-subtle)]">
+          <button onClick={onClose} className="flex items-center gap-1 text-sm text-[var(--text-sub)] border border-[var(--line-default)] rounded-[6px] px-2.5 h-7 bg-white hover:bg-[var(--bg-subtle)]">
             <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
               <rect x="1" y="1" width="6" height="6" rx="1" stroke="var(--text-sub)" strokeWidth="1.3"/>
               <rect x="9" y="1" width="6" height="6" rx="1" stroke="var(--text-sub)" strokeWidth="1.3"/>
@@ -500,11 +500,11 @@ export function EMRExpandedHistory({
         {/* 보기 + 필터 한 줄 */}
         <div className="flex items-center gap-2 px-3 py-1.5">
           {/* 보기 */}
-          <span className="text-[10px] font-medium text-[var(--text-tertiary)] flex-shrink-0">보기</span>
+          <span className="text-xs font-medium text-[var(--text-tertiary)] flex-shrink-0">보기</span>
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={() => setViewModes(new Set(VIEW_KEYS))}
-              className={`text-[10px] rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
+              className={`text-xs rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
                 allViewsActive
                   ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)] font-bold"
                   : "bg-white text-[var(--text-sub)] border-[var(--line-default)]"
@@ -514,7 +514,7 @@ export function EMRExpandedHistory({
               const active = viewModes.has(k);
               return (
                 <button key={k} onClick={() => toggleViewMode(k)}
-                  className={`text-[10px] rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
+                  className={`text-xs rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
                     active ? "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] border-[var(--brand-primary)]" : "bg-white text-[var(--text-sub)] border-[var(--line-default)]"
                   }`}
                 >{active ? "✓" : ""} {k}</button>
@@ -526,11 +526,11 @@ export function EMRExpandedHistory({
           <div className="h-4 w-px bg-[var(--line-default)] flex-shrink-0" />
 
           {/* 단수 — 2단 / 3단 그리드 선택 */}
-          <span className="text-[10px] font-medium text-[var(--text-tertiary)] flex-shrink-0">단수</span>
+          <span className="text-xs font-medium text-[var(--text-tertiary)] flex-shrink-0">단수</span>
           <div className="flex items-center gap-1 flex-shrink-0">
             {([2, 3] as const).map(n => (
               <button key={n} onClick={() => setGridCols(n)}
-                className={`text-[10px] rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
+                className={`text-xs rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
                   gridCols === n
                     ? "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] border-[var(--brand-primary)]"
                     : "bg-white text-[var(--text-sub)] border-[var(--line-default)]"
@@ -543,7 +543,7 @@ export function EMRExpandedHistory({
           <div className="h-4 w-px bg-[var(--line-default)] flex-shrink-0" />
 
           {/* 필터 */}
-          <span className="text-[10px] font-medium text-[var(--text-tertiary)] flex-shrink-0">필터</span>
+          <span className="text-xs font-medium text-[var(--text-tertiary)] flex-shrink-0">필터</span>
           <div className="flex items-center gap-1 flex-wrap flex-1 min-w-0">
             {presets.map(p => {
               const isActive = activePresetId === p.id;
@@ -556,22 +556,22 @@ export function EMRExpandedHistory({
                       : "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:bg-[var(--bg-subtle)]"
                   }`}
                 >
-                  <button onClick={() => applyPreset(p)} className="text-[10px] px-1.5 py-0.5 leading-none">{p.name}</button>
+                  <button onClick={() => applyPreset(p)} className="text-xs px-1.5 py-0.5 leading-none">{p.name}</button>
                   {isUserPreset && (
                     <button onClick={() => deletePreset(p.id)} title="프리셋 삭제"
-                      className={`text-[10px] px-1 py-0.5 leading-none border-l ${isActive ? "border-white/30 hover:bg-white/10" : "border-[var(--line-default)] hover:bg-[var(--line-subtle)]"}`}
+                      className={`text-xs px-1 py-0.5 leading-none border-l ${isActive ? "border-white/30 hover:bg-white/10" : "border-[var(--line-default)] hover:bg-[var(--line-subtle)]"}`}
                     >×</button>
                   )}
                 </span>
               );
             })}
             {isPresetDirty && activePresetId !== "all" && (
-              <span className="text-[10px] text-[var(--orange-700)] ml-1">*수정됨</span>
+              <span className="text-xs text-[var(--orange-700)] ml-1">*수정됨</span>
             )}
           </div>
           <button
             onClick={() => setFiltersExpanded(e => !e)}
-            className="text-[10px] text-[var(--text-sub)] border border-[var(--line-default)] rounded-[4px] px-1.5 py-0.5 hover:bg-[var(--bg-subtle)] flex-shrink-0 whitespace-nowrap leading-none"
+            className="text-xs text-[var(--text-sub)] border border-[var(--line-default)] rounded-[4px] px-1.5 py-0.5 hover:bg-[var(--bg-subtle)] flex-shrink-0 whitespace-nowrap leading-none"
           >
             {filtersExpanded ? "▲ 접기" : "▼ 자세히"}
           </button>
@@ -586,16 +586,16 @@ export function EMRExpandedHistory({
                 <circle cx="6.5" cy="6.5" r="4.5" stroke="var(--text-tertiary)" strokeWidth="1.4"/>
                 <path d="M10 10L13.5 13.5" stroke="var(--text-tertiary)" strokeWidth="1.4" strokeLinecap="round"/>
               </svg>
-              <input className="flex-1 bg-transparent text-[11px] outline-none placeholder-[var(--text-tertiary)] text-[var(--text-main)]"
+              <input className="flex-1 bg-transparent text-sm outline-none placeholder-[var(--text-tertiary)] text-[var(--text-main)]"
                 placeholder="기록 검색..." value={search} onChange={e => setSearch(e.target.value)} />
-              {search && <button onClick={() => setSearch("")} className="text-[var(--text-tertiary)] text-[11px]">✕</button>}
+              {search && <button onClick={() => setSearch("")} className="text-[var(--text-tertiary)] text-sm">✕</button>}
             </div>
 
             {/* 즐겨찾기 + 처방타입 */}
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setFilterFavorite(!filterFavorite)}
-                className={`flex items-center gap-1 text-[10px] rounded-[5px] px-2 py-1 border whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1 text-xs rounded-[5px] px-2 py-1 border whitespace-nowrap transition-colors ${
                   filterFavorite ? "bg-[var(--status-warning-bg-subtle)] text-[var(--orange-700)] border-[var(--orange-200)] font-bold" : "bg-white text-[var(--text-sub)] border-[var(--line-default)]"
                 }`}
               >
@@ -603,13 +603,13 @@ export function EMRExpandedHistory({
                 즐겨찾기만
               </button>
               <div className="flex items-center gap-1">
-                <span className="text-[10px] font-medium text-[var(--text-sub)] mr-0.5">처방</span>
+                <span className="text-xs font-medium text-[var(--text-sub)] mr-0.5">처방</span>
                 {PRESC_TAGS.map(tag => {
                   const active = filterTags.has(tag.name);
                   return (
                     <button key={tag.name}
                       onClick={() => setFilterTags(prev => { const n = new Set(prev); n.has(tag.name) ? n.delete(tag.name) : n.add(tag.name); return n; })}
-                      className="text-[10px] rounded-[4px] border px-[6px] py-[2px] whitespace-nowrap transition-colors"
+                      className="text-xs rounded-[4px] border px-[6px] py-[2px] whitespace-nowrap transition-colors"
                       style={active
                         ? { background: tag.activeBg, color: tag.activeText, borderColor: tag.activeBg }
                         : { background: tag.bg, color: tag.text, borderColor: "transparent" }}>
@@ -622,15 +622,15 @@ export function EMRExpandedHistory({
 
             {/* 다빈도 상병 */}
             <div className="flex items-center gap-1 flex-wrap">
-              <span className="text-[10px] font-medium text-[var(--text-sub)] mr-1">상병</span>
+              <span className="text-xs font-medium text-[var(--text-sub)] mr-1">상병</span>
               {DX_OPTIONS.map(d => {
                 const active = filterDiagnoses.has(d.code);
                 return (
                   <button key={d.code} onClick={() => toggleDx(d.code)} title={d.name}
-                    className={`text-[10px] rounded-[4px] border px-[6px] py-[2px] whitespace-nowrap transition-colors ${
+                    className={`text-xs rounded-[4px] border px-[6px] py-[2px] whitespace-nowrap transition-colors ${
                       active ? "bg-[var(--brand-primary)] text-white border-[var(--brand-primary)]" : "bg-white text-[var(--text-sub)] border-[var(--line-default)]"
                     }`}>
-                    {d.code}<span className={`ml-0.5 text-[9px] ${active ? "opacity-70" : "text-[var(--text-disabled)]"}`}>{d.count}</span>
+                    {d.code}<span className={`ml-0.5 text-micro ${active ? "opacity-70" : "text-[var(--text-disabled)]"}`}>{d.count}</span>
                   </button>
                 );
               })}
@@ -638,15 +638,15 @@ export function EMRExpandedHistory({
 
             {/* 초재진 / 청구구분 / 보험 */}
             <div className="flex items-center gap-1 flex-wrap">
-              <span className="text-[10px] font-medium text-[var(--text-sub)] mr-1">초재진</span>
+              <span className="text-xs font-medium text-[var(--text-sub)] mr-1">초재진</span>
               {(["전체","초진","재진"] as const).map(v => (
                 <Chip key={v} label={v} active={filterVisType === v} onClick={() => setFilterVisType(v)}/>
               ))}
-              <span className="text-[10px] font-medium text-[var(--text-sub)] mr-1 ml-2">청구구분</span>
+              <span className="text-xs font-medium text-[var(--text-sub)] mr-1 ml-2">청구구분</span>
               {(["전체","청구","비청구"] as const).map(v => (
                 <Chip key={v} label={v} active={filterClaim === v} onClick={() => setFilterClaim(v)}/>
               ))}
-              <span className="text-[10px] font-medium text-[var(--text-sub)] mr-1 ml-2">보험</span>
+              <span className="text-xs font-medium text-[var(--text-sub)] mr-1 ml-2">보험</span>
               {["전체","건보","자보","산재","의보","일반"].map(v => (
                 <Chip key={v} label={v}
                   active={v === "전체" ? filterIns.size === 0 : filterIns.has(v)}
@@ -657,11 +657,11 @@ export function EMRExpandedHistory({
             {/* Save / Reset */}
             <div className="flex items-center gap-2 pt-1 border-t border-[var(--line-subtle)]">
               <button onClick={savePreset}
-                className="text-[10px] text-[var(--brand-primary)] border border-[var(--brand-primary)] bg-white rounded-[4px] px-2 py-1 hover:bg-[var(--bg-primary-subtle)]">
+                className="text-xs text-[var(--brand-primary)] border border-[var(--brand-primary)] bg-white rounded-[4px] px-2 py-1 hover:bg-[var(--bg-primary-subtle)]">
                 ＋ 현재 필터를 프리셋으로 저장
               </button>
               {allFiltersActive && (
-                <button onClick={clearAll} className="text-[10px] text-[var(--red-500)] bg-[var(--status-error-bg-subtle)] border border-[var(--red-200)] rounded-[4px] px-2 py-1">
+                <button onClick={clearAll} className="text-xs text-[var(--red-500)] bg-[var(--status-error-bg-subtle)] border border-[var(--red-200)] rounded-[4px] px-2 py-1">
                   ⟳ 필터 초기화
                 </button>
               )}
@@ -672,18 +672,18 @@ export function EMRExpandedHistory({
 
       {/* ── 날짜 스트립 (가로, 날짜만) ── */}
       <div className="flex items-center gap-2 px-3 py-1.5 bg-white border-b border-[var(--line-default)] flex-shrink-0">
-        <span className="text-[10px] font-bold text-[var(--text-sub)] flex-shrink-0">내원일</span>
-        <span className="text-[10px] text-[var(--text-tertiary)] flex-shrink-0">{localFiltered.length}건</span>
+        <span className="text-xs font-bold text-[var(--text-sub)] flex-shrink-0">내원일</span>
+        <span className="text-xs text-[var(--text-tertiary)] flex-shrink-0">{localFiltered.length}건</span>
         <div className="h-4 w-px bg-[var(--line-default)] flex-shrink-0" />
         <div ref={dateStripRef} className="flex items-center gap-1 overflow-x-auto flex-1 min-w-0">
           {localFiltered.length === 0 ? (
-            <span className="text-[11px] text-[var(--text-tertiary)]">조건에 맞는 내원이력 없음</span>
+            <span className="text-sm text-[var(--text-tertiary)]">조건에 맞는 내원이력 없음</span>
           ) : localFiltered.map(v => {
             const isVisible = visibleDates.has(v.id);
             return (
               <button key={v.id} ref={el => { dateRefs.current[v.id] = el; }}
                 onClick={() => handleDateClick(v.id)}
-                className={`text-[11px] rounded-[4px] border px-2 py-0.5 whitespace-nowrap transition-colors flex-shrink-0 ${
+                className={`text-sm rounded-[4px] border px-2 py-0.5 whitespace-nowrap transition-colors flex-shrink-0 ${
                   isVisible
                     ? "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] border-[var(--blue-200)]"
                     : "bg-white text-[var(--text-sub)] border-[var(--line-default)] hover:bg-[var(--bg-subtle)]"
@@ -703,8 +703,8 @@ export function EMRExpandedHistory({
           {localFiltered.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3">
               <span className="text-[40px] opacity-20">🔍</span>
-              <span className="text-[12px] text-[var(--text-tertiary)]">필터 조건에 맞는 내원이력이 없습니다</span>
-              <button onClick={clearAll} className="text-[11px] text-[var(--brand-primary)] underline">필터 초기화</button>
+              <span className="text-md text-[var(--text-tertiary)]">필터 조건에 맞는 내원이력이 없습니다</span>
+              <button onClick={clearAll} className="text-sm text-[var(--brand-primary)] underline">필터 초기화</button>
             </div>
           ) : (
             <div className="p-2 bg-[var(--bg-subtle)]">
@@ -732,16 +732,16 @@ export function EMRExpandedHistory({
                         isActive ? "bg-[var(--bg-primary-subtle)] border-[var(--line-subtle)]" : "bg-[var(--bg-subtle)] border-[var(--line-subtle)]"
                       }`}>
                       {isActive && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--brand-primary)]" />}
-                      <span className="text-[10px] font-bold text-[var(--text-main)] flex-shrink-0">{v.date}</span>
-                      {v.time && <span className="text-[9px] text-[var(--text-tertiary)] flex-shrink-0">{v.time}</span>}
-                      <span className="text-[9px] rounded-[3px] px-1 py-0.5 flex-shrink-0 bg-white border border-[var(--line-default)] text-[var(--text-sub)]">{v.visitType[0]}</span>
-                      <span className="text-[9px] bg-[var(--line-subtle)] text-[var(--text-sub)] rounded-[3px] px-1 py-0.5 flex-shrink-0">{v.insType}</span>
-                      {v.special && <span className="text-[9px] bg-[var(--status-success-bg-subtle)] text-[var(--green-500)] rounded-[3px] px-1 py-0.5 flex-shrink-0">{v.special}</span>}
+                      <span className="text-xs font-bold text-[var(--text-main)] flex-shrink-0">{v.date}</span>
+                      {v.time && <span className="text-micro text-[var(--text-tertiary)] flex-shrink-0">{v.time}</span>}
+                      <span className="text-micro rounded-[3px] px-1 py-0.5 flex-shrink-0 bg-white border border-[var(--line-default)] text-[var(--text-sub)]">{v.visitType[0]}</span>
+                      <span className="text-micro bg-[var(--line-subtle)] text-[var(--text-sub)] rounded-[3px] px-1 py-0.5 flex-shrink-0">{v.insType}</span>
+                      {v.special && <span className="text-micro bg-[var(--status-success-bg-subtle)] text-[var(--green-500)] rounded-[3px] px-1 py-0.5 flex-shrink-0">{v.special}</span>}
                       {v.prescTypes.map(pt => (
-                        <span key={pt} className={`text-[8px] font-bold rounded-[2px] px-1 py-0.5 flex-shrink-0 ${PT_BADGE[pt].cls}`}>{PT_BADGE[pt].label[0]}</span>
+                        <span key={pt} className={`text-micro font-bold rounded-[2px] px-1 py-0.5 flex-shrink-0 ${PT_BADGE[pt].cls}`}>{PT_BADGE[pt].label[0]}</span>
                       ))}
                       {viewModes.has("이미지") && v.imageCount && v.imageCount > 0 ? (
-                        <span className="text-[9px] text-[var(--blue-700)] bg-[var(--blue-050)] border border-[var(--blue-200)] rounded-[3px] px-1 py-0.5 flex-shrink-0">📷 {v.imageCount}</span>
+                        <span className="text-micro text-[var(--blue-700)] bg-[var(--blue-050)] border border-[var(--blue-200)] rounded-[3px] px-1 py-0.5 flex-shrink-0">📷 {v.imageCount}</span>
                       ) : null}
                       {/* 삭감 인디케이터 */}
                       {v.deduction && (
@@ -752,14 +752,14 @@ export function EMRExpandedHistory({
                             setDeductionPopoverId(prev => prev === v.id ? null : v.id);
                           }}
                           title="삭감 기록 보기"
-                          className="flex items-center gap-0.5 text-[9px] font-bold bg-[var(--status-error-bg-subtle)] text-[var(--red-500)] border border-[var(--red-200)] rounded-[3px] px-1 py-0.5 hover:bg-[var(--red-100)] flex-shrink-0"
+                          className="flex items-center gap-0.5 text-micro font-bold bg-[var(--status-error-bg-subtle)] text-[var(--red-500)] border border-[var(--red-200)] rounded-[3px] px-1 py-0.5 hover:bg-[var(--red-100)] flex-shrink-0"
                         >
                           <span className="leading-none">⚠</span>
                           <span>삭감</span>
                         </button>
                       )}
                       <div className="flex-1 min-w-0" />
-                      {v.amount && <span className="text-[9px] text-[var(--text-main)] flex-shrink-0">{v.amount}</span>}
+                      {v.amount && <span className="text-micro text-[var(--text-main)] flex-shrink-0">{v.amount}</span>}
                       <button style={{ color: starredDates.has(v.id) ? "var(--orange-500)" : "var(--text-disabled)", fontSize: 13 }}
                         onClick={e => { e.stopPropagation(); onToggleStar(v.id); }}>
                         {starredDates.has(v.id) ? "★" : "☆"}
@@ -774,14 +774,14 @@ export function EMRExpandedHistory({
                         className="absolute top-9 left-2 right-2 bg-white border border-[var(--red-200)] rounded-md shadow-lg p-2.5 z-50"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-[11px] font-bold text-[var(--red-700)]">⚠ 삭감 기록{typeof v.deduction.amount === "number" && ` — ${v.deduction.amount.toLocaleString()}원`}</span>
+                          <span className="text-sm font-bold text-[var(--red-700)]">⚠ 삭감 기록{typeof v.deduction.amount === "number" && ` — ${v.deduction.amount.toLocaleString()}원`}</span>
                           <button
                             onClick={e => { e.stopPropagation(); setDeductionPopoverId(null); }}
-                            className="text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-main)]"
+                            className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-main)]"
                           >✕</button>
                         </div>
-                        <div className="text-[10px] font-medium text-[var(--text-main)] mb-1">{v.deduction.reason}</div>
-                        <div className="text-[10px] text-[var(--text-sub)] leading-[15px] whitespace-pre-line">{v.deduction.details}</div>
+                        <div className="text-xs font-medium text-[var(--text-main)] mb-1">{v.deduction.reason}</div>
+                        <div className="text-xs text-[var(--text-sub)] leading-[15px] whitespace-pre-line">{v.deduction.details}</div>
                       </div>
                     )}
 
@@ -792,7 +792,7 @@ export function EMRExpandedHistory({
                         title="클릭하면 증상에 추가"
                         className="px-3 py-1.5 border-b border-[var(--line-subtle)] hover:bg-[var(--status-success-bg-subtle)] cursor-pointer"
                       >
-                        <p className="text-[11px] text-[var(--text-sub)] leading-[16px]">{v.symptom}</p>
+                        <p className="text-sm text-[var(--text-sub)] leading-[16px]">{v.symptom}</p>
                       </div>
                     )}
 
@@ -802,7 +802,7 @@ export function EMRExpandedHistory({
                       <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-subtle)] px-2 py-[3px] gap-1"
                         style={{ gridTemplateColumns: DX_COLS }}>
                         {[["상병코드","left"],["명칭","left"]].map(([label, align]) => (
-                          <span key={label} className={`text-[9px] font-medium text-[var(--text-tertiary)] text-${align} truncate`}>{label}</span>
+                          <span key={label} className={`text-micro font-medium text-[var(--text-tertiary)] text-${align} truncate`}>{label}</span>
                         ))}
                       </div>
                       {v.diagnoses.map((d, i) => (
@@ -810,10 +810,10 @@ export function EMRExpandedHistory({
                           className="grid items-center px-2 py-[3px] border-b border-[var(--line-subtle)] hover:bg-[var(--status-success-bg-subtle)] cursor-pointer group/dxrow gap-1"
                           style={{ gridTemplateColumns: DX_COLS }}
                           onClick={e => { e.stopPropagation(); onRepeatDx([d]); }}>
-                          <span className="text-[10px] font-medium text-[var(--text-main)]">{d.code}</span>
+                          <span className="text-xs font-medium text-[var(--text-main)]">{d.code}</span>
                           <div className="flex items-center gap-1 min-w-0">
-                            {dxSpecial[d.code] && <span className="text-[8px] bg-[var(--status-error-bg-subtle)] text-[var(--red-500)] border border-[var(--red-200)] rounded-[2px] px-0.5 flex-shrink-0">{dxSpecial[d.code]}</span>}
-                            <span className="text-[10px] text-[var(--text-main)] truncate">{d.name}</span>
+                            {dxSpecial[d.code] && <span className="text-micro bg-[var(--status-error-bg-subtle)] text-[var(--red-500)] border border-[var(--red-200)] rounded-[2px] px-0.5 flex-shrink-0">{dxSpecial[d.code]}</span>}
+                            <span className="text-xs text-[var(--text-main)] truncate">{d.name}</span>
                           </div>
                         </div>
                       ))}
@@ -826,7 +826,7 @@ export function EMRExpandedHistory({
                         <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-subtle)] px-2 py-[3px] gap-1"
                           style={{ gridTemplateColumns: PRESC_COLS }}>
                           {[["사용자코드","left"],["명칭","left"],["용량","center"],["일투","center"],["일수","center"]].map(([label, align]) => (
-                            <span key={label} className={`text-[9px] font-medium text-[var(--text-tertiary)] text-${align} truncate`}>{label}</span>
+                            <span key={label} className={`text-micro font-medium text-[var(--text-tertiary)] text-${align} truncate`}>{label}</span>
                           ))}
                         </div>
                         {v.prescriptions.map((p, i) => (
@@ -834,11 +834,11 @@ export function EMRExpandedHistory({
                             className="grid items-center px-2 py-[3px] border-b border-[var(--line-subtle)] last:border-b-0 hover:bg-[var(--status-success-bg-subtle)] cursor-pointer relative group/rxrow gap-1"
                             style={{ gridTemplateColumns: PRESC_COLS }}
                             onClick={e => { e.stopPropagation(); onRepeatRx([p]); }}>
-                            <span className="text-[9px] text-[var(--text-tertiary)] truncate">{p.code ?? ""}</span>
-                            <span className="text-[10px] text-[var(--text-main)] truncate">{p.name}</span>
-                            <span className="text-[9px] text-[var(--text-sub)] text-center">{p.dose}</span>
-                            <span className="text-[9px] text-[var(--text-sub)] text-center">{p.freq}</span>
-                            <span className="text-[9px] text-[var(--text-sub)] text-center">{p.days}</span>
+                            <span className="text-micro text-[var(--text-tertiary)] truncate">{p.code ?? ""}</span>
+                            <span className="text-xs text-[var(--text-main)] truncate">{p.name}</span>
+                            <span className="text-micro text-[var(--text-sub)] text-center">{p.dose}</span>
+                            <span className="text-micro text-[var(--text-sub)] text-center">{p.freq}</span>
+                            <span className="text-micro text-[var(--text-sub)] text-center">{p.days}</span>
                           </div>
                         ))}
                       </div>
@@ -847,8 +847,8 @@ export function EMRExpandedHistory({
                     {/* Note */}
                     {viewModes.has("메모") && v.note && (
                       <div className="flex items-start gap-1 px-3 py-1.5">
-                        <span className="text-[10px]">📝</span>
-                        <span className="text-[10px] text-[var(--brand-primary)] leading-[15px]">{v.note}</span>
+                        <span className="text-xs">📝</span>
+                        <span className="text-xs text-[var(--brand-primary)] leading-[15px]">{v.note}</span>
                       </div>
                     )}
                   </div>

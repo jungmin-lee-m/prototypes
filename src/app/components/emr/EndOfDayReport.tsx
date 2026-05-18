@@ -31,6 +31,18 @@ interface PreCheckSummaryItem {
 type RiskLevel = "High" | "Mid" | "Low";
 type RiskTag = "Missing" | "Duplicate" | "Mismatch";
 
+// 한글 라벨 매핑
+const RISK_LEVEL_KO: Record<RiskLevel, string> = {
+  High: "높은 위험",
+  Mid:  "중간 위험",
+  Low:  "낮은 위험",
+};
+const RISK_TAG_KO: Record<RiskTag, string> = {
+  Missing:   "누락",
+  Duplicate: "중복",
+  Mismatch:  "불일치",
+};
+
 interface MissedItem {
   id: string;
   patient: string;       // 환자명 + 성/연령
@@ -59,9 +71,187 @@ interface PatientActionItem {
 // ╔══════════════════════════════════════════════════════════════════════════════
 // ║ 더미 데이터 (개원의 1일 평균 매출 200~300만원 기준)
 // ╚══════════════════════════════════════════════════════════════════════════════
-const TODAY_LABEL = "2026년 5월 7일 목요일";
-const TODAY_PATIENT_COUNT = 32;
+// 진료중 환자 수 — 일과 종료 시점 가정시 0. 진행 중 리포트일 땐 양수.
+const TODAY_IN_TREATMENT_COUNT = 0;
+// TODAY_PATIENT_COUNT 는 SETTLED_PATIENTS 선언 후 derived (line 233 부근).
 const LAST_CHART_TIME = "18:24";
+
+// 오늘 진료받은 환자 목록 (수납대기 + 수납완료 모두 포함, 조회결과 표용)
+// 컬럼: 차트번호, 환자정보(이름·성별·나이·신환·휴대폰·보험), 진료정보(시간·외래·초/재진·담당의·본인확인),
+//      진료비 산정내역(총액·공단·본인·비급여), 결제정보(카드·현금·미수·결제상태)
+// 결제상태: "수납대기" = 진료 끝났지만 결제 아직 / "수납완료" = 결제까지 완료. 미지정시 "수납완료" 로 간주.
+type SettledPatient = {
+  chartNo: string;
+  name: string;
+  gender: "남" | "여";
+  age: number;
+  isNew: boolean;             // 신환여부 — 첫 방문 환자
+  phone: string;
+  insType: "건강보험" | "의료급여" | "산재" | "일반";
+  visitTime: string;          // HH:MM
+  visitKind: "외래" | "입원";
+  isFirstVisit: boolean;      // 초진(true) / 재진(false)
+  doctor: string;
+  selfVerified: boolean;      // 본인확인
+  tags: string[];             // 환자유형 — 병원 커스텀 태그 (VIP/만성질환/임산부/단골 등)
+  total: number;              // 진료비 총액
+  nhis: number;               // 공단부담금
+  selfPay: number;            // 본인부담금
+  noPay: number;              // 비급여
+  card: number;
+  cash: number;
+  unpaid: number;             // 미수 (수납완료 후 일부 미수금)
+  status?: "수납대기" | "수납완료";  // 결제 상태. 미지정시 "수납완료" 로 간주.
+};
+
+// 병원 커스텀 환자 태그 — 실제 EMR 에서는 병원별로 등록·관리되는 마스터 데이터
+const PATIENT_TAGS = ["VIP", "만성질환", "임산부", "단골", "알러지주의", "보호자동반", "장기처방"];
+
+const SETTLED_PATIENTS: SettledPatient[] = [
+  // ── 오전 (09~12시) ──
+  { chartNo: "302", name: "윤태석", gender: "남", age: 58, isNew: false, phone: "010-7788-2233", insType: "건강보험",
+    visitTime: "09:08", visitKind: "외래", isFirstVisit: false, doctor: "김다영", selfVerified: false,
+    tags: ["만성질환", "장기처방"],
+    total: 23150, nhis: 16800, selfPay: 6350, noPay: 0, card: 6350, cash: 0, unpaid: 0 },
+  { chartNo: "415", name: "한지원", gender: "여", age: 45, isNew: false, phone: "010-2244-3366", insType: "건강보험",
+    visitTime: "09:22", visitKind: "외래", isFirstVisit: false, doctor: "이지원", selfVerified: true,
+    tags: ["VIP", "단골"],
+    total: 31840, nhis: 22240, selfPay: 9600, noPay: 0, card: 9600, cash: 0, unpaid: 0 },
+  { chartNo: "098", name: "정민수", gender: "남", age: 27, isNew: true, phone: "010-5566-7788", insType: "건강보험",
+    visitTime: "09:45", visitKind: "외래", isFirstVisit: true, doctor: "김지혜", selfVerified: true,
+    tags: [],
+    total: 15400, nhis: 10780, selfPay: 4620, noPay: 0, card: 4620, cash: 0, unpaid: 0 },
+  { chartNo: "222", name: "김세나", gender: "여", age: 35, isNew: false, phone: "010-6700-4572", insType: "건강보험",
+    visitTime: "10:05", visitKind: "외래", isFirstVisit: false, doctor: "이지원", selfVerified: false,
+    tags: ["VIP"],
+    total: 501640, nhis: 1540, selfPay: 100, noPay: 500000, card: 500400, cash: 0, unpaid: 0 },
+  { chartNo: "186", name: "장미경", gender: "여", age: 51, isNew: false, phone: "010-9911-2233", insType: "건강보험",
+    visitTime: "10:28", visitKind: "외래", isFirstVisit: false, doctor: "김다영", selfVerified: false,
+    tags: ["단골"],
+    total: 12450, nhis: 8910, selfPay: 3540, noPay: 0, card: 3540, cash: 0, unpaid: 0 },
+  { chartNo: "367", name: "박재훈", gender: "남", age: 41, isNew: false, phone: "010-1212-5656", insType: "산재",
+    visitTime: "10:51", visitKind: "외래", isFirstVisit: false, doctor: "김지혜", selfVerified: true,
+    tags: [],
+    total: 64200, nhis: 64200, selfPay: 0, noPay: 0, card: 0, cash: 0, unpaid: 0 },
+  { chartNo: "549", name: "신유리", gender: "여", age: 22, isNew: true, phone: "010-3737-8989", insType: "일반",
+    visitTime: "11:14", visitKind: "외래", isFirstVisit: true, doctor: "이지원", selfVerified: true,
+    tags: [],
+    total: 48500, nhis: 0, selfPay: 0, noPay: 48500, card: 48500, cash: 0, unpaid: 0 },
+  { chartNo: "271", name: "조성현", gender: "남", age: 38, isNew: false, phone: "010-4848-2929", insType: "건강보험",
+    visitTime: "11:36", visitKind: "외래", isFirstVisit: false, doctor: "김다영", selfVerified: false,
+    tags: ["알러지주의"],
+    total: 19820, nhis: 14070, selfPay: 5750, noPay: 0, card: 5750, cash: 0, unpaid: 0 },
+  { chartNo: "483", name: "김두경", gender: "남", age: 34, isNew: true, phone: "—", insType: "건강보험",
+    visitTime: "11:55", visitKind: "외래", isFirstVisit: false, doctor: "이지원", selfVerified: false,
+    tags: [],
+    total: 20430, nhis: 14330, selfPay: 6100, noPay: 0, card: 6100, cash: 0, unpaid: 0 },
+
+  // ── 오후 (12~15시) ──
+  { chartNo: "481", name: "김겸진", gender: "여", age: 33, isNew: false, phone: "—", insType: "건강보험",
+    visitTime: "12:33", visitKind: "외래", isFirstVisit: false, doctor: "김지혜", selfVerified: false,
+    tags: ["임산부"],
+    total: 17610, nhis: 12410, selfPay: 5200, noPay: 0, card: 5200, cash: 0, unpaid: 0 },
+  { chartNo: "236", name: "이진영", gender: "여", age: 62, isNew: false, phone: "010-5421-1212", insType: "건강보험",
+    visitTime: "12:39", visitKind: "외래", isFirstVisit: false, doctor: "김지혜", selfVerified: false,
+    tags: ["만성질환", "보호자동반"],
+    total: 17610, nhis: 12410, selfPay: 5200, noPay: 0, card: 5200, cash: 0, unpaid: 0 },
+  { chartNo: "612", name: "황도현", gender: "남", age: 49, isNew: false, phone: "010-8282-1010", insType: "건강보험",
+    visitTime: "13:02", visitKind: "외래", isFirstVisit: false, doctor: "이지원", selfVerified: true,
+    tags: [],
+    total: 25340, nhis: 18130, selfPay: 7210, noPay: 0, card: 7210, cash: 0, unpaid: 0 },
+  { chartNo: "157", name: "박서영", gender: "여", age: 28, isNew: false, phone: "010-2233-1199", insType: "건강보험",
+    visitTime: "13:50", visitKind: "외래", isFirstVisit: true, doctor: "김다영", selfVerified: true,
+    tags: ["임산부"],
+    total: 18630, nhis: 14730, selfPay: 3900, noPay: 0, card: 3900, cash: 0, unpaid: 0 },
+  { chartNo: "428", name: "최서아", gender: "여", age: 19, isNew: true, phone: "010-3434-6767", insType: "건강보험",
+    visitTime: "14:08", visitKind: "외래", isFirstVisit: true, doctor: "김지혜", selfVerified: true,
+    tags: [],
+    total: 21560, nhis: 15090, selfPay: 6470, noPay: 0, card: 0, cash: 6470, unpaid: 0 },
+  { chartNo: "591", name: "임재현", gender: "남", age: 53, isNew: false, phone: "010-1313-9494", insType: "건강보험",
+    visitTime: "14:21", visitKind: "외래", isFirstVisit: false, doctor: "김다영", selfVerified: false,
+    tags: ["VIP", "장기처방"],
+    total: 132840, nhis: 28430, selfPay: 14410, noPay: 90000, card: 104410, cash: 0, unpaid: 0 },
+  { chartNo: "204", name: "백지혜", gender: "여", age: 31, isNew: false, phone: "010-7676-4242", insType: "건강보험",
+    visitTime: "14:45", visitKind: "외래", isFirstVisit: false, doctor: "이지원", selfVerified: true,
+    tags: ["단골"],
+    total: 16280, nhis: 11400, selfPay: 4880, noPay: 0, card: 4880, cash: 0, unpaid: 0 },
+  { chartNo: "619", name: "최준호", gender: "남", age: 47, isNew: false, phone: "010-9876-5432", insType: "건강보험",
+    visitTime: "15:12", visitKind: "외래", isFirstVisit: false, doctor: "김지혜", selfVerified: true,
+    tags: ["만성질환"],
+    total: 87420, nhis: 35400, selfPay: 12020, noPay: 40000, card: 52020, cash: 0, unpaid: 0 },
+
+  // ── 오후 (15~18시) ──
+  { chartNo: "317", name: "오민재", gender: "남", age: 8, isNew: false, phone: "010-5050-3030", insType: "건강보험",
+    visitTime: "15:30", visitKind: "외래", isFirstVisit: false, doctor: "김다영", selfVerified: false,
+    tags: ["보호자동반"],
+    total: 13720, nhis: 9810, selfPay: 3910, noPay: 0, card: 3910, cash: 0, unpaid: 0 },
+  { chartNo: "445", name: "송지아", gender: "여", age: 26, isNew: true, phone: "010-2424-8585", insType: "일반",
+    visitTime: "15:48", visitKind: "외래", isFirstVisit: true, doctor: "이지원", selfVerified: true,
+    tags: [],
+    total: 78000, nhis: 0, selfPay: 0, noPay: 78000, card: 78000, cash: 0, unpaid: 0 },
+  { chartNo: "138", name: "강채원", gender: "여", age: 64, isNew: false, phone: "010-6262-9191", insType: "의료급여",
+    visitTime: "16:04", visitKind: "외래", isFirstVisit: false, doctor: "김지혜", selfVerified: false,
+    tags: ["만성질환"],
+    total: 28950, nhis: 28950, selfPay: 0, noPay: 0, card: 0, cash: 0, unpaid: 0 },
+  { chartNo: "403", name: "오오름", gender: "남", age: 35, isNew: false, phone: "010-5555-8888", insType: "건강보험",
+    visitTime: "16:21", visitKind: "외래", isFirstVisit: false, doctor: "김지혜", selfVerified: false,
+    tags: [],
+    total: 17610, nhis: 12410, selfPay: 5200, noPay: 0, card: 5200, cash: 0, unpaid: 0 },
+  { chartNo: "528", name: "강민서", gender: "여", age: 19, isNew: true, phone: "010-3344-7788", insType: "일반",
+    visitTime: "16:48", visitKind: "외래", isFirstVisit: true, doctor: "이지원", selfVerified: true,
+    tags: [],
+    total: 35000, nhis: 0, selfPay: 0, noPay: 35000, card: 35000, cash: 0, unpaid: 0 },
+  { chartNo: "262", name: "유서준", gender: "남", age: 12, isNew: false, phone: "010-9494-5151", insType: "건강보험",
+    visitTime: "17:02", visitKind: "외래", isFirstVisit: false, doctor: "김다영", selfVerified: false,
+    tags: ["보호자동반"],
+    total: 11340, nhis: 8050, selfPay: 3290, noPay: 0, card: 0, cash: 3290, unpaid: 0 },
+  { chartNo: "578", name: "고은별", gender: "여", age: 37, isNew: false, phone: "010-7373-6262", insType: "건강보험",
+    visitTime: "17:18", visitKind: "외래", isFirstVisit: false, doctor: "이지원", selfVerified: true,
+    tags: ["단골"],
+    total: 42180, nhis: 22640, selfPay: 9540, noPay: 10000, card: 19540, cash: 0, unpaid: 0 },
+  { chartNo: "350", name: "권혁진", gender: "남", age: 60, isNew: false, phone: "010-5959-2727", insType: "건강보험",
+    visitTime: "17:35", visitKind: "외래", isFirstVisit: false, doctor: "김지혜", selfVerified: false,
+    tags: ["만성질환", "장기처방"],
+    total: 26730, nhis: 19080, selfPay: 7650, noPay: 0, card: 7650, cash: 0, unpaid: 0 },
+  { chartNo: "112", name: "심수빈", gender: "여", age: 24, isNew: false, phone: "010-1818-3939", insType: "건강보험",
+    visitTime: "17:50", visitKind: "외래", isFirstVisit: false, doctor: "김다영", selfVerified: true,
+    tags: [],
+    total: 14820, nhis: 10580, selfPay: 4240, noPay: 0, card: 4240, cash: 0, unpaid: 0 },
+  { chartNo: "697", name: "노현우", gender: "남", age: 44, isNew: false, phone: "010-2020-4141", insType: "건강보험",
+    visitTime: "18:05", visitKind: "외래", isFirstVisit: false, doctor: "이지원", selfVerified: false,
+    tags: ["알러지주의"],
+    total: 22340, nhis: 15880, selfPay: 6460, noPay: 0, card: 0, cash: 0, unpaid: 22340 },
+  { chartNo: "234", name: "황세진", gender: "여", age: 39, isNew: false, phone: "010-3232-7878", insType: "건강보험",
+    visitTime: "18:14", visitKind: "외래", isFirstVisit: false, doctor: "김지혜", selfVerified: true,
+    tags: ["단골"],
+    total: 19450, nhis: 13780, selfPay: 5670, noPay: 0, card: 5670, cash: 0, unpaid: 0 },
+  { chartNo: "501", name: "남도윤", gender: "남", age: 16, isNew: true, phone: "010-4747-3636", insType: "건강보험",
+    visitTime: "18:22", visitKind: "외래", isFirstVisit: true, doctor: "김다영", selfVerified: false,
+    tags: ["보호자동반"],
+    total: 17890, nhis: 12640, selfPay: 5250, noPay: 0, card: 0, cash: 5250, unpaid: 0 },
+
+  // ── 수납대기 — 진료는 끝났지만 아직 결제 안 한 환자 (card·cash·unpaid 모두 0) ──
+  { chartNo: "618", name: "정태우", gender: "남", age: 52, isNew: false, phone: "010-8281-4422", insType: "건강보험",
+    visitTime: "17:58", visitKind: "외래", isFirstVisit: false, doctor: "이지원", selfVerified: false,
+    tags: ["만성질환"],
+    total: 24350, nhis: 17220, selfPay: 7130, noPay: 0, card: 0, cash: 0, unpaid: 0, status: "수납대기" },
+  { chartNo: "729", name: "홍서연", gender: "여", age: 29, isNew: true, phone: "010-3914-6628", insType: "일반",
+    visitTime: "18:28", visitKind: "외래", isFirstVisit: true, doctor: "김지혜", selfVerified: true,
+    tags: [],
+    total: 45600, nhis: 0, selfPay: 0, noPay: 45600, card: 0, cash: 0, unpaid: 0, status: "수납대기" },
+];
+
+// 오늘 진료환자 총수 — 데이터에서 derived (수납대기 + 수납완료 + 진료중)
+const TODAY_PATIENT_COUNT = SETTLED_PATIENTS.length + TODAY_IN_TREATMENT_COUNT;
+
+// 수납완료 환자 집계 — 요약 카드에 사용
+const SETTLED_TOTAL = SETTLED_PATIENTS.reduce((s, p) => s + p.total, 0);
+const SETTLED_NHIS = SETTLED_PATIENTS.reduce((s, p) => s + p.nhis, 0);
+const SETTLED_SELF = SETTLED_PATIENTS.reduce((s, p) => s + p.selfPay, 0);
+const SETTLED_NOPAY = SETTLED_PATIENTS.reduce((s, p) => s + p.noPay, 0);
+const SETTLED_FIRST_VISIT = SETTLED_PATIENTS.filter(p => p.isFirstVisit).length;
+const SETTLED_REVISIT = SETTLED_PATIENTS.length - SETTLED_FIRST_VISIT;
+const SETTLED_NEW = SETTLED_PATIENTS.filter(p => p.isNew).length;
 
 // 매출
 // 본인부담은 급여의 일부이므로 "급여"와 나란히 두면 안 됨.
@@ -210,33 +400,33 @@ const ACTION_TYPE_CLR: Record<PatientActionType, { fg: string; bg: string }> = {
 // ║ 공통 — 카드 셸
 // ╚══════════════════════════════════════════════════════════════════════════════
 function CardShell({
-  title, subtitle, accent, onHide, children,
+  title, subtitle, onHide, children,
 }: {
   title: string;
   subtitle?: string;
-  accent: string;            // 좌측 색상 띠
+  /** 색상 띠 — 더 이상 사용 안 함 (시각 노이즈 축소). 호환성 유지를 위해 prop 만 받음. */
+  accent?: string;
   onHide: () => void;
   children: React.ReactNode;
 }) {
   return (
     <div className="bg-white rounded-xl border border-[var(--line-default)] flex flex-col overflow-hidden">
-      <div className="flex items-start gap-3 px-5 pt-4 pb-3 border-b border-[var(--line-subtle)]">
-        <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ background: accent }} />
+      <div className="flex items-start gap-2 px-4 pt-3 pb-2 border-b border-[var(--line-subtle)]">
         <div className="flex-1 min-w-0">
-          <h3 className="text-[15px] font-bold text-[var(--text-main)]">{title}</h3>
-          {subtitle && <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">{subtitle}</p>}
+          <h3 className="text-md font-bold text-[var(--text-main)]">{title}</h3>
+          {subtitle && <p className="text-xs text-[var(--text-tertiary)] mt-0.5">{subtitle}</p>}
         </div>
         <button
           onClick={onHide}
           title="이 카드 숨기기"
-          className="w-7 h-7 rounded-md flex items-center justify-center text-[var(--text-tertiary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-sub)] flex-shrink-0"
+          className="w-6 h-6 rounded flex items-center justify-center text-[var(--text-tertiary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-sub)] flex-shrink-0"
         >
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-            <path fill="currentColor" d="M11.5 1.5h-3l-.5 2.1a6.5 6.5 0 0 0-1.6.7L4.6 3.1 2.5 5.2 3.7 7a6.5 6.5 0 0 0-.7 1.6L1 9.1v3l2 .5c.2.6.4 1.1.7 1.6L2.5 16l2 2 1.8-1.2c.5.3 1 .5 1.6.7l.5 2h3l.5-2c.6-.2 1.1-.4 1.6-.7l1.8 1.2 2-2-1.2-1.8c.3-.5.5-1 .7-1.6l2-.5v-3l-2-.5a6.5 6.5 0 0 0-.7-1.6l1.2-1.8-2-2-1.8 1.2a6.5 6.5 0 0 0-1.6-.7l-.5-2zM10 13a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
         </button>
       </div>
-      <div className="px-5 py-4 flex-1">{children}</div>
+      <div className="px-4 py-3 flex-1">{children}</div>
     </div>
   );
 }
@@ -244,10 +434,10 @@ function CardShell({
 // ╔══════════════════════════════════════════════════════════════════════════════
 // ║ 카드 1 — 매출 (Revenue)
 // ╚══════════════════════════════════════════════════════════════════════════════
-function HourlyLine({ data, onAction }: {
+function HourlyLine({ data }: {
   data: { h: string; v: number }[];
-  onAction: (msg: string) => void;
 }) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const max = Math.max(...data.map(d => d.v));
   const min = Math.min(...data.map(d => d.v));
   const w = 320, h = 80, padX = 8, padY = 8;
@@ -260,114 +450,54 @@ function HourlyLine({ data, onAction }: {
   });
   const path = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
   const fillPath = `${path} L${padX + inner.w},${padY + inner.h} L${padX},${padY + inner.h} Z`;
+
   return (
     <div className="relative">
       <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-20" preserveAspectRatio="none">
         <path d={fillPath} fill="var(--bg-primary-subtle)" />
-        {/* vector-effect로 stroke가 viewBox 스트레치에 따라 얇아지지 않게 한다 */}
         <path d={path} stroke="var(--brand-primary)" strokeWidth="2.5" fill="none"
           vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
-        {pts.map((p, i) => (
-          <g key={i}>
-            <circle cx={p[0]} cy={p[1]} r="3" fill="white" stroke="var(--brand-primary)" strokeWidth="2"
-              vectorEffect="non-scaling-stroke" />
-            {/* 호버 영역 */}
-            <rect x={p[0] - dx / 2} y="0" width={dx} height={h} fill="transparent"
-              onMouseEnter={() => onAction(`${data[i].h}시 매출 ${KRW(data[i].v)}`)}
-              style={{ cursor: "default" }} />
-          </g>
-        ))}
+        {pts.map((p, i) => {
+          const isHover = hoverIdx === i;
+          return (
+            <g key={i}>
+              <circle cx={p[0]} cy={p[1]} r={isHover ? 4 : 3} fill="white" stroke="var(--brand-primary)" strokeWidth="2"
+                vectorEffect="non-scaling-stroke" />
+              {/* 호버 영역 — alert 대신 hoverIdx state 만 토글 */}
+              <rect x={p[0] - dx / 2} y="0" width={dx} height={h} fill="transparent"
+                onMouseEnter={() => setHoverIdx(i)}
+                onMouseLeave={() => setHoverIdx(null)}
+                style={{ cursor: "default" }} />
+            </g>
+          );
+        })}
       </svg>
-      <div className="flex justify-between text-[10px] text-[var(--text-tertiary)] px-2">
+
+      {/* 인라인 툴팁 — 호버된 포인트 위에 노출 */}
+      {hoverIdx !== null && (
+        <div
+          className="absolute -top-1 pointer-events-none px-2 py-1 bg-[var(--bg-inverse)] text-white rounded text-xs whitespace-nowrap shadow-md"
+          style={{
+            left: `${(pts[hoverIdx][0] / w) * 100}%`,
+            transform: "translate(-50%, -100%)",
+          }}
+        >
+          {data[hoverIdx].h}시 · {KRW(data[hoverIdx].v)}
+        </div>
+      )}
+
+      <div className="flex justify-between text-xs text-[var(--text-tertiary)] px-2">
         {data.map((d, i) => <span key={i}>{d.h}</span>)}
       </div>
     </div>
   );
 }
 
-function RevenueCard({ onHide, onAction }: { onHide: () => void; onAction: (msg: string) => void }) {
-  const total = REVENUE.byKind.공단부담 + REVENUE.byKind.본인부담 + REVENUE.byKind.비급여;
-  const seg = (v: number) => Math.round((v / total) * 100);
-  // 공단부담 + 본인부담 = 급여 매출. 비급여는 별도.
-  const segments: { label: keyof typeof REVENUE.byKind; pct: number; clr: string; group: "급여" | "비급여" }[] = [
-    { label: "공단부담", pct: seg(REVENUE.byKind.공단부담), clr: "var(--brand-primary)", group: "급여"   },
-    { label: "본인부담", pct: seg(REVENUE.byKind.본인부담), clr: "var(--blue-200)",       group: "급여"   },
-    { label: "비급여",   pct: seg(REVENUE.byKind.비급여),   clr: "var(--orange-500)",     group: "비급여" },
-  ];
-  const insRevenue    = REVENUE.byKind.공단부담 + REVENUE.byKind.본인부담;
-  const nonInsRevenue = REVENUE.byKind.비급여;
-  const insPct = Math.round((insRevenue / total) * 100);
+function RevenueCard({ onHide }: { onHide: () => void; onAction: (msg: string) => void }) {
   return (
-    <CardShell
-      title="매출"
-      subtitle="오늘 발생한 모든 청구·수납 합계"
-      accent="var(--brand-primary)"
-      onHide={onHide}
-    >
-      {/* 큰 숫자 */}
-      <button
-        onClick={() => onAction("청구 메뉴로 이동")}
-        className="text-left w-full mb-3 group"
-      >
-        <p className="text-[28px] font-bold text-[var(--text-main)] leading-tight group-hover:text-[var(--brand-primary)] transition-colors">
-          {KRW(REVENUE.total)}
-        </p>
-        <div className="flex items-center gap-3 mt-1 text-[12px]">
-          <span className="font-medium text-[var(--green-500)]">+{REVENUE.vsYesterdayPct}% 어제 대비</span>
-          <span className="text-[var(--text-tertiary)]">·</span>
-          <span className="font-medium text-[var(--green-500)]">+{REVENUE.vsWeekAvgPct}% 주 평균 대비</span>
-        </div>
-      </button>
-
-      {/* 매출 구성 — 급여(공단부담+본인부담) / 비급여 그룹으로 표시 */}
-      <div className="mb-3">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[11px] font-medium text-[var(--text-tertiary)]">매출 구성 · 급여 {insPct}% / 비급여 {100 - insPct}%</span>
-          <span className="text-[11px] text-[var(--text-tertiary)]">1인당 평균 {KRW(REVENUE.perPatientAvg)}</span>
-        </div>
-        {/* 스택 막대 — 급여 두 칸이 인접해 그룹처럼 보이고, 비급여는 시각적으로 분리 */}
-        <div className="flex h-3 rounded-md overflow-hidden">
-          {segments.map(s => (
-            <div key={s.label} style={{ width: `${s.pct}%`, background: s.clr }} title={`${s.label} ${s.pct}% (${KRW(REVENUE.byKind[s.label])})`} />
-          ))}
-        </div>
-        {/* 범례 — "급여 = 공단부담 + 본인부담" 관계가 한눈에 보이게 그룹화 */}
-        <div className="grid grid-cols-2 gap-2 mt-2.5">
-          <div className="flex flex-col gap-1 p-2 rounded-md bg-[var(--bg-subtle)]">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-[var(--text-tertiary)]">급여</span>
-              <span className="text-[11px] font-bold text-[var(--text-main)]">{KRW(insRevenue)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: "var(--brand-primary)" }} />
-              <span className="text-[10px] text-[var(--text-sub)] flex-1">공단부담</span>
-              <span className="text-[10px] font-medium text-[var(--text-main)]">{KRW(REVENUE.byKind.공단부담)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: "var(--blue-200)" }} />
-              <span className="text-[10px] text-[var(--text-sub)] flex-1">본인부담</span>
-              <span className="text-[10px] font-medium text-[var(--text-main)]">{KRW(REVENUE.byKind.본인부담)}</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1 p-2 rounded-md bg-[var(--bg-subtle)]">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-[var(--text-tertiary)]">비급여</span>
-              <span className="text-[11px] font-bold text-[var(--text-main)]">{KRW(nonInsRevenue)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: "var(--orange-500)" }} />
-              <span className="text-[10px] text-[var(--text-sub)] flex-1">환자 전액 부담</span>
-              <span className="text-[10px] font-medium text-[var(--text-main)]">{KRW(REVENUE.byKind.비급여)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 시간대별 라인 */}
-      <div>
-        <p className="text-[11px] font-medium text-[var(--text-tertiary)] mb-1">시간대별 매출 (포인트 호버)</p>
-        <HourlyLine data={REVENUE.hourly} onAction={onAction} />
-      </div>
+    <CardShell title="시간대별 매출" onHide={onHide}>
+      <HourlyLine data={REVENUE.hourly} />
+      <p className="text-xs text-[var(--text-tertiary)] mt-2 text-center">포인트에 마우스 올려 시간별 매출 확인</p>
     </CardShell>
   );
 }
@@ -377,47 +507,27 @@ function RevenueCard({ onHide, onAction }: { onHide: () => void; onAction: (msg:
 // ╚══════════════════════════════════════════════════════════════════════════════
 function MissedRevenueCard({ onHide, onAction }: { onHide: () => void; onAction: (msg: string) => void }) {
   return (
-    <CardShell
-      title="매출 기회"
-      subtitle="오늘 진료에서 산정 가능했지만 놓친 매출"
-      accent="var(--green-500)"
-      onHide={onHide}
-    >
-      {/* 큰 숫자 */}
-      <div className="mb-3">
-        <p className="text-[28px] font-bold text-[var(--green-500)] leading-tight">{KRW(MISSED_TOTAL)}</p>
-        <p className="text-[12px] text-[var(--text-sub)] mt-0.5">
-          <span className="font-bold">{MISSED_ITEMS.length}건</span> 발견 · 회수 가능 금액
-        </p>
-      </div>
-
-      {/* 항목 리스트 */}
+    <CardShell title="매출 기회" subtitle={`${MISSED_ITEMS.length}건 · ${KRW(MISSED_TOTAL)}`} onHide={onHide}>
       <div className="flex flex-col divide-y divide-[var(--line-subtle)]">
         {MISSED_ITEMS.map(item => (
-          <div key={item.id} className="py-2.5 first:pt-0 last:pb-0">
-            <div className="flex items-start gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[var(--green-050)] text-[var(--green-700)]">
-                    {item.category}
-                  </span>
-                  <span className="text-[13px] font-bold text-[var(--text-main)]">{item.patient}</span>
-                </div>
-                <p className="text-[12px] text-[var(--text-sub)] leading-relaxed">{item.reason}</p>
+          <div key={item.id} className="py-2 first:pt-0 last:pb-0">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <TagBadge>{item.category}</TagBadge>
+                <span className="text-sm font-bold text-[var(--text-main)] truncate">{item.patient}</span>
               </div>
-              <span className="text-[13px] font-bold text-[var(--green-500)] flex-shrink-0">{KRW(item.amount)}</span>
+              <span className="text-sm font-bold text-[var(--text-main)] tabular-nums flex-shrink-0">{KRW(item.amount)}</span>
             </div>
-            {/* CTA — 우하단 정렬, secondary(SMS) 먼저 → primary(차트 수정) 가장 우측 */}
+            <p className="text-sm text-[var(--text-sub)] mb-1.5">{item.reason}</p>
             <div className="flex items-center gap-1.5 justify-end">
-              <button
-                onClick={() => onAction(`${item.patient}에게 안내 SMS를 발송했습니다`)}
-                className="h-8 px-3 text-[11px] font-medium rounded-md bg-white border border-[var(--line-default)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
-              >환자 SMS</button>
-              <button
-                onClick={() => onAction(`${item.patient} 차트 수정 화면으로 이동`)}
-                className="h-8 px-3 text-[11px] font-bold rounded-md text-white shadow-sm hover:shadow-md"
-                style={{ background: "var(--green-500)" }}
-              >차트 수정</button>
+              <button onClick={() => onAction(`${item.patient}에게 안내 SMS를 발송했습니다`)}
+                className="h-6 px-2 text-xs rounded text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)]">
+                SMS
+              </button>
+              <button onClick={() => onAction(`${item.patient} 차트 수정 화면으로 이동`)}
+                className="h-6 px-2 text-xs rounded text-white bg-[var(--brand-primary)] hover:opacity-90">
+                차트 수정
+              </button>
             </div>
           </div>
         ))}
@@ -430,71 +540,33 @@ function MissedRevenueCard({ onHide, onAction }: { onHide: () => void; onAction:
 // ║ 카드 3 — 실사 위험 (Compliance Risk)
 // ╚══════════════════════════════════════════════════════════════════════════════
 function RiskCard({ onHide, onAction }: { onHide: () => void; onAction: (msg: string) => void }) {
-  const counts = RISK_ITEMS.reduce<Record<RiskLevel, number>>(
-    (acc, r) => ({ ...acc, [r.level]: (acc[r.level] ?? 0) + 1 }),
-    { High: 0, Mid: 0, Low: 0 }
-  );
   return (
-    <CardShell
-      title="실사 위험"
-      subtitle="3축 룰(Missing·Duplicate·Mismatch) 자동 검토 결과"
-      accent="var(--orange-500)"
-      onHide={onHide}
-    >
-      {/* 큰 숫자 + 위험도 분포 */}
-      <div className="mb-3">
-        <div className="flex items-baseline gap-2">
-          <p className="text-[28px] font-bold text-[var(--orange-500)] leading-tight">{RISK_ITEMS.length}건</p>
-          <p className="text-[12px] text-[var(--text-sub)]">
-            <span className="font-bold text-[var(--red-500)]">High {counts.High}</span>
-            <span className="text-[var(--text-tertiary)] mx-1">·</span>
-            <span className="font-bold text-[var(--orange-500)]">Mid {counts.Mid}</span>
-            {counts.Low > 0 && <>
-              <span className="text-[var(--text-tertiary)] mx-1">·</span>
-              <span className="font-bold text-[var(--text-sub)]">Low {counts.Low}</span>
-            </>}
-          </p>
-        </div>
-        <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">청구 전 수정 권장</p>
-      </div>
-
-      {/* 항목 리스트 */}
+    <CardShell title="실사 위험" subtitle={`${RISK_ITEMS.length}건 · 청구 전 검토 권장`} onHide={onHide}>
       <div className="flex flex-col divide-y divide-[var(--line-subtle)]">
-        {RISK_ITEMS.map(item => {
-          const tone    = RISK_TONE[item.level];
-          const tagTone = RISK_TAG_TONE[item.tag];
-          return (
-            <div key={item.id} className="py-2.5 first:pt-0 last:pb-0">
-              <div className="flex items-start gap-2 mb-1.5">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    {/* chip 스타일 — solid 버튼과 시각 구별 */}
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ color: tagTone.fg, background: tagTone.bg }}>
-                      {item.tag}
-                    </span>
-                    <span className="text-[13px] font-bold text-[var(--text-main)]">{item.patient}</span>
-                  </div>
-                  <p className="text-[12px] text-[var(--text-sub)] leading-relaxed">{item.detail}</p>
-                </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded flex-shrink-0" style={{ color: tone.fg, background: tone.bg }}>
-                  {item.level}
-                </span>
+        {RISK_ITEMS.map(item => (
+          <div key={item.id} className="py-2 first:pt-0 last:pb-0">
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <TagBadge>{RISK_TAG_KO[item.tag]}</TagBadge>
+                <span className="text-sm font-bold text-[var(--text-main)] truncate">{item.patient}</span>
               </div>
-              {/* CTA — 우하단 정렬, secondary 먼저 → primary 가장 우측 */}
-              <div className="flex items-center gap-1.5 justify-end">
-                <button
-                  onClick={() => onAction(`${item.tag} 자동 수정 미리보기:\n${item.patient} — ${item.detail}\n\n시스템이 제안한 수정안을 차트에 적용하시겠습니까?`)}
-                  className="h-8 px-3 text-[11px] font-medium rounded-md bg-white border border-[var(--line-default)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
-                >자동 수정 제안</button>
-                <button
-                  onClick={() => onAction(`${item.patient} 차트로 이동`)}
-                  className="h-8 px-3 text-[11px] font-bold rounded-md text-white shadow-sm hover:shadow-md"
-                  style={{ background: "var(--orange-500)" }}
-                >차트 열기</button>
-              </div>
+              <span className={`text-xs flex-shrink-0 ${item.level === "High" ? "font-bold text-[var(--red-500)]" : "text-[var(--text-sub)]"}`}>
+                {RISK_LEVEL_KO[item.level]}
+              </span>
             </div>
-          );
-        })}
+            <p className="text-sm text-[var(--text-sub)] mb-1.5">{item.detail}</p>
+            <div className="flex items-center gap-1.5 justify-end">
+              <button onClick={() => onAction(`${RISK_TAG_KO[item.tag]} 자동 수정 미리보기`)}
+                className="h-6 px-2 text-xs rounded text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)]">
+                자동 수정
+              </button>
+              <button onClick={() => onAction(`${item.patient} 차트로 이동`)}
+                className="h-6 px-2 text-xs rounded text-white bg-[var(--brand-primary)] hover:opacity-90">
+                차트 열기
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </CardShell>
   );
@@ -505,54 +577,40 @@ function RiskCard({ onHide, onAction }: { onHide: () => void; onAction: (msg: st
 // ╚══════════════════════════════════════════════════════════════════════════════
 function PatientActionCard({ onHide, onAction }: { onHide: () => void; onAction: (msg: string) => void }) {
   return (
-    <CardShell
-      title="환자 액션"
-      subtitle="오늘 진료 결과 기반 후속 조치"
-      accent="var(--brand-primary)"
-      onHide={onHide}
-    >
+    <CardShell title="환자 액션" subtitle="진료 결과 기반 후속 조치" onHide={onHide}>
       <div className="flex flex-col divide-y divide-[var(--line-subtle)]">
-        {PATIENT_ACTIONS.map(item => {
-          const tone = ACTION_TYPE_CLR[item.type];
-          return (
-            <div key={item.id} className="py-2.5 first:pt-0 last:pb-0">
-              <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ color: tone.fg, background: tone.bg }}>
-                  {item.type}
-                </span>
-                <span className="text-[13px] font-bold text-[var(--text-main)] flex-1 min-w-0 truncate">{item.title}</span>
-                {item.meta && <span className="text-[12px] font-medium text-[var(--text-sub)] flex-shrink-0">{item.meta}</span>}
-              </div>
-              <p className="text-[12px] text-[var(--text-sub)] leading-relaxed mb-1.5">{item.detail}</p>
-              {/* CTA — 우하단 정렬, secondary 먼저 → primary 가장 우측 */}
-              <div className="flex items-center gap-1.5 justify-end">
-                {item.type === "미수" && (
-                  <>
-                    <button onClick={() => onAction("미수 환자 리스트로 이동")}
-                      className="h-8 px-3 text-[11px] font-medium rounded-md bg-white border border-[var(--line-default)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">리스트</button>
-                    <button onClick={() => onAction("미수 환자 3명에게 일괄 SMS 발송됨")}
-                      className="h-8 px-3 text-[11px] font-bold rounded-md text-white shadow-sm hover:shadow-md"
-                      style={{ background: "var(--brand-primary)" }}>일괄 SMS</button>
-                  </>
-                )}
-                {item.type === "후속콜" && (
-                  <>
-                    <button onClick={() => onAction("정현우님 차트로 이동")}
-                      className="h-8 px-3 text-[11px] font-medium rounded-md bg-white border border-[var(--line-default)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">차트 열기</button>
-                    <button onClick={() => onAction("정현우님에게 콜 발송 기록")}
-                      className="h-8 px-3 text-[11px] font-bold rounded-md text-white shadow-sm hover:shadow-md"
-                      style={{ background: "var(--brand-primary)" }}>콜 기록</button>
-                  </>
-                )}
-                {item.type === "예약권유" && (
-                  <button onClick={() => onAction("만성질환자 2명에게 예약 안내 SMS 발송")}
-                    className="h-8 px-3 text-[11px] font-bold rounded-md text-white shadow-sm hover:shadow-md"
-                    style={{ background: "var(--brand-primary)" }}>예약 SMS</button>
-                )}
-              </div>
+        {PATIENT_ACTIONS.map(item => (
+          <div key={item.id} className="py-2 first:pt-0 last:pb-0">
+            <div className="flex items-center gap-1.5 mb-1">
+              <TagBadge>{item.type}</TagBadge>
+              <span className="text-sm font-bold text-[var(--text-main)] flex-1 min-w-0 truncate">{item.title}</span>
+              {item.meta && <span className="text-xs text-[var(--text-sub)] flex-shrink-0">{item.meta}</span>}
             </div>
-          );
-        })}
+            <p className="text-sm text-[var(--text-sub)] mb-1.5">{item.detail}</p>
+            <div className="flex items-center gap-1.5 justify-end">
+              {item.type === "미수" && (
+                <>
+                  <button onClick={() => onAction("미수 환자 리스트로 이동")}
+                    className="h-6 px-2 text-xs rounded text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)]">리스트</button>
+                  <button onClick={() => onAction("미수 환자 일괄 SMS 발송")}
+                    className="h-6 px-2 text-xs rounded text-white bg-[var(--brand-primary)] hover:opacity-90">일괄 SMS</button>
+                </>
+              )}
+              {item.type === "후속콜" && (
+                <>
+                  <button onClick={() => onAction("차트 열기")}
+                    className="h-6 px-2 text-xs rounded text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)]">차트</button>
+                  <button onClick={() => onAction("콜 기록")}
+                    className="h-6 px-2 text-xs rounded text-white bg-[var(--brand-primary)] hover:opacity-90">콜 기록</button>
+                </>
+              )}
+              {item.type === "예약권유" && (
+                <button onClick={() => onAction("예약 안내 SMS 발송")}
+                  className="h-6 px-2 text-xs rounded text-white bg-[var(--brand-primary)] hover:opacity-90">예약 SMS</button>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </CardShell>
   );
@@ -580,15 +638,14 @@ function DistributionCard({ onHide, onAction }: { onHide: () => void; onAction: 
     <CardShell
       title="오늘의 진료 분포"
       subtitle="시간대별 환자 수 + 급여/비급여 매출 비율"
-      accent="var(--blue-700)"
       onHide={onHide}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="flex flex-col gap-4">
         {/* 시간대별 진료 분포 */}
         <div>
           <div className="flex items-baseline justify-between mb-2">
-            <p className="text-[12px] font-medium text-[var(--text-tertiary)]">시간대별 진료 환자</p>
-            <p className="text-[11px] text-[var(--text-tertiary)]">총 {TODAY_PATIENT_COUNT}명</p>
+            <p className="text-md font-medium text-[var(--text-tertiary)]">시간대별 진료 환자</p>
+            <p className="text-sm text-[var(--text-tertiary)]">총 {TODAY_PATIENT_COUNT}명</p>
           </div>
           <div className="flex justify-between gap-1 h-28">
             {HOURLY_PATIENTS.map((p, i) => (
@@ -598,7 +655,7 @@ function DistributionCard({ onHide, onAction }: { onHide: () => void; onAction: 
                 className="flex-1 flex flex-col items-center gap-1 group"
                 title={`${p.h}시 ${p.c}명`}
               >
-                <span className="text-[10px] font-medium text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 transition-opacity h-3 leading-none">
+                <span className="text-xs font-medium text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 transition-opacity h-3 leading-none">
                   {p.c}
                 </span>
                 <div className="flex-1 w-full flex items-end min-h-[20px]">
@@ -610,11 +667,11 @@ function DistributionCard({ onHide, onAction }: { onHide: () => void; onAction: 
                     }}
                   />
                 </div>
-                <span className="text-[10px] text-[var(--text-tertiary)] leading-none">{p.h}</span>
+                <span className="text-xs text-[var(--text-tertiary)] leading-none">{p.h}</span>
               </button>
             ))}
           </div>
-          <div className="flex items-center gap-2 mt-2 text-[11px] text-[var(--text-tertiary)]">
+          <div className="flex items-center gap-2 mt-2 text-sm text-[var(--text-tertiary)]">
             <span>피크 시간대 16시</span>
             <span>·</span>
             <span>점심 13시 가장 적음</span>
@@ -624,8 +681,8 @@ function DistributionCard({ onHide, onAction }: { onHide: () => void; onAction: 
         {/* 급여/비급여 매출 비율 */}
         <div>
           <div className="flex items-baseline justify-between mb-2">
-            <p className="text-[12px] font-medium text-[var(--text-tertiary)]">급여 {insPct}% / 비급여 {100 - insPct}% 매출 비율</p>
-            <p className="text-[11px] text-[var(--text-tertiary)]">총 {KRW(total)}</p>
+            <p className="text-md font-medium text-[var(--text-tertiary)]">급여 {insPct}% / 비급여 {100 - insPct}% 매출 비율</p>
+            <p className="text-sm text-[var(--text-tertiary)]">총 {KRW(total)}</p>
           </div>
           {/* 스택 막대 — 급여(공단부담+본인부담)와 비급여 사이에 시각적 구분 */}
           <div className="flex h-7 rounded-md overflow-hidden mb-2.5">
@@ -639,7 +696,7 @@ function DistributionCard({ onHide, onAction }: { onHide: () => void; onAction: 
                   ...(i > 0 && segments[i - 1].group !== s.group ? { borderLeft: "2px solid white" } : {}),
                 }}
                 title={`${s.label} ${s.pct}% (${KRW(s.amount)})`}>
-                {s.pct >= 12 && <span className="text-[10px] font-bold text-white">{s.pct}%</span>}
+                {s.pct >= 12 && <span className="text-xs font-bold text-white">{s.pct}%</span>}
               </div>
             ))}
           </div>
@@ -647,29 +704,28 @@ function DistributionCard({ onHide, onAction }: { onHide: () => void; onAction: 
           <div className="flex flex-col gap-2">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold text-[var(--text-tertiary)] uppercase tracking-wide">급여</span>
-                <span className="text-[12px] font-bold text-[var(--text-main)]">{KRW(insRevenue)}</span>
+                <span className="text-xs font-bold text-[var(--text-tertiary)] uppercase tracking-wide">급여</span>
+                <span className="text-md font-bold text-[var(--text-main)]">{KRW(insRevenue)}</span>
               </div>
+              {/* 비율 %는 상단 스택 막대에서 이미 표시되므로 금액만 표기 — 중복 제거 */}
               {segments.filter(s => s.group === "급여").map(s => (
                 <div key={s.label} className="flex items-center gap-2 pl-2">
                   <span className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: s.clr }} />
-                  <span className="text-[11px] text-[var(--text-sub)] flex-1">{s.label}</span>
-                  <span className="text-[11px] font-medium text-[var(--text-main)]">{KRW(s.amount)}</span>
-                  <span className="text-[10px] text-[var(--text-tertiary)] w-8 text-right">{s.pct}%</span>
+                  <span className="text-sm text-[var(--text-sub)] flex-1">{s.label}</span>
+                  <span className="text-sm font-medium text-[var(--text-main)]">{KRW(s.amount)}</span>
                 </div>
               ))}
             </div>
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold text-[var(--text-tertiary)] uppercase tracking-wide">비급여</span>
-                <span className="text-[12px] font-bold text-[var(--text-main)]">{KRW(nonInsRevenue)}</span>
+                <span className="text-xs font-bold text-[var(--text-tertiary)] uppercase tracking-wide">비급여</span>
+                <span className="text-md font-bold text-[var(--text-main)]">{KRW(nonInsRevenue)}</span>
               </div>
               {segments.filter(s => s.group === "비급여").map(s => (
                 <div key={s.label} className="flex items-center gap-2 pl-2">
                   <span className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: s.clr }} />
-                  <span className="text-[11px] text-[var(--text-sub)] flex-1">환자 전액 부담</span>
-                  <span className="text-[11px] font-medium text-[var(--text-main)]">{KRW(s.amount)}</span>
-                  <span className="text-[10px] text-[var(--text-tertiary)] w-8 text-right">{s.pct}%</span>
+                  <span className="text-sm text-[var(--text-sub)] flex-1">환자 전액 부담</span>
+                  <span className="text-sm font-medium text-[var(--text-main)]">{KRW(s.amount)}</span>
                 </div>
               ))}
             </div>
@@ -688,7 +744,8 @@ function PreCheckSummaryCard({ onHide, onAction }: { onHide: () => void; onActio
   const [appliedIds, setAppliedIds] = useState<Set<string>>(
     () => new Set(PRECHECK_SUMMARY.filter(i => i.appliedAtChart).map(i => i.id))
   );
-  const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
+  // skippedIds 는 더 이상 사용 안 함 (건너뛰기 버튼 제거) — 호환을 위해 빈 셋만 유지
+  const skippedIds = new Set<string>();
 
   const items = PRECHECK_SUMMARY;
   const pendingItems = items.filter(i => !appliedIds.has(i.id) && !skippedIds.has(i.id));
@@ -697,12 +754,6 @@ function PreCheckSummaryCard({ onHide, onAction }: { onHide: () => void; onActio
     setAppliedIds(prev => { const n = new Set(prev); n.add(id); return n; });
     const item = items.find(i => i.id === id);
     if (item) onAction(`${item.patient} — "${item.masterTarget}" 반영 완료`);
-  };
-  const skipOne = (id: string) => {
-    setSkippedIds(prev => { const n = new Set(prev); n.add(id); return n; });
-  };
-  const undoSkip = (id: string) => {
-    setSkippedIds(prev => { const n = new Set(prev); n.delete(id); return n; });
   };
   const applyAll = () => {
     if (pendingItems.length === 0) return;
@@ -717,128 +768,71 @@ function PreCheckSummaryCard({ onHide, onAction }: { onHide: () => void; onActio
   return (
     <CardShell
       title="사전점검 정리"
-      subtitle="진료 중 수정한 결과를 기초자료에 반영 — 다음 진료부터 자동 적용됩니다"
-      accent="var(--violet-500)"
+      subtitle="진료 중 수정한 결과를 기초자료에 반영"
       onHide={onHide}
     >
       {/* 헤더 — 카운트 + 일괄 반영 */}
-      <div className="flex items-center gap-3 mb-3 flex-wrap">
-        <div>
-          <p className="text-[22px] font-bold text-[var(--text-main)] leading-tight">
-            {items.length}<span className="text-[14px] text-[var(--text-tertiary)] font-medium ml-1">건 점검·수정</span>
-          </p>
-          <p className="text-[12px] text-[var(--text-sub)] mt-0.5">
-            <span className="font-bold text-[var(--green-500)]">{appliedIds.size}건 반영됨</span>
-            <span className="text-[var(--text-tertiary)] mx-1">·</span>
-            <span className="font-bold" style={{ color: pendingItems.length > 0 ? "var(--orange-500)" : "var(--text-tertiary)" }}>
-              {pendingItems.length}건 대기
-            </span>
-            {skippedIds.size > 0 && (
-              <>
-                <span className="text-[var(--text-tertiary)] mx-1">·</span>
-                <span className="text-[var(--text-tertiary)]">{skippedIds.size}건 건너뜀</span>
-              </>
-            )}
-          </p>
-        </div>
-        <div className="flex-1" />
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <p className="text-sm text-[var(--text-sub)]">
+          <span className="font-bold text-[var(--text-main)]">{items.length}건</span> 점검 ·
+          <span className="text-[var(--text-sub)] ml-1">반영 {appliedIds.size}</span>
+          <span className="text-[var(--text-tertiary)] mx-1">/</span>
+          <span className="text-[var(--text-sub)]">대기 {pendingItems.length}</span>
+        </p>
         <button onClick={applyAll}
           disabled={pendingItems.length === 0}
-          className="h-9 px-4 text-[13px] font-bold rounded-md text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-          style={{ background: "var(--brand-primary)" }}>
-          ✓ 전체 일괄 반영 ({pendingItems.length})
+          className="h-6 px-2 text-xs rounded text-white bg-[var(--brand-primary)] hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
+          전체 반영 ({pendingItems.length})
         </button>
       </div>
 
       {/* 항목 리스트 */}
-      <div className="rounded-lg border border-[var(--line-default)] overflow-hidden">
-        {items.map((item, idx) => {
+      <div className="flex flex-col divide-y divide-[var(--line-subtle)]">
+        {items.map(item => {
           const applied = appliedIds.has(item.id);
           const skipped = skippedIds.has(item.id);
-          const tone    = PRECHECK_KIND_LABEL[item.kind];
-          const isLast  = idx === items.length - 1;
           return (
             <div key={item.id}
-              className={`px-4 py-3 ${!isLast ? "border-b border-[var(--line-subtle)]" : ""} ${
-                applied ? "bg-[var(--status-success-bg-subtle)]/40" : skipped ? "bg-[var(--bg-subtle)] opacity-60" : "bg-white"
-              }`}>
-              <div className="flex items-start gap-3">
-                {/* 좌측 칩 + 환자 */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ color: tone.clr, background: tone.bg }}>
-                      {tone.label}
-                    </span>
-                    <span className="text-[13px] font-bold text-[var(--text-main)]">{item.patient}</span>
-                    {applied && (
-                      <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded text-white"
-                        style={{ background: "var(--green-500)" }}>
-                        <svg width="10" height="8" viewBox="0 0 8 6" fill="none">
-                          <path d="M1 3L3 5L7 1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        기초자료 반영됨
-                      </span>
-                    )}
-                    {skipped && (
-                      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[var(--line-default)] text-[var(--text-tertiary)]">
-                        건너뜀
-                      </span>
-                    )}
-                  </div>
-                  {/* before → after */}
-                  <p className="text-[12px] text-[var(--text-sub)] leading-relaxed">
-                    <span className="text-[var(--text-tertiary)] line-through">{item.before}</span>
-                    <span className="mx-1.5 text-[var(--text-tertiary)]">→</span>
-                    <span className="font-medium text-[var(--text-main)]">{item.after}</span>
-                  </p>
-                  {/* 마스터 반영 대상 */}
-                  <p className="text-[11px] text-[var(--text-tertiary)] mt-1">
-                    <span style={{ color: applied ? "var(--green-700)" : "var(--brand-primary)" }}>
-                      ↳ {item.masterTarget}
-                    </span>
-                  </p>
-                </div>
+              className={`py-2 first:pt-0 last:pb-0 ${skipped ? "opacity-60" : ""}`}>
+              {/* 환자 + 태그 */}
+              <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                <TagBadge>{PRECHECK_KIND_LABEL[item.kind].label}</TagBadge>
+                <span className="text-sm font-bold text-[var(--text-main)]">{item.patient}</span>
+                {applied && (
+                  <span className="text-xs text-[var(--green-700)]">✓ 반영됨</span>
+                )}
+              </div>
+              {/* before → after */}
+              <p className="text-sm text-[var(--text-sub)] mb-0.5">
+                <span className="text-[var(--text-tertiary)] line-through">{item.before}</span>
+                <span className="mx-1 text-[var(--text-tertiary)]">→</span>
+                <span className="font-medium text-[var(--text-main)]">{item.after}</span>
+              </p>
+              {/* 마스터 반영 대상 */}
+              <p className="text-xs text-[var(--text-tertiary)] mb-1.5">↳ {item.masterTarget}</p>
 
-                {/* 액션 버튼 — 우측 정렬, primary가 가장 우측 */}
-                <div className="flex items-center gap-1.5 flex-shrink-0 justify-end">
-                  {!applied && !skipped && (
-                    <>
-                      <button onClick={() => skipOne(item.id)}
-                        className="h-8 px-3 text-[11px] text-[var(--text-tertiary)] hover:text-[var(--text-sub)]">
-                        건너뛰기
-                      </button>
-                      <button onClick={() => applyOne(item.id)}
-                        className="h-8 px-3 text-[11px] font-bold rounded-md text-white shadow-sm hover:shadow-md"
-                        style={{ background: "var(--brand-primary)" }}>
-                        기초자료에 반영
-                      </button>
-                    </>
-                  )}
-                  {skipped && (
-                    <button onClick={() => undoSkip(item.id)}
-                      className="h-8 px-3 text-[11px] font-medium rounded-md bg-white border border-[var(--line-default)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
-                      되돌리기
-                    </button>
-                  )}
-                  {applied && (
-                    <button onClick={() => onAction(`${item.patient} — 차트로 이동해 점검 결과 확인`)}
-                      className="h-8 px-3 text-[11px] font-medium rounded-md bg-white border border-[var(--line-default)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
-                      차트 확인
-                    </button>
-                  )}
-                </div>
+              {/* 액션 버튼 — 상하 stack, '건너뛰기' 제거 */}
+              <div className="flex flex-col gap-1.5">
+                {!applied && !skipped && (
+                  <button onClick={() => applyOne(item.id)}
+                    className="h-6 px-2 text-xs rounded text-white bg-[var(--brand-primary)] hover:opacity-90 w-full">
+                    기초자료에 반영
+                  </button>
+                )}
+                {applied && (
+                  <button onClick={() => onAction(`${item.patient} — 차트로 이동해 점검 결과 확인`)}
+                    className="h-6 px-2 text-xs rounded text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)] w-full">
+                    차트 확인
+                  </button>
+                )}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* 안내 */}
-      {pendingItems.length === 0 && skippedIds.size === 0 && (
-        <p className="mt-3 text-[12px] text-[var(--green-700)] flex items-center gap-1.5">
-          <span>✓</span>
-          모든 점검 결과가 기초자료에 반영되었습니다
-        </p>
+      {pendingItems.length === 0 && (
+        <p className="mt-2 text-xs text-[var(--text-sub)]">✓ 모든 점검 결과가 반영되었습니다</p>
       )}
     </CardShell>
   );
@@ -873,8 +867,8 @@ function WidgetSettingsModal({
       <div className="bg-white rounded-2xl shadow-2xl w-[480px] max-w-[92vw]"
         onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--line-default)]">
-          <h3 className="text-[15px] font-bold text-[var(--text-main)]">위젯 표시 설정</h3>
-          <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-[16px]">✕</button>
+          <h3 className="text-xl font-bold text-[var(--text-main)]">위젯 표시 설정</h3>
+          <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-xl">✕</button>
         </div>
         <div className="px-5 py-4 flex flex-col gap-2">
           {ITEMS.map(it => {
@@ -898,8 +892,8 @@ function WidgetSettingsModal({
                   )}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[13px] font-bold text-[var(--text-main)]">{it.title}</p>
-                  <p className="text-[11px] text-[var(--text-tertiary)] mt-0.5">{it.desc}</p>
+                  <p className="text-lg font-bold text-[var(--text-main)]">{it.title}</p>
+                  <p className="text-sm text-[var(--text-tertiary)] mt-0.5">{it.desc}</p>
                 </div>
               </label>
             );
@@ -907,11 +901,11 @@ function WidgetSettingsModal({
         </div>
         <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-[var(--line-default)]">
           <button onClick={onClose}
-            className="h-9 px-4 text-[13px] border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
+            className="h-9 px-4 text-lg border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
             취소
           </button>
           <button onClick={() => onSave(draft)}
-            className="h-9 px-5 text-[13px] font-bold text-white rounded-md hover:opacity-90"
+            className="h-9 px-5 text-lg font-bold text-white rounded-md hover:opacity-90"
             style={{ background: "var(--brand-primary)" }}>
             적용
           </button>
@@ -976,11 +970,11 @@ function ReportCardWrapper({
           </svg>
         </span>
         <button onClick={onMoveUp} disabled={isFirst} title="위로 이동"
-          className="w-6 h-6 flex items-center justify-center rounded-md text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-white border border-transparent hover:border-[var(--line-default)] disabled:opacity-30 disabled:cursor-not-allowed">
+          className="w-6 h-6 flex items-center justify-center rounded-md text-xs text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-white border border-transparent hover:border-[var(--line-default)] disabled:opacity-30 disabled:cursor-not-allowed">
           ↑
         </button>
         <button onClick={onMoveDown} disabled={isLast} title="아래로 이동"
-          className="w-6 h-6 flex items-center justify-center rounded-md text-[10px] text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-white border border-transparent hover:border-[var(--line-default)] disabled:opacity-30 disabled:cursor-not-allowed">
+          className="w-6 h-6 flex items-center justify-center rounded-md text-xs text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-white border border-transparent hover:border-[var(--line-default)] disabled:opacity-30 disabled:cursor-not-allowed">
           ↓
         </button>
       </div>
@@ -1080,107 +1074,59 @@ export function EndOfDayReport({ onClose }: { onClose: () => void }) {
       show ? "opacity-100" : "opacity-0"
     }`} onClick={onClose}>
       <div
-        className="bg-[var(--bg-base)] rounded-2xl shadow-2xl w-[1080px] max-w-[96vw] max-h-[94vh] overflow-hidden flex flex-col"
+        className="bg-[var(--bg-base)] rounded-2xl shadow-2xl w-[1440px] max-w-[97vw] max-h-[94vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* ── 영역 1. 헤더 ── */}
-        <div className="flex items-start justify-between px-6 py-4 border-b border-[var(--line-default)] bg-white flex-shrink-0">
-          <div>
-            <h2 className="text-[18px] font-bold text-[var(--text-main)]">오늘의 진료 리포트</h2>
-            <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
-              {TODAY_LABEL} · 진료 환자 <b className="text-[var(--text-sub)]">{TODAY_PATIENT_COUNT}명</b> · 마지막 차트 {LAST_CHART_TIME}
-            </p>
-          </div>
+        <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--line-default)] bg-white flex-shrink-0">
+          {/* 헤더 — 팝업 제목만. 날짜/진료환자 내역은 좌측 표 상단(SettledPatientsTable) 으로 이동. */}
+          <h2 className="text-[18px] font-bold text-[var(--text-main)]">오늘 내원 현황</h2>
           <div className="flex items-center gap-1.5">
             <button onClick={() => onAction("리포트를 인쇄합니다")}
-              className="h-8 px-3 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
+              className="h-8 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
               🖨 인쇄
             </button>
             <button onClick={() => onAction("카카오톡 비즈메시지로 리포트가 발송됩니다")}
-              className="h-8 px-3 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
+              className="h-8 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
               💬 카톡 발송
             </button>
             <button onClick={onClose}
-              className="h-8 w-8 text-[16px] text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded-md flex items-center justify-center">
+              className="h-8 w-8 text-xl text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded-md flex items-center justify-center">
               ✕
             </button>
           </div>
         </div>
 
-        {/* ── 본문 스크롤 영역 ── */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
-          {/* ── 영역 2. 한 줄 요약 ── */}
-          <div className="rounded-xl p-4 mb-5 border border-[var(--line-default)]"
-            style={{ background: "linear-gradient(90deg, var(--bg-primary-subtle), white 80%)" }}>
-            <p className="text-[13px] text-[var(--text-sub)] leading-relaxed">
-              오늘 매출{" "}
-              <b className="text-[15px] text-[var(--text-main)]">{KRW(REVENUE.total)}</b>
-              {" "}<span className="text-[var(--green-500)] font-bold">(어제 대비 +{REVENUE.vsYesterdayPct}%)</span>
-              {" · "}매출 기회 <b className="text-[var(--green-500)]">{MISSED_ITEMS.length}건</b>
-              {" · "}실사 위험 <b className="text-[var(--orange-500)]">{RISK_ITEMS.length}건</b>
-              {" · "}미수 발생 <b className="text-[var(--red-500)]">3건</b>
-            </p>
+        {/* ── 본문 — 좌(표 ~74%) / 우(리포트 ~26%) 좌우 분할 ── */}
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          {/* ── LEFT: 수납완료 환자 목록 표 ── */}
+          <div className="flex-[2.8] flex flex-col min-w-0 border-r border-[var(--line-default)]">
+            <SettledPatientsTable />
           </div>
 
-          {/* ── 영역 3. 카드 — 드래그하여 순서 변경 가능 / col-span에 따라 1열 또는 2열 ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-            {visible.map((id, idx) => (
-              <ReportCardWrapper
-                key={id}
-                span={WIDGET_SPAN[id]}
-                isFirst={idx === 0}
-                isLast={idx === visible.length - 1}
-                onMoveUp={() => moveCard(id, -1)}
-                onMoveDown={() => moveCard(id, +1)}
-                onDragStart={handleDragStart(id)}
-                onDragOver={handleDragOver(id)}
-                onDrop={handleDrop(id)}
-                onDragEnd={handleDragEnd}
-                onDragLeave={handleDragLeave}
-                isDragOver={dragOverId === id}
-                isDragging={dragId === id}
-              >
-                {renderWidget(id)}
-              </ReportCardWrapper>
-            ))}
+          {/* ── RIGHT: 리포트 (간략) ── */}
+          <div className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[var(--bg-subtle)]">
+            <CompactReportPanel
+              visible={visible}
+              renderWidget={renderWidget}
+            />
           </div>
-
-          {/* 모든 카드 숨겨졌을 때 안내 */}
-          {hidden.size === ALL_REPORT_WIDGETS.length && (
-            <div className="bg-white rounded-xl border border-dashed border-[var(--line-default)] py-10 text-center">
-              <p className="text-[13px] text-[var(--text-sub)] mb-2">표시할 위젯이 없습니다</p>
-              <button onClick={showAll}
-                className="text-[12px] font-medium text-[var(--brand-primary)] hover:underline">
-                숨겨진 위젯 다시 표시
-              </button>
-            </div>
-          )}
-
-          {/* 숨겨진 위젯 다시 표시 안내 */}
-          {hidden.size > 0 && hidden.size < ALL_REPORT_WIDGETS.length && (
-            <div className="mt-3 text-center">
-              <button onClick={showAll}
-                className="text-[12px] text-[var(--text-tertiary)] hover:text-[var(--brand-primary)] hover:underline">
-                숨겨진 위젯 표시 ({hidden.size})
-              </button>
-            </div>
-          )}
         </div>
 
         {/* ── 영역 5. 하단 액션 ── */}
         <div className="flex items-center justify-between gap-2 px-6 py-3 border-t border-[var(--line-default)] bg-white flex-shrink-0">
           <div className="flex items-center gap-2">
             <button onClick={() => onAction("주간 진료 리포트 화면으로 이동")}
-              className="h-9 px-3 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
+              className="h-9 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
               📊 주간 리포트 보기
             </button>
             <button onClick={() => setSettings(true)}
-              className="h-9 px-3 text-[12px] font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
+              className="h-9 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
               ⚙ 위젯 설정
             </button>
           </div>
           <button onClick={onClose}
-            className="h-9 px-5 text-[13px] font-bold rounded-md text-white hover:opacity-90"
+            className="h-9 px-5 text-lg font-bold rounded-md text-white hover:opacity-90"
             style={{ background: "var(--brand-primary)" }}>
             확인
           </button>
@@ -1201,18 +1147,793 @@ export function EndOfDayReport({ onClose }: { onClose: () => void }) {
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════════
-// ║ 플로팅 버튼 — 모달 닫힌 후 다시 보기
+// ║ 수납완료 환자 목록 표 — 좌측 메인 영역 (조회결과 표 형태)
 // ╚══════════════════════════════════════════════════════════════════════════════
-export function EndOfDayReportFab({ onClick }: { onClick: () => void }) {
+type GenderFilter = "전체" | "남" | "여";
+type VisitKindFilter = "전체" | "외래" | "입원";
+type VisitorTypeFilter = "전체" | "신환" | "구환";  // 신환여부 — 첫방문 환자 vs 재방문
+type VisitOrderFilter = "전체" | "초진" | "재진";   // 초/재진 — 해당 진료과/병원 내 진료 차수
+type PayStatusFilter = "전체" | "수납대기" | "수납완료"; // 결제 상태 — 수납대기/수납완료
+type NationFilter = "전체" | "내국인" | "외국인";
+// 정렬 가능 컬럼 키
+type SortKey = "name" | "gender" | "visitTime" | "total" | "nhis" | "selfPay" | "noPay";
+
+// 담당의별 집계 — 우측 현황 요약 표용
+type DoctorSummary = {
+  label: string;          // "종합" 또는 담당의 이름
+  count: number;
+  외래: number; 입원: number;
+  초진: number; 재진: number;
+  신환: number; 구환: number;
+  total: number; nhis: number; selfPay: number; noPay: number;
+  rxOut: number;          // 원외처방 발급 (mock)
+};
+const computeDoctorSummary = (patients: SettledPatient[]): DoctorSummary[] => {
+  const empty = (label: string): DoctorSummary => ({
+    label, count: 0, 외래: 0, 입원: 0, 초진: 0, 재진: 0, 신환: 0, 구환: 0,
+    total: 0, nhis: 0, selfPay: 0, noPay: 0, rxOut: 0,
+  });
+  const groups: Record<string, DoctorSummary> = {};
+  const all = empty("종합");
+  // 환자 → 담당의 → 누적
+  for (const p of patients) {
+    if (!groups[p.doctor]) groups[p.doctor] = empty(p.doctor);
+    const g = groups[p.doctor];
+    [g, all].forEach(s => {
+      s.count++;
+      if (p.visitKind === "외래") s.외래++; else s.입원++;
+      if (p.isFirstVisit) s.초진++; else s.재진++;
+      if (p.isNew) s.신환++; else s.구환++;
+      s.total += p.total;
+      s.nhis += p.nhis;
+      s.selfPay += p.selfPay;
+      s.noPay += p.noPay;
+    });
+  }
+  // 원외처방 mock — 비급여 큰 환자가 원외 처방 경향이라 가정 (prototype)
+  for (const p of patients) {
+    if (p.noPay > 30000 || !p.isFirstVisit) {
+      const g = groups[p.doctor]; if (g) g.rxOut++;
+      all.rxOut++;
+    }
+  }
+  return [all, ...Object.values(groups)];
+};
+
+function SettledPatientsTable() {
+  // ── 필터 state ─────────────────────────────────────────────
+  const [search, setSearch] = useState("");
+  const [visitKind, setVisitKind] = useState<VisitKindFilter>("전체");
+  const [insType, setInsType] = useState<string>("전체");
+  const [doctor, setDoctor] = useState<string>("전체");
+  const [room, setRoom] = useState<string>("전체");
+  const [gender, setGender] = useState<GenderFilter>("전체");
+  // 신환여부 — 신환(첫방문) / 구환(재방문). 환자유형(태그) 와는 다른 필드.
+  const [visitorType, setVisitorType] = useState<VisitorTypeFilter>("전체");
+  // 초/재진 — 해당 진료과 기준 초진/재진. isFirstVisit 필드와 매핑.
+  const [visitOrder, setVisitOrder] = useState<VisitOrderFilter>("전체");
+  // 결제상태 — 수납대기 / 수납완료. status 필드와 매핑 (미지정시 수납완료).
+  const [payStatus, setPayStatus] = useState<PayStatusFilter>("전체");
+  // 환자유형 — 병원 커스텀 태그 (VIP/만성질환/임산부 등). 다중 선택 가능.
+  const [patientTags, setPatientTags] = useState<Set<string>>(new Set());
+  const [nation, setNation] = useState<NationFilter>("전체");
+  const [ageMin, setAgeMin] = useState<string>("");
+  const [ageMax, setAgeMax] = useState<string>("");
+  const [amountMin, setAmountMin] = useState<string>("");
+  const [amountMax, setAmountMax] = useState<string>("");
+  // 조회 날짜 — 단일 일자만 선택 가능 (날짜 picker)
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  // 컬럼 정렬 — 같은 컬럼 클릭하면 방향 토글, 다른 컬럼 클릭하면 그 키로 asc
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const toggleSort = (k: SortKey) => {
+    if (sortKey === k) setSortDir(d => d === "asc" ? "desc" : "asc");
+    else { setSortKey(k); setSortDir("asc"); }
+  };
+
+  // 행 선택 — 빠른 문자 발송 등 일괄 액션 대상 (chartNo 기준 Set)
+  const [selectedChartNos, setSelectedChartNos] = useState<Set<string>>(new Set());
+  const toggleSelection = (chartNo: string) => {
+    setSelectedChartNos(prev => {
+      const next = new Set(prev);
+      if (next.has(chartNo)) next.delete(chartNo); else next.add(chartNo);
+      return next;
+    });
+  };
+
+  // ── 필터 옵션 (data 기반) ───────────────────────────────────
+  const ALL_INS = ["전체", ...Array.from(new Set(SETTLED_PATIENTS.map(p => p.insType)))];
+  const ALL_DOCTORS = ["전체", ...Array.from(new Set(SETTLED_PATIENTS.map(p => p.doctor)))];
+  const ALL_ROOMS = ["전체", "1진료실", "2진료실", "3진료실", "건강검진실"];
+
+  // ── filter 적용 ─────────────────────────────────────────────
+  const filtered = SETTLED_PATIENTS.filter(p => {
+    // 환자명 검색 (이름·휴대폰·차트번호)
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      const hit = p.name.toLowerCase().includes(q)
+        || p.phone.toLowerCase().includes(q)
+        || p.chartNo.includes(q);
+      if (!hit) return false;
+    }
+    if (visitKind !== "전체" && p.visitKind !== visitKind) return false;
+    if (insType !== "전체" && p.insType !== insType) return false;
+    if (doctor !== "전체" && p.doctor !== doctor) return false;
+    if (gender !== "전체" && p.gender !== gender) return false;
+    // 신환여부
+    if (visitorType === "신환" && !p.isNew) return false;
+    if (visitorType === "구환" && p.isNew) return false;
+    // 초/재진
+    if (visitOrder === "초진" && !p.isFirstVisit) return false;
+    if (visitOrder === "재진" && p.isFirstVisit) return false;
+    // 결제상태 — status 미지정시 수납완료로 간주
+    const effectiveStatus: "수납대기" | "수납완료" = p.status ?? "수납완료";
+    if (payStatus !== "전체" && effectiveStatus !== payStatus) return false;
+    // 환자유형 태그 — 선택된 태그 중 하나라도 매칭되면 통과 (OR)
+    if (patientTags.size > 0 && !p.tags.some(t => patientTags.has(t))) return false;
+    // 진료실 / 내외국인 / 날짜 — 데이터 없음 → 항상 통과 (prototype)
+    void room; void nation; void selectedDate;
+    if (ageMin && p.age < Number(ageMin)) return false;
+    if (ageMax && p.age > Number(ageMax)) return false;
+    // 진료비 범위 — 총액 기준 (진료비기준 select 제거됨)
+    if (amountMin && p.total < Number(amountMin)) return false;
+    if (amountMax && p.total > Number(amountMax)) return false;
+    return true;
+  });
+
+  // 정렬 — sortKey 가 있을 때만 적용
+  const sorted = sortKey ? [...filtered].sort((a, b) => {
+    let cmp = 0;
+    switch (sortKey) {
+      case "name":      cmp = a.name.localeCompare(b.name, "ko"); break;
+      case "gender":    cmp = a.gender.localeCompare(b.gender); break;
+      case "visitTime": cmp = a.visitTime.localeCompare(b.visitTime); break;
+      case "total":     cmp = a.total - b.total; break;
+      case "nhis":      cmp = a.nhis - b.nhis; break;
+      case "selfPay":   cmp = a.selfPay - b.selfPay; break;
+      case "noPay":     cmp = a.noPay - b.noPay; break;
+    }
+    return sortDir === "asc" ? cmp : -cmp;
+  }) : filtered;
+
+  // 합계 — filter 된 결과 기준
+  const sumTotal = filtered.reduce((s, p) => s + p.total, 0);
+  const sumNhis = filtered.reduce((s, p) => s + p.nhis, 0);
+  const sumSelf = filtered.reduce((s, p) => s + p.selfPay, 0);
+  const sumNoPay = filtered.reduce((s, p) => s + p.noPay, 0);
+  const sumCard = filtered.reduce((s, p) => s + p.card, 0);
+  const sumCash = filtered.reduce((s, p) => s + p.cash, 0);
+  const sumUnpaid = filtered.reduce((s, p) => s + p.unpaid, 0);
+
+  const resetFilters = () => {
+    setSearch("");
+    setVisitKind("전체");
+    setInsType("전체");
+    setDoctor("전체");
+    setRoom("전체");
+    setGender("전체");
+    setVisitorType("전체");
+    setVisitOrder("전체");
+    setPayStatus("전체");
+    setPatientTags(new Set());
+    setNation("전체");
+    setAgeMin(""); setAgeMax("");
+    setAmountMin(""); setAmountMax("");
+    setSelectedDate(new Date().toISOString().slice(0, 10));
+  };
+
+  // 활성 필터 개수 (필터 적용 여부 시각화) — 날짜는 항상 선택돼 있으므로 제외
+  const activeFilterCount = [
+    search.trim() && "검색",
+    visitKind !== "전체" && "진료유형",
+    insType !== "전체" && "보험",
+    doctor !== "전체" && "담당의",
+    room !== "전체" && "진료실",
+    gender !== "전체" && "성별",
+    visitorType !== "전체" && "신환여부",
+    visitOrder !== "전체" && "초/재진",
+    payStatus !== "전체" && "결제상태",
+    patientTags.size > 0 && "환자유형",
+    nation !== "전체" && "내외국인",
+    (ageMin || ageMax) && "나이",
+    (amountMin || amountMax) && "진료비",
+  ].filter(Boolean).length;
+
+  // 진료환자 내역 — 진료중 / 수납대기 / 수납완료. 데이터에서 직접 카운트 (status 미지정 = 수납완료).
+  const awaitingPayCount = SETTLED_PATIENTS.filter(p => p.status === "수납대기").length;
+  const settledCount = SETTLED_PATIENTS.length - awaitingPayCount;
+  const inTreatmentCount = TODAY_IN_TREATMENT_COUNT;
+  const todayPatientCount = SETTLED_PATIENTS.length + inTreatmentCount;
+
   return (
-    <button
-      onClick={onClick}
-      title="오늘의 리포트 다시 보기"
-      className="fixed bottom-[80px] right-6 z-[9985] flex items-center gap-2 h-11 pl-3 pr-4 bg-white border border-[var(--line-default)] rounded-full shadow-lg hover:shadow-xl hover:border-[var(--brand-primary)] transition-all"
-    >
-      <span className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[14px]"
-        style={{ background: "var(--brand-primary)" }}>📊</span>
-      <span className="text-[12px] font-bold text-[var(--text-main)]">오늘의 리포트</span>
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* ── 필터 바 ── */}
+      <SettledFilterBar
+        search={search} setSearch={setSearch}
+        selectedDate={selectedDate} setSelectedDate={setSelectedDate}
+        visitKind={visitKind} setVisitKind={setVisitKind}
+        insType={insType} setInsType={setInsType}
+        doctor={doctor} setDoctor={setDoctor}
+        room={room} setRoom={setRoom}
+        gender={gender} setGender={setGender}
+        visitorType={visitorType} setVisitorType={setVisitorType}
+        visitOrder={visitOrder} setVisitOrder={setVisitOrder}
+        payStatus={payStatus} setPayStatus={setPayStatus}
+        patientTags={patientTags} setPatientTags={setPatientTags}
+        nation={nation} setNation={setNation}
+        ageMin={ageMin} setAgeMin={setAgeMin}
+        ageMax={ageMax} setAgeMax={setAgeMax}
+        amountMin={amountMin} setAmountMin={setAmountMin}
+        amountMax={amountMax} setAmountMax={setAmountMax}
+        allIns={ALL_INS} allDoctors={ALL_DOCTORS} allRooms={ALL_ROOMS}
+        activeFilterCount={activeFilterCount}
+        onReset={resetFilters}
+      />
+
+      {/* 표 헤더 — 진료환자 내역(수납대기/수납완료) + 마지막 차트 + 표 결과 건수 + 액션 (빠른 문자 발송 등).
+          날짜는 필터 바의 조회날짜와 중복되므로 여기서는 생략. */}
+      <div className="flex items-center justify-between gap-3 px-6 py-2 bg-white border-b border-[var(--line-default)] flex-shrink-0">
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
+          {/* 진료환자 내역 — 진료중 / 수납대기 / 수납완료 명시적으로 분해 (사용자가 합을 추정할 필요 없도록) */}
+          <span className="text-md text-[var(--text-tertiary)] whitespace-nowrap">
+            진료 환자 <b className="text-[var(--text-main)]">{todayPatientCount}명</b>
+            <span className="text-[var(--text-tertiary)]"> (</span>
+            {inTreatmentCount > 0 && <><b className="text-[var(--text-sub)]">진료중 {inTreatmentCount}</b><span> · </span></>}
+            <b className={awaitingPayCount > 0 ? "text-[var(--orange-700)]" : "text-[var(--text-sub)]"}>수납대기 {awaitingPayCount}</b>
+            <span> · </span>
+            <b className="text-[var(--text-sub)]">수납완료 {settledCount}</b>
+            <span className="text-[var(--text-tertiary)]">)</span>
+          </span>
+          <span className="w-px h-4 bg-[var(--line-default)] flex-shrink-0" />
+          {/* 마지막 차트 시각 — 오늘 마지막으로 작성된 차트 시간 */}
+          <span className="text-md text-[var(--text-tertiary)] whitespace-nowrap">마지막 차트 <b className="text-[var(--text-sub)] tabular-nums">{LAST_CHART_TIME}</b></span>
+          <span className="w-px h-4 bg-[var(--line-default)] flex-shrink-0" />
+          {/* 표 결과 건수 — filter 적용 결과 (수납대기+수납완료 총수와 다를 수 있음) */}
+          <span className="text-xs text-[var(--text-tertiary)] tabular-nums whitespace-nowrap">표 {filtered.length}건</span>
+          {activeFilterCount > 0 && (
+            <span className="text-xs text-[var(--brand-primary)] whitespace-nowrap">· 필터 {activeFilterCount}개</span>
+          )}
+          {selectedChartNos.size > 0 && (
+            <span className="text-xs text-[var(--brand-primary)] whitespace-nowrap">· {selectedChartNos.size}명 선택</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button className="text-xs text-[var(--text-tertiary)] hover:text-[var(--brand-primary)]">엑셀저장</button>
+          <span className="text-[var(--text-tertiary)]">·</span>
+          <button
+            disabled={selectedChartNos.size === 0}
+            className={`text-xs ${
+              selectedChartNos.size === 0
+                ? "text-[var(--text-disabled)] cursor-not-allowed"
+                : "text-[var(--brand-primary)] font-medium hover:underline"
+            }`}>
+            빠른 문자 발송{selectedChartNos.size > 0 && ` (${selectedChartNos.size})`}
+          </button>
+        </div>
+      </div>
+
+      {/* 표 본문 — 좌우 패딩 추가, 컬럼 축소로 가로 스크롤 제거. 좌우 px-4 */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
+        {/* 표 — table-fixed + 컬럼별 세로 구분선 (연한 라인).
+            마지막 셀에는 우측 보더 X (last:border-r-0). border-[var(--line-subtle)] 로 연하게. */}
+        <table className="w-full border-collapse table-fixed [&_th]:border-r [&_td]:border-r [&_th]:border-[var(--line-subtle)] [&_td]:border-[var(--line-subtle)] [&_th:last-child]:border-r-0 [&_td:last-child]:border-r-0">
+          {/* 컬럼 너비 — 체크박스(28)/번호(48) → 이름(60)/성별(36)/나이(36)/보험(56) → 시간(48)/초·재(40)/담당의(60) → 총액·공단·본인·비급여 → 카드·현금·미수.
+              이름·성별·보험·담당의를 줄여 결제 3분할 + 체크박스를 위한 공간을 확보. */}
+          <colgroup>
+            <col style={{ width: "28px" }} />
+            <col style={{ width: "48px" }} />
+            <col style={{ width: "60px" }} />
+            <col style={{ width: "36px" }} />
+            <col style={{ width: "36px" }} />
+            <col style={{ width: "56px" }} />
+            <col style={{ width: "48px" }} />
+            <col style={{ width: "40px" }} />
+            <col style={{ width: "60px" }} />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+            <col />
+          </colgroup>
+          <thead className="sticky top-0 z-10">
+            {/* 그룹 헤더 — 체크박스 / 환자정보(번호~보험) / 진료정보(시간~담당의) / 진료비 산정(총액~비급여) / 결제(카드~미수) */}
+            <tr className="bg-[var(--bg-subtle)] border-b border-[var(--line-default)]">
+              <th className="px-1 py-1.5" />
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-left whitespace-nowrap" colSpan={5}>환자정보</th>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-left whitespace-nowrap" colSpan={3}>진료정보</th>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-left whitespace-nowrap" colSpan={4}>진료비 산정</th>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-left whitespace-nowrap" colSpan={3}>결제</th>
+            </tr>
+            {/* 컬럼 헤더 — checkbox / 번호 / 이름 / 성별 / 나이 / 보험 / 시간 / 초·재 / 담당의 / 총액·공단·본인·비급여 / 카드·현금·미수 */}
+            <tr className="bg-white border-b border-[var(--line-default)]">
+              <th className="px-1 py-1.5 text-center w-7">
+                <input
+                  type="checkbox"
+                  checked={sorted.length > 0 && sorted.every(p => selectedChartNos.has(p.chartNo))}
+                  ref={el => {
+                    if (el) {
+                      const someSelected = sorted.some(p => selectedChartNos.has(p.chartNo));
+                      const allSelected = sorted.length > 0 && sorted.every(p => selectedChartNos.has(p.chartNo));
+                      el.indeterminate = someSelected && !allSelected;
+                    }
+                  }}
+                  onChange={() => {
+                    setSelectedChartNos(prev => {
+                      const allSelected = sorted.length > 0 && sorted.every(p => prev.has(p.chartNo));
+                      if (allSelected) {
+                        // 전체 선택 상태면 해제
+                        const next = new Set(prev);
+                        sorted.forEach(p => next.delete(p.chartNo));
+                        return next;
+                      } else {
+                        // 일부 또는 미선택 → 전체 선택
+                        const next = new Set(prev);
+                        sorted.forEach(p => next.add(p.chartNo));
+                        return next;
+                      }
+                    });
+                  }}
+                  className="cursor-pointer accent-[var(--brand-primary)]"
+                />
+              </th>
+              {/* 텍스트/식별자 컬럼은 모두 가운데 정렬 (사용자 요청). 차트번호는 식별자라 가운데, 숫자 amount 컬럼은 우측 유지 */}
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-center whitespace-nowrap">차트번호</th>
+              <SortableTh align="center" active={sortKey === "name"}      dir={sortDir} onClick={() => toggleSort("name")}>이름</SortableTh>
+              <SortableTh align="center" active={sortKey === "gender"}    dir={sortDir} onClick={() => toggleSort("gender")}>성별</SortableTh>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-center whitespace-nowrap">나이</th>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-center whitespace-nowrap">보험</th>
+              <SortableTh align="center" active={sortKey === "visitTime"} dir={sortDir} onClick={() => toggleSort("visitTime")}>시간</SortableTh>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-center whitespace-nowrap">초/재</th>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-center whitespace-nowrap">담당의</th>
+              <SortableTh align="right"  active={sortKey === "total"}     dir={sortDir} onClick={() => toggleSort("total")}>총액</SortableTh>
+              <SortableTh align="right"  active={sortKey === "nhis"}      dir={sortDir} onClick={() => toggleSort("nhis")}>공단</SortableTh>
+              <SortableTh align="right"  active={sortKey === "selfPay"}   dir={sortDir} onClick={() => toggleSort("selfPay")}>본인</SortableTh>
+              <SortableTh align="right"  active={sortKey === "noPay"}     dir={sortDir} onClick={() => toggleSort("noPay")}>비급여</SortableTh>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-right whitespace-nowrap">카드</th>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-right whitespace-nowrap">현금</th>
+              <th className="text-xs font-medium text-[var(--text-tertiary)] px-1 py-1.5 text-right whitespace-nowrap">미수</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan={16} className="text-sm text-[var(--text-tertiary)] text-center py-12">
+                  조건에 맞는 환자가 없습니다 — 필터를 조정해보세요
+                </td>
+              </tr>
+            )}
+            {sorted.map((p) => {
+              const checked = selectedChartNos.has(p.chartNo);
+              return (
+                <tr
+                  key={p.chartNo}
+                  className={`border-b border-[var(--line-subtle)] hover:bg-[var(--bg-subtle)] ${checked ? "bg-[var(--bg-primary-subtle)]" : ""}`}
+                >
+                  {/* 체크박스 — 행 선택 (빠른 문자 발송 등 일괄 액션) */}
+                  <td className="px-1 py-1.5 text-center">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleSelection(p.chartNo)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="cursor-pointer accent-[var(--brand-primary)]"
+                    />
+                  </td>
+                  {/* 텍스트/식별자 셀은 중앙정렬 (사용자 요청). amount 셀은 우측정렬 유지. */}
+                  <td className="text-sm text-[var(--text-main)] px-1 py-1.5 tabular-nums text-center">{p.chartNo}</td>
+                  <td className="text-sm text-[var(--text-main)] px-1 py-1.5 truncate text-center" title={`${p.name}${p.status === "수납대기" ? " (수납대기)" : ""}`}>
+                    {p.status === "수납대기" && (
+                      <span className="inline-block mr-1 px-1 rounded-sm text-micro font-bold text-[var(--orange-700)] bg-[var(--orange-050)] border border-[var(--orange-200)] align-middle leading-none py-0.5">대기</span>
+                    )}
+                    {p.name}
+                    {p.isNew && <span className="ml-0.5 text-micro text-[var(--brand-primary)] font-bold">N</span>}
+                  </td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-center">{p.gender}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-center tabular-nums">{p.age}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 truncate text-center" title={p.insType}>{p.insType}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-center tabular-nums">{p.visitTime}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-center">{p.isFirstVisit ? "초" : "재"}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 truncate text-center" title={p.doctor}>{p.doctor}</td>
+                  <td className="text-sm font-medium text-[var(--text-main)] px-1 py-1.5 text-right tabular-nums">{p.total.toLocaleString()}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-right tabular-nums">{p.nhis.toLocaleString()}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-right tabular-nums">{p.selfPay.toLocaleString()}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-right tabular-nums">{p.noPay > 0 ? p.noPay.toLocaleString() : "—"}</td>
+                  {/* 결제 — 카드 / 현금 / 미수 분리 (복합결제 표현). 0 은 — 표기, 미수는 빨강 강조. */}
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-right tabular-nums">{p.card > 0 ? p.card.toLocaleString() : "—"}</td>
+                  <td className="text-sm text-[var(--text-sub)] px-1 py-1.5 text-right tabular-nums">{p.cash > 0 ? p.cash.toLocaleString() : "—"}</td>
+                  <td className={`text-sm px-1 py-1.5 text-right tabular-nums ${p.unpaid > 0 ? "text-[var(--red-500)] font-bold" : "text-[var(--text-sub)]"}`}>
+                    {p.unpaid > 0 ? p.unpaid.toLocaleString() : "—"}
+                  </td>
+                </tr>
+              );
+            })}
+            {/* 합계 행 — filter 된 결과 기준 (체크박스 컬럼 포함 colSpan 9) */}
+            {filtered.length > 0 && (
+              <tr className="bg-[var(--bg-subtle)] border-t-2 border-[var(--line-default)] sticky bottom-0">
+                <td className="text-sm font-bold text-[var(--text-main)] px-1 py-2" colSpan={9}>합계 ({filtered.length}건)</td>
+                <td className="text-sm font-bold text-[var(--text-main)] px-1 py-2 text-right tabular-nums">{sumTotal.toLocaleString()}</td>
+                <td className="text-sm font-bold text-[var(--text-sub)] px-1 py-2 text-right tabular-nums">{sumNhis.toLocaleString()}</td>
+                <td className="text-sm font-bold text-[var(--text-sub)] px-1 py-2 text-right tabular-nums">{sumSelf.toLocaleString()}</td>
+                <td className="text-sm font-bold text-[var(--text-sub)] px-1 py-2 text-right tabular-nums">{sumNoPay.toLocaleString()}</td>
+                <td className="text-sm font-bold text-[var(--text-sub)] px-1 py-2 text-right tabular-nums">{sumCard > 0 ? sumCard.toLocaleString() : "—"}</td>
+                <td className="text-sm font-bold text-[var(--text-sub)] px-1 py-2 text-right tabular-nums">{sumCash > 0 ? sumCash.toLocaleString() : "—"}</td>
+                <td className={`text-sm font-bold px-1 py-2 text-right tabular-nums ${sumUnpaid > 0 ? "text-[var(--red-500)]" : "text-[var(--text-sub)]"}`}>
+                  {sumUnpaid > 0 ? sumUnpaid.toLocaleString() : "—"}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ╔══════════════════════════════════════════════════════════════════════════════
+// ║ 수납완료 환자 필터 바 — 표 상단의 컴팩트 필터
+// ╚══════════════════════════════════════════════════════════════════════════════
+function SettledFilterBar(props: {
+  search: string; setSearch: (v: string) => void;
+  selectedDate: string; setSelectedDate: (v: string) => void;
+  visitKind: VisitKindFilter; setVisitKind: (v: VisitKindFilter) => void;
+  insType: string; setInsType: (v: string) => void;
+  doctor: string; setDoctor: (v: string) => void;
+  room: string; setRoom: (v: string) => void;
+  gender: GenderFilter; setGender: (v: GenderFilter) => void;
+  visitorType: VisitorTypeFilter; setVisitorType: (v: VisitorTypeFilter) => void;
+  visitOrder: VisitOrderFilter; setVisitOrder: (v: VisitOrderFilter) => void;
+  payStatus: PayStatusFilter; setPayStatus: (v: PayStatusFilter) => void;
+  patientTags: Set<string>; setPatientTags: (v: Set<string>) => void;
+  nation: NationFilter; setNation: (v: NationFilter) => void;
+  ageMin: string; setAgeMin: (v: string) => void;
+  ageMax: string; setAgeMax: (v: string) => void;
+  amountMin: string; setAmountMin: (v: string) => void;
+  amountMax: string; setAmountMax: (v: string) => void;
+  allIns: string[]; allDoctors: string[]; allRooms: string[];
+  activeFilterCount: number;
+  onReset: () => void;
+}) {
+  const inputCls = "h-7 px-2 text-sm border border-[var(--line-default)] rounded outline-none focus:border-[var(--brand-primary)] bg-white";
+  const selectCls = `${inputCls} pr-6 appearance-none bg-[image:linear-gradient(45deg,transparent_50%,var(--text-tertiary)_50%),linear-gradient(135deg,var(--text-tertiary)_50%,transparent_50%)] bg-[position:calc(100%-10px)_50%,calc(100%-6px)_50%] bg-[size:4px_4px,4px_4px] bg-no-repeat`;
+  const labelCls = "text-xs text-[var(--text-tertiary)] font-medium flex-shrink-0";
+
+  // 환자유형 태그 토글
+  const toggleTag = (tag: string) => {
+    const next = new Set(props.patientTags);
+    if (next.has(tag)) next.delete(tag); else next.add(tag);
+    props.setPatientTags(next);
+  };
+
+  const today = new Date().toISOString().slice(0, 10);
+  const isToday = props.selectedDate === today;
+  // 조회날짜의 요일 — date 인풋이 요일을 안 보여주니 옆에 별도 표시. "(화)" 형태.
+  const selectedWeekday = (() => {
+    const d = new Date(props.selectedDate);
+    if (Number.isNaN(d.getTime())) return "";
+    return ["일", "월", "화", "수", "목", "금", "토"][d.getDay()];
+  })();
+
+  return (
+    <div className="bg-[var(--bg-base)] border-b border-[var(--line-default)] flex-shrink-0">
+      {/* Row 1 — 조회날짜 (좌) | 환자검색 (우, flex-1) | 초기화. 표 상단 요약 라인의 날짜와 동일하게 동기화됨. */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--line-subtle)]">
+        <span className={labelCls}>조회날짜</span>
+        <input
+          type="date"
+          value={props.selectedDate}
+          max={today}
+          onChange={e => props.setSelectedDate(e.target.value)}
+          className={`${inputCls} tabular-nums`}
+        />
+        {/* 요일 표시 — date 인풋이 요일을 자체 노출하지 않으므로 옆에 보조 텍스트로 명시 */}
+        {selectedWeekday && (
+          <span className="text-sm text-[var(--text-sub)] font-medium whitespace-nowrap">({selectedWeekday})</span>
+        )}
+        <button
+          onClick={() => props.setSelectedDate(today)}
+          disabled={isToday}
+          className={`h-7 px-2 text-sm rounded transition-colors ${
+            isToday
+              ? "text-[var(--text-disabled)] cursor-not-allowed"
+              : "text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)]"
+          }`}
+        >
+          오늘
+        </button>
+        <span className="w-px h-5 bg-[var(--line-default)]" />
+        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="text-[var(--text-tertiary)] flex-shrink-0">
+            <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.4"/>
+            <path d="M10 10L13.5 13.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+          <input
+            value={props.search}
+            onChange={e => props.setSearch(e.target.value)}
+            placeholder="환자 검색 (이름·휴대폰·차트번호)"
+            className="flex-1 min-w-0 h-7 text-sm outline-none bg-transparent placeholder:text-[var(--text-tertiary)]"
+          />
+        </div>
+        <span className="w-px h-5 bg-[var(--line-default)]" />
+        <button
+          onClick={props.onReset}
+          disabled={props.activeFilterCount === 0}
+          className={`h-7 px-2.5 text-sm rounded flex items-center gap-1 transition-colors flex-shrink-0 ${
+            props.activeFilterCount === 0
+              ? "text-[var(--text-disabled)] cursor-not-allowed"
+              : "text-[var(--text-sub)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-main)]"
+          }`}>
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8a5 5 0 1 1 1.5 3.5M3 4v4h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          </svg>
+          초기화
+        </button>
+      </div>
+
+      {/* Row 2 — 결제상태 / 진료유형 / 보험 / 담당의 / 진료실 */}
+      <div className="flex items-center gap-3 px-3 py-1.5 flex-wrap border-b border-[var(--line-subtle)]">
+        {/* 결제상태 — 수납대기/수납완료. 표 좌측에 두 그룹 모두 표시되므로 빠르게 필터링 가능. */}
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>결제상태</span>
+          {(["전체", "수납대기", "수납완료"] as const).map(v => (
+            <RadioPill key={v} active={props.payStatus === v} onClick={() => props.setPayStatus(v)}>{v}</RadioPill>
+          ))}
+        </div>
+        <span className="w-px h-4 bg-[var(--line-default)]" />
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>진료유형</span>
+          {(["전체", "외래", "입원"] as const).map(v => (
+            <RadioPill key={v} active={props.visitKind === v} onClick={() => props.setVisitKind(v)}>{v}</RadioPill>
+          ))}
+        </div>
+        <span className="w-px h-4 bg-[var(--line-default)]" />
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>보험</span>
+          <select value={props.insType} onChange={e => props.setInsType(e.target.value)} className={selectCls}>
+            {props.allIns.map(i => <option key={i} value={i}>{i}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>담당의</span>
+          <select value={props.doctor} onChange={e => props.setDoctor(e.target.value)} className={selectCls}>
+            {props.allDoctors.map(d => <option key={d} value={d}>{d}</option>)}
+          </select>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>진료실</span>
+          <select value={props.room} onChange={e => props.setRoom(e.target.value)} className={selectCls}>
+            {props.allRooms.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {/* Row 3 — 성별 / 신환여부 / 내외국인 / 나이 / 진료비 */}
+      <div className="flex items-center gap-3 px-3 py-1.5 flex-wrap border-b border-[var(--line-subtle)]">
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>성별</span>
+          {(["전체", "남", "여"] as const).map(v => (
+            <RadioPill key={v} active={props.gender === v} onClick={() => props.setGender(v)}>{v}</RadioPill>
+          ))}
+        </div>
+        <span className="w-px h-4 bg-[var(--line-default)]" />
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>신환여부</span>
+          {(["전체", "신환", "구환"] as const).map(v => (
+            <RadioPill key={v} active={props.visitorType === v} onClick={() => props.setVisitorType(v)}>{v}</RadioPill>
+          ))}
+        </div>
+        <span className="w-px h-4 bg-[var(--line-default)]" />
+        {/* 초/재진 — 신환여부와 다른 축. 신환=병원 첫 방문, 초진=해당 진료과 첫 진료 */}
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>초/재진</span>
+          {(["전체", "초진", "재진"] as const).map(v => (
+            <RadioPill key={v} active={props.visitOrder === v} onClick={() => props.setVisitOrder(v)}>{v}</RadioPill>
+          ))}
+        </div>
+        <span className="w-px h-4 bg-[var(--line-default)]" />
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>내/외국인</span>
+          {(["전체", "내국인", "외국인"] as const).map(v => (
+            <RadioPill key={v} active={props.nation === v} onClick={() => props.setNation(v)}>{v}</RadioPill>
+          ))}
+        </div>
+        <span className="w-px h-4 bg-[var(--line-default)]" />
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>만나이</span>
+          <input type="text" inputMode="numeric" value={props.ageMin} onChange={e => props.setAgeMin(e.target.value.replace(/[^0-9]/g, ""))}
+            placeholder="0" className={`${inputCls} w-12 tabular-nums text-center`} />
+          <span className="text-xs text-[var(--text-tertiary)]">~</span>
+          <input type="text" inputMode="numeric" value={props.ageMax} onChange={e => props.setAgeMax(e.target.value.replace(/[^0-9]/g, ""))}
+            placeholder="120" className={`${inputCls} w-12 tabular-nums text-center`} />
+          <span className="text-xs text-[var(--text-tertiary)]">세</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className={labelCls}>진료비</span>
+          <input type="text" inputMode="numeric" value={props.amountMin} onChange={e => props.setAmountMin(e.target.value.replace(/[^0-9]/g, ""))}
+            placeholder="0" className={`${inputCls} w-20 tabular-nums text-right`} />
+          <span className="text-xs text-[var(--text-tertiary)]">~</span>
+          <input type="text" inputMode="numeric" value={props.amountMax} onChange={e => props.setAmountMax(e.target.value.replace(/[^0-9]/g, ""))}
+            placeholder="999,999" className={`${inputCls} w-20 tabular-nums text-right`} />
+          <span className="text-xs text-[var(--text-tertiary)]">원</span>
+        </div>
+      </div>
+
+      {/* Row 4 — 환자유형 (병원 커스텀 태그, 다중 선택) */}
+      <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap">
+        <span className={labelCls}>환자유형</span>
+        {PATIENT_TAGS.map(tag => {
+          const active = props.patientTags.has(tag);
+          return (
+            <button key={tag}
+              onClick={() => toggleTag(tag)}
+              className={`h-6 px-2 text-sm rounded transition-colors ${
+                active
+                  ? "bg-[var(--brand-primary)] text-white font-medium"
+                  : "bg-white text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)]"
+              }`}>
+              {tag}
+            </button>
+          );
+        })}
+        {props.patientTags.size > 0 && (
+          <button
+            onClick={() => props.setPatientTags(new Set())}
+            className="text-xs text-[var(--text-tertiary)] hover:text-[var(--text-sub)] ml-1">
+            태그 해제
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// 라디오 형태 pill 버튼
+function RadioPill({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick}
+      className={`h-6 px-2 text-sm rounded transition-colors ${
+        active
+          ? "bg-[var(--brand-primary)] text-white font-medium"
+          : "bg-white text-[var(--text-sub)] border border-[var(--line-default)] hover:bg-[var(--bg-subtle)]"
+      }`}>
+      {children}
     </button>
   );
 }
+
+// 작은 회색 뱃지 — 카테고리/타입/태그용 (색깔 사용 X, 회색 톤만)
+function TagBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-[var(--bg-subtle)] text-[var(--text-sub)] border border-[var(--line-default)] whitespace-nowrap flex-shrink-0">
+      {children}
+    </span>
+  );
+}
+
+// 정렬 가능한 표 헤더 — 활성 시 화살표 + 브랜드 컬러
+function SortableTh({
+  children, align, active, dir, onClick,
+}: {
+  children: React.ReactNode;
+  align: "left" | "center" | "right";
+  active: boolean;
+  dir: "asc" | "desc";
+  onClick: () => void;
+}) {
+  const justify = align === "left" ? "justify-start" : align === "right" ? "justify-end" : "justify-center";
+  return (
+    <th className="px-2 py-1.5 whitespace-nowrap">
+      <button
+        onClick={onClick}
+        className={`w-full flex items-center gap-1 ${justify} text-xs font-medium transition-colors ${
+          active ? "text-[var(--brand-primary)] font-bold" : "text-[var(--text-tertiary)] hover:text-[var(--text-sub)]"
+        }`}
+      >
+        {children}
+        {active ? (
+          <svg width="9" height="9" viewBox="0 0 8 8" fill="none" className={`transition-transform ${dir === "desc" ? "rotate-180" : ""}`}>
+            <path d="M4 1.5L6.5 5L1.5 5L4 1.5Z" fill="currentColor" />
+          </svg>
+        ) : (
+          <svg width="9" height="9" viewBox="0 0 8 8" fill="none" className="opacity-30">
+            <path d="M2 3L4 1L6 3M2 5L4 7L6 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          </svg>
+        )}
+      </button>
+    </th>
+  );
+}
+
+// ╔══════════════════════════════════════════════════════════════════════════════
+// ║ 우측 패널 — 매출 요약 (담당의별 포함) + 위젯. 알림/색상 단순화.
+// ╚══════════════════════════════════════════════════════════════════════════════
+function CompactReportPanel({
+  visible,
+  renderWidget,
+}: {
+  visible: WidgetKey[];
+  renderWidget: (id: WidgetKey) => React.ReactNode;
+}) {
+  const summary = computeDoctorSummary(SETTLED_PATIENTS);
+  const overall = summary[0];
+  const perDoctor = summary.slice(1);
+
+  return (
+    <div className="px-3 py-3 flex flex-col gap-2.5">
+      {/* ── 매출 요약 — 총액 + 구성 + 담당의별 분류를 한 카드로 통합 ── */}
+      <div className="bg-white rounded-lg border border-[var(--line-default)] p-3.5">
+        <div className="flex items-baseline justify-between mb-2.5">
+          <span className="text-md font-bold text-[var(--text-main)]">오늘 매출</span>
+          <span className="text-lg font-bold text-[var(--text-main)] tabular-nums">{KRW(REVENUE.total)}</span>
+        </div>
+
+        {/* 매출 구성 */}
+        <div className="flex flex-col gap-1 text-sm border-b border-[var(--line-subtle)] pb-2 mb-2">
+          <SummaryLine label="공단부담" value={REVENUE.byKind.공단부담} />
+          <SummaryLine label="본인부담" value={REVENUE.byKind.본인부담} />
+          <SummaryLine label="비급여"   value={REVENUE.byKind.비급여} />
+        </div>
+
+        {/* 담당의별 — 매출 요약 안에 통합 */}
+        <div className="text-xs text-[var(--text-tertiary)] mb-1.5">담당의별</div>
+        <div className="flex flex-col gap-0.5 text-sm">
+          <DoctorRow s={overall} bold />
+          {perDoctor.map(s => <DoctorRow key={s.label} s={s} />)}
+        </div>
+      </div>
+
+      {/* ── 진료 현황 — 환자 수 / 초·재진 / 신환 / 원외처방 ── */}
+      <div className="bg-white rounded-lg border border-[var(--line-default)] p-3.5">
+        <div className="flex items-baseline justify-between mb-2">
+          <span className="text-md font-bold text-[var(--text-main)]">진료 현황</span>
+          <span className="text-xs text-[var(--text-tertiary)] tabular-nums">{overall.count}명</span>
+        </div>
+        <div className="flex flex-col gap-1 text-sm">
+          <SummaryLine label="초진 / 재진" suffix="명" value={0} valueDisplay={`${overall.초진} / ${overall.재진}`} />
+          <SummaryLine label="신환" suffix="명" value={overall.신환} />
+          <SummaryLine label="원외처방 발급" suffix="건" value={overall.rxOut} />
+          <SummaryLine label="평균 진료비" value={Math.round(overall.total / Math.max(1, overall.count))} />
+        </div>
+      </div>
+
+      {/* ── 위젯 영역 — 사용자가 표시 설정한 위젯만 노출 ── */}
+      {visible.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {visible.map((id) => (
+            <div key={id} className="[&>div]:rounded-lg [&>div]:shadow-none [&>div]:border [&>div]:border-[var(--line-default)]">
+              {renderWidget(id)}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 담당의 한 줄 요약 — 매출 요약 카드 안에 통합되어 사용
+function DoctorRow({ s, bold }: { s: DoctorSummary; bold?: boolean }) {
+  return (
+    <div className={`flex items-center justify-between text-sm ${bold ? "font-bold text-[var(--text-main)]" : "text-[var(--text-sub)]"}`}>
+      <span className="flex items-center gap-1.5 min-w-0">
+        <span className="truncate">{s.label}</span>
+        <span className={`text-xs tabular-nums ${bold ? "text-[var(--text-sub)] font-normal" : "text-[var(--text-tertiary)]"}`}>{s.count}건</span>
+      </span>
+      <span className="tabular-nums flex-shrink-0">{s.total.toLocaleString()}원</span>
+    </div>
+  );
+}
+
+// 단순 라벨/금액 줄 — valueDisplay 로 텍스트 override 가능
+function SummaryLine({ label, value, suffix = "원", valueDisplay }: { label: string; value: number; suffix?: string; valueDisplay?: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-[var(--text-sub)]">{label}</span>
+      <span className="tabular-nums text-[var(--text-main)]">
+        {valueDisplay ?? `${value.toLocaleString()}${suffix}`}
+      </span>
+    </div>
+  );
+}
+
+// 하단 플로팅 "오늘 내원 현황" 버튼(EndOfDayReportFab) 은 제거됨 — 진입점은 상단 TopBar 의 동일 버튼 하나로 단일화.

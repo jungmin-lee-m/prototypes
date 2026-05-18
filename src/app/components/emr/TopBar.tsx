@@ -38,15 +38,15 @@ export function TopBar({
       {/* Date Navigation */}
       <div className="flex items-center gap-1.5 flex-shrink-0">
         <button className="w-7 h-7 bg-[var(--bg-subtle)] rounded-[6px] flex items-center justify-center text-[var(--text-sub)] text-lg leading-none">‹</button>
-        <span className="text-[15px] font-bold text-[var(--text-main)] px-2 whitespace-nowrap">2026.03.17 (화)</span>
+        <span className="text-xl font-bold text-[var(--text-main)] px-2 whitespace-nowrap">2026.03.17 (화)</span>
         <button className="w-7 h-7 bg-[var(--bg-subtle)] rounded-[6px] flex items-center justify-center text-[var(--text-sub)] text-lg leading-none">›</button>
-        <button className="h-7 px-3 bg-[var(--brand-primary)] rounded-[6px] text-white text-[13px] font-medium whitespace-nowrap">오늘</button>
+        <button className="h-7 px-3 bg-[var(--brand-primary)] rounded-[6px] text-white text-lg font-medium whitespace-nowrap">오늘</button>
       </div>
 
       {/* Patient Search */}
       <div className="flex items-center gap-2 bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-lg px-3 h-9 w-[380px] flex-shrink-0">
         <div className="w-4 h-4 bg-[var(--text-tertiary)] rounded-lg flex-shrink-0" />
-        <span className="text-[13px] text-[var(--text-tertiary)]">환자 검색 (이름, 차트번호, 연락처)</span>
+        <span className="text-lg text-[var(--text-tertiary)]">환자 검색 (이름, 차트번호, 연락처)</span>
       </div>
 
       {/* Spacer */}
@@ -69,8 +69,8 @@ export function TopBar({
               <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
               <span className="relative inline-flex rounded-full h-3 w-3 bg-white" />
             </span>
-            <span className="text-[12px] font-bold text-white whitespace-nowrap">녹음 중</span>
-            <span className="text-[12px] font-mono font-bold text-white whitespace-nowrap tabular-nums">{formatTime(recordSec)}</span>
+            <span className="text-md font-bold text-white whitespace-nowrap">녹음 중</span>
+            <span className="text-md font-mono font-bold text-white whitespace-nowrap tabular-nums">{formatTime(recordSec)}</span>
           </>
         ) : (
           // 대기 — 솔리드 빨간 도트 + "녹음 시작"
@@ -78,7 +78,7 @@ export function TopBar({
             <span className="w-5 h-5 rounded-full border border-[var(--red-500)] flex items-center justify-center flex-shrink-0">
               <span className="w-3 h-3 rounded-full bg-[var(--red-500)]" />
             </span>
-            <span className="text-[12px] font-bold text-[var(--red-500)] whitespace-nowrap">녹음 시작</span>
+            <span className="text-md font-bold text-[var(--red-500)] whitespace-nowrap">녹음 시작</span>
           </>
         )}
       </button>
@@ -88,29 +88,29 @@ export function TopBar({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        <button className="h-9 px-3 bg-white border border-[var(--text-disabled)] rounded-[10px] text-[13px] font-medium text-[var(--text-main)] hover:bg-[var(--bg-subtle)] whitespace-nowrap">
+        <button className="h-9 px-3 bg-white border border-[var(--text-disabled)] rounded-[10px] text-lg font-medium text-[var(--text-main)] hover:bg-[var(--bg-subtle)] whitespace-nowrap">
           PACS
         </button>
         <button
           onClick={() => onOpenLabViewer?.()}
-          className="h-9 px-3 bg-white border border-[var(--text-disabled)] rounded-[10px] text-[13px] font-medium text-[var(--text-main)] hover:bg-[var(--bg-subtle)] whitespace-nowrap"
+          className="h-9 px-3 bg-white border border-[var(--text-disabled)] rounded-[10px] text-lg font-medium text-[var(--text-main)] hover:bg-[var(--bg-subtle)] whitespace-nowrap"
         >
           검사결과
         </button>
-        <button className="h-9 px-3 bg-white border border-[var(--text-disabled)] rounded-[10px] text-[13px] font-medium text-[var(--text-main)] hover:bg-[var(--bg-subtle)] whitespace-nowrap">
+        <button className="h-9 px-3 bg-white border border-[var(--text-disabled)] rounded-[10px] text-lg font-medium text-[var(--text-main)] hover:bg-[var(--bg-subtle)] whitespace-nowrap">
           차트리뷰
         </button>
-        <button className="h-9 px-3 bg-white border border-[var(--text-disabled)] rounded-[10px] text-[13px] font-medium text-[var(--text-main)] hover:bg-[var(--bg-subtle)] whitespace-nowrap">
+        <button className="h-9 px-3 bg-white border border-[var(--text-disabled)] rounded-[10px] text-lg font-medium text-[var(--text-main)] hover:bg-[var(--bg-subtle)] whitespace-nowrap">
           진단서
         </button>
 
-        {/* 오늘의 리포트 — 진료 마감 시 검토할 수 있는 자동 분석 리포트 */}
+        {/* 오늘 내원 현황 — 오늘 진료 + 수납완료 환자 현황 + 자동 분석 리포트 */}
         <button
           onClick={() => onOpenReport?.()}
-          className="flex items-center gap-1.5 h-9 px-3 bg-white border border-[var(--brand-primary)] rounded-[10px] text-[13px] font-medium text-[var(--brand-primary)] hover:bg-[var(--bg-primary-subtle)] whitespace-nowrap"
+          className="flex items-center gap-1.5 h-9 px-3 bg-white border border-[var(--brand-primary)] rounded-[10px] text-lg font-medium text-[var(--brand-primary)] hover:bg-[var(--bg-primary-subtle)] whitespace-nowrap"
         >
           <span>📊</span>
-          오늘의 리포트
+          오늘 내원 현황
         </button>
 
         {/* 레이아웃 드롭다운 — 클릭 시 옵션 메뉴 노출 */}
@@ -118,7 +118,7 @@ export function TopBar({
           <button
             onClick={() => setLayoutOpen(o => !o)}
             title="레이아웃 변경"
-            className={`flex items-center gap-1.5 h-9 px-3 bg-white border rounded-[10px] text-[13px] font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 h-9 px-3 bg-white border rounded-[10px] text-lg font-medium whitespace-nowrap transition-colors ${
               layoutOpen
                 ? "border-[var(--brand-primary)] text-[var(--brand-primary)]"
                 : "border-[var(--text-disabled)] text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
@@ -143,7 +143,7 @@ export function TopBar({
                   <button
                     key={n}
                     onClick={() => { onChangeLayout?.(n); setLayoutOpen(false); }}
-                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-[12px] text-left transition-colors ${
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 text-md text-left transition-colors ${
                       active
                         ? "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] font-bold"
                         : "text-[var(--text-main)] hover:bg-[var(--bg-subtle)]"
