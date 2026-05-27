@@ -3,32 +3,32 @@ import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
-
-function figmaAssetResolver() {
-  return {
-    name: 'figma-asset-resolver',
-    resolveId(id) {
-      if (id.startsWith('figma:asset/')) {
-        const filename = id.replace('figma:asset/', '')
-        return path.resolve(__dirname, 'src/assets', filename)
-      }
-    },
-  }
+// Each prototype is a self-contained top-level folder with its own index.html.
+// Register a prototype here to include it in the build and on the landing page.
+const prototypes = {
+  emr: 'emr/index.html',
+  'uisarang-ai': 'uisarang-ai/index.html',
 }
 
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/prototypes/' : '/',
   plugins: [
-    figmaAssetResolver(),
     // The React and Tailwind plugins are both required for Make, even if
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
   ],
-  resolve: {
-    alias: {
-      // Alias @ to the src directory
-      '@': path.resolve(__dirname, './src'),
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        ...Object.fromEntries(
+          Object.entries(prototypes).map(([name, html]) => [
+            name,
+            path.resolve(__dirname, html),
+          ]),
+        ),
+      },
     },
   },
 
