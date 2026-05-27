@@ -1,70 +1,16 @@
-<!DOCTYPE html>
-<html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prototypes</title>
-    <style>
-      :root {
-        --bg: #0f1115;
-        --panel: #181b22;
-        --border: #262b35;
-        --text: #e6e9ef;
-        --muted: #9aa3b2;
-        --accent: #6ea8fe;
-      }
-      * { box-sizing: border-box; }
-      html, body { margin: 0; height: 100%; }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
-          "Malgun Gothic", "Noto Sans KR", Roboto, sans-serif;
-        -webkit-font-smoothing: antialiased;
-      }
-      .wrap { max-width: 880px; margin: 0 auto; padding: 64px 24px 80px; }
-      header { margin-bottom: 40px; }
-      h1 { font-size: 28px; font-weight: 650; margin: 0 0 8px; letter-spacing: -0.01em; }
-      .sub { color: var(--muted); font-size: 15px; margin: 0; }
-      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-      .card {
-        display: block;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 20px;
-        text-decoration: none;
-        color: inherit;
-        transition: border-color 0.15s ease, transform 0.15s ease;
-      }
-      .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-      .card h2 { font-size: 17px; font-weight: 600; margin: 0 0 6px; }
-      .card p { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 0; }
-      .card .go { display: inline-block; margin-top: 14px; color: var(--accent); font-size: 13px; font-weight: 600; }
-      footer { margin-top: 48px; color: var(--muted); font-size: 12.5px; }
-    </style>
-  </head>
-  <body>
-    <main class="wrap">
-      <header>
-        <h1>Prototypes</h1>
-        <p class="sub">프로토타입 모음</p>
-      </header>
 
-      <section class="grid">
-        <a class="card" href="./uisarang-ai/">
-          <h2>의사랑 AI</h2>
-          <p>진료 보조 AI — 음성전사, SOAP 자동 작성, 상병·처방 코드 추천.</p>
-          <span class="go">열기 →</span>
-        </a>
-        <a class="card" href="./emr/">
-          <h2>EMR 진료실 화면</h2>
-          <p>진료실 EMR 레이아웃 — 차트, 리사이즈 패널, 검사 결과 뷰어.</p>
-          <span class="go">열기 →</span>
-        </a>
-      </section>
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>EMR 진료실 화면 레이아웃</title>
+      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+    </head>
 
-      <footer>새 프로토타입을 추가하려면 README의 안내를 참고하세요.</footer>
-    </main>
-  </body>
-</html>
+    <body>
+      <div id="root"></div>
+      <script type="module" src="/src/main.tsx"></script>
+    </body>
+  </html>
+  
