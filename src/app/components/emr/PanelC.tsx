@@ -358,6 +358,33 @@ export function PanelC({
   // 내원일 우클릭 컨텍스트 메뉴 — 현재 차트의 삼점메뉴와 동일 액션 노출
   const [visitContextMenu, setVisitContextMenu] = useState<{ x: number; y: number; visitId: string } | null>(null);
 
+  // ── 좌측 날짜칩 컬럼 폭 (드래그 리사이즈) ─────────────────────────
+  // 기본 60px. 사용자가 분할 핸들을 끌어 40~180px 범위에서 조정 가능.
+  // 좁히면 더 많은 우측 영역을 보고, 넓히면 칩 라벨이나 더 많은 메타데이터가 잘리지 않음.
+  const DATE_COL_MIN = 40;
+  const DATE_COL_MAX = 180;
+  const [dateColWidth, setDateColWidth] = useState(60);
+  const [resizingDateCol, setResizingDateCol] = useState(false);
+  // 드래그 시작 시점의 마우스 X 와 시작 width 를 기록 — mousemove 동안 delta 만 적용.
+  const resizeStartRef = useRef<{ x: number; w: number } | null>(null);
+
+  useEffect(() => {
+    if (!resizingDateCol) return;
+    const handleMove = (e: MouseEvent) => {
+      if (!resizeStartRef.current) return;
+      const dx = e.clientX - resizeStartRef.current.x;
+      const next = Math.min(DATE_COL_MAX, Math.max(DATE_COL_MIN, resizeStartRef.current.w + dx));
+      setDateColWidth(next);
+    };
+    const handleUp = () => setResizingDateCol(false);
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseup", handleUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseup", handleUp);
+    };
+  }, [resizingDateCol]);
+
   // 외부 클릭 / Esc / 스크롤 시 우클릭 메뉴 닫기
   useEffect(() => {
     if (!visitContextMenu) return;
@@ -528,20 +555,21 @@ export function PanelC({
         {/* ── Filter Bar — 한 줄 (즐겨찾기 + 주물방검 + 초재진/청구구분/보험 + 초기화) ── */}
         <div className="flex-shrink-0 border-b border-[var(--line-default)]">
           <div className="flex items-center gap-1.5 px-3 py-1.5 flex-wrap">
-            {/* 즐겨찾기 토글 */}
+            {/* 즐겨찾기 토글 — 별 아이콘만 (텍스트 라벨 생략, title 로 의미 보조) */}
             <button
               onClick={() => setFilterFavorite(p => !p)}
-              className={`flex items-center gap-1 text-xs rounded-[4px] px-1.5 py-0.5 border whitespace-nowrap transition-colors ${
+              title={filterFavorite ? "즐겨찾기 필터 끄기" : "즐겨찾기만 보기"}
+              className={`w-5 h-5 text-xs rounded-[4px] border whitespace-nowrap transition-colors flex items-center justify-center ${
                 filterFavorite
                   ? "bg-[var(--status-warning-bg-subtle)] text-[var(--orange-700)] border-[var(--orange-200)] font-bold"
                   : "bg-[var(--bg-subtle)] text-[var(--text-sub)] border-[var(--line-default)]"
               }`}
             >
-              {filterFavorite ? "★" : "☆"} 즐겨찾기
+              {filterFavorite ? "★" : "☆"}
             </button>
 
-            {/* 주 / 물 / 방 / 검 처방 타입 칩 */}
-            <div className="flex items-center gap-1">
+            {/* 주 / 물 / 방 / 검 처방 타입 칩 — 상하좌우 dimension 축소 (28x22 → 22x18) */}
+            <div className="flex items-center gap-0.5">
               {(["주", "물", "방", "검"] as PrescType[]).map(t => {
                 const cfg = prescTypeConfig[t];
                 const active = filterPrescTypes.has(t);
@@ -550,7 +578,7 @@ export function PanelC({
                     key={t}
                     onClick={() => togglePrescType(t)}
                     title={cfg.desc}
-                    className={`w-7 h-[22px] text-xs font-bold rounded-[4px] border transition-colors flex-shrink-0 ${active ? cfg.active : cfg.inactive}`}
+                    className={`w-[22px] h-[18px] text-micro font-bold rounded-[3px] border transition-colors flex-shrink-0 flex items-center justify-center leading-none ${active ? cfg.active : cfg.inactive}`}
                   >
                     {cfg.label}
                   </button>
@@ -597,10 +625,13 @@ export function PanelC({
           </div>
         </div>
 
-        {/* Body: left date chips + right records */}
-        <div className="flex flex-1 overflow-hidden min-h-0">
-          {/* Left: Date Chips — 컴팩트 (재 검 주 한줄) */}
-          <div className="w-[60px] border-r border-[var(--line-default)] overflow-y-auto flex-shrink-0">
+        {/* Body: left date chips + right records — 사이의 핸들로 좌측 폭 드래그 조정 가능. */}
+        <div className={`flex flex-1 overflow-hidden min-h-0 ${resizingDateCol ? "select-none cursor-col-resize" : ""}`}>
+          {/* Left: Date Chips — 컴팩트 (재 검 주 한줄). 폭은 state(dateColWidth) 로 관리. */}
+          <div
+            style={{ width: dateColWidth }}
+            className="overflow-y-auto flex-shrink-0"
+          >
             {filteredVisits.map(v => (
                 <div
                   key={v.id}
@@ -646,6 +677,24 @@ export function PanelC({
                 </div>
               ))}
           </div>
+
+          {/* ── 좌·우 폭 조절 핸들 ──
+              4px 두께의 세로 strip — 호버/드래그 시 brand-primary 30%/50% 로 시각 단서.
+              마우스다운 시점에 시작 마우스X·시작 width 를 기록 → mousemove 로 delta 적용.
+              cursor-col-resize 로 어포던스. */}
+          <div
+            onMouseDown={(e) => {
+              resizeStartRef.current = { x: e.clientX, w: dateColWidth };
+              setResizingDateCol(true);
+              e.preventDefault();
+            }}
+            title="좌측 날짜칩 컬럼 폭 조정"
+            className={`w-1 flex-shrink-0 border-r border-[var(--line-default)] cursor-col-resize transition-colors ${
+              resizingDateCol
+                ? "bg-[var(--brand-primary)]/50"
+                : "hover:bg-[var(--brand-primary)]/30"
+            }`}
+          />
 
           {/* Right: Visit Records */}
           <div

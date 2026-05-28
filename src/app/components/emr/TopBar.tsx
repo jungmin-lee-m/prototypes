@@ -11,6 +11,7 @@ export function TopBar({
   onOpenLabViewer, onOpenReport,
   isRecording = false, recordSec = 0, onToggleRecording,
   layout = 2, onChangeLayout,
+  onToggleAI, aiOpen = false,
 }: {
   onOpenLabViewer?: () => void;
   onOpenReport?: () => void;
@@ -19,6 +20,9 @@ export function TopBar({
   onToggleRecording?: () => void;
   layout?: 1 | 2;
   onChangeLayout?: (n: 1 | 2) => void;
+  // AI 어시스턴트 토글 — 우하단 플로팅 버튼 대신 TopBar 의 레이아웃 옆으로 이동.
+  onToggleAI?: () => void;
+  aiOpen?: boolean;
 }) {
   const [layoutOpen, setLayoutOpen] = useState(false);
 
@@ -45,7 +49,10 @@ export function TopBar({
 
       {/* Patient Search */}
       <div className="flex items-center gap-2 bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-lg px-3 h-9 w-[380px] flex-shrink-0">
-        <div className="w-4 h-4 bg-[var(--text-tertiary)] rounded-lg flex-shrink-0" />
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-[var(--text-tertiary)] flex-shrink-0">
+          <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
         <span className="text-lg text-[var(--text-tertiary)]">환자 검색 (이름, 차트번호, 연락처)</span>
       </div>
 
@@ -163,6 +170,24 @@ export function TopBar({
             </div>
           )}
         </div>
+
+        {/* AI 어시스턴트 — 기존 우하단 플로팅 버튼에서 이동.
+            토글 형태 — 열렸을 때 brand-primary fill, 닫혔을 때 outline.
+            data-ai-trigger: AIAssistant 의 외부 클릭 닫기 핸들러가 자기 자신을 닫지 않도록 식별자. */}
+        <button
+          data-ai-trigger
+          onClick={() => onToggleAI?.()}
+          title={aiOpen ? "AI 어시스턴트 닫기 (⌘K)" : "AI 어시스턴트 열기 (⌘K)"}
+          aria-pressed={aiOpen}
+          className={`flex items-center gap-1.5 h-9 px-3 rounded-[10px] text-lg font-medium whitespace-nowrap transition-colors ${
+            aiOpen
+              ? "bg-[var(--brand-primary)] border border-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-pressed)]"
+              : "bg-white border border-[var(--brand-primary)] text-[var(--brand-primary)] hover:bg-[var(--bg-primary-subtle)]"
+          }`}
+        >
+          <span className="text-[14px] leading-none font-bold">✦</span>
+          AI
+        </button>
       </div>
     </div>
   );

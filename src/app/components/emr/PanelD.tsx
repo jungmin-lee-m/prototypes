@@ -19,11 +19,9 @@ const MORE_DOTS_ICON_PATH = "M0 1.09375C0 1.38383 0.115234 1.66203 0.320352 1.86
 type Diagnosis = TodayDiagnosis;
 type Prescription = TodayPrescription;
 
-const medicalImages = [
-  { label: "흉부X-ray 1", url: "https://images.unsplash.com/photo-1616012480717-fd9867059ca0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGVzdCUyMHhyYXklMjBtZWRpY2FsJTIwc2NhbnxlbnwxfHx8fDE3NzY4NDc0ODR8MA&ixlib=rb-4.1.0&q=80&w=400" },
-  { label: "흉부X-ray 2", url: "https://images.unsplash.com/photo-1530497610245-94d3c16cda28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx4cmF5JTIwYm9uZSUyMHJhZGlvbG9neSUyMGhvc3BpdGFsfGVufDF8fHx8MTc3Njg0ODA1NHww&ixlib=rb-4.1.0&q=80&w=400" },
-  { label: "바이탈",     url: "https://images.unsplash.com/photo-1682706841281-f723c5bfcd83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZWFydCUyMHJhdGUlMjB2aXRhbHMlMjBtb25pdG9yJTIwZ3JhcGglMjB3YXZlZm9ybXxlbnwxfHx8fDE3NzY4NDgwNDJ8MA&ixlib=rb-4.1.0&q=80&w=400" },
-];
+// 이전엔 흉부 X-ray·바이탈 더미 이미지 배열이 있었지만,
+// 이미지 sub-panel 기본 상태를 "이미지 없음" 으로 바꾸면서 제거됨.
+// 업로드된 이미지는 PanelD 컴포넌트의 chartImages state 에서 관리.
 
 function Checkbox({ checked }: { checked: boolean }) {
   return (
@@ -281,7 +279,8 @@ export function SnippetRegisterModal({
 
 // ── 처방금지 약품 ─────────────────────────────────────────────────
 // 환자별로 등록되는 처방금지 약품. 차트 처방 시 자동 경고로 활용됨.
-type BannedDrug = {
+// EmrScreen 에 state 가 lift 되어 PanelB(환자정보 칩) 와 PanelD(차트 하단바·처방 우클릭) 가 동일 데이터 공유.
+export type BannedDrug = {
   id: string;
   registeredAt: string;     // YYYY-MM-DD
   drugName: string;
@@ -290,6 +289,29 @@ type BannedDrug = {
   banSameIngredient: boolean;  // 동일성분금지
   allowPrescribe: boolean;     // 처방허용 (예외 허용)
 };
+
+// 기본 시드 — 차트 첫 진입 시 미리 등록된 환자의 처방금지 약품.
+// PanelB 에서 보였던 페니실린·조영제 데이터를 BannedDrug 형태로 옮긴 것.
+export const DEFAULT_BANNED_DRUGS: BannedDrug[] = [
+  {
+    id: "bd-seed-1",
+    registeredAt: "1995-03-15",
+    drugName: "페니실린",
+    ingredientCode: "PEN-000001",
+    memo: "알러지 반응 (1995)",
+    banSameIngredient: true,
+    allowPrescribe: false,
+  },
+  {
+    id: "bd-seed-2",
+    registeredAt: "2018-06-22",
+    drugName: "조영제",
+    ingredientCode: "CON-000002",
+    memo: "쇼크 이력 (2018)",
+    banSameIngredient: false,
+    allowPrescribe: false,
+  },
+];
 
 // 오늘 날짜 (YYYY-MM-DD)
 const todayISO = () => {
@@ -423,6 +445,117 @@ function BannedDrugRegisterModal({
 
 // ── 처방금지 목록 팝오버 — 하단바 처방금지 버튼에서 열림 ──────────────
 // 등록된 약품 리스트 + 처방 검색으로 즉시 추가 + 행별 삭제
+// ── 자동 출력물 후보 — 저장전달 시 출력될 양식 목록 ──────────────────────
+// id 는 state 의 Set 키. desc 는 popover 에서 보조 안내.
+type PrintItem = { id: string; label: string; desc: string };
+const PRINT_ITEMS: PrintItem[] = [
+  { id: "prescription", label: "처방전",     desc: "약국 제출용 (DUR·청구 정보 포함)" },
+  { id: "order-sheet",  label: "오더지",     desc: "내부 진료 오더 (간호·검사·처치 전달용)" },
+  { id: "lab-label",    label: "검사라벨",   desc: "검체 라벨 — 환자·검사명 자동 인쇄" },
+];
+
+// ── 저장전달 — 자동 출력물 설정 팝오버 ────────────────────────────────
+// 저장전달 버튼 우측 ▾ 클릭 시 버튼 위로 떠오름. 체크된 항목은 다음 저장전달 시 자동 인쇄.
+function PrintSettingsPopover({
+  rect,
+  selected,
+  onToggle,
+  onClose,
+}: {
+  rect: DOMRect;
+  selected: Set<string>;
+  onToggle: (id: string) => void;
+  onClose: () => void;
+}) {
+  // 외부 클릭 / ESC 로 닫기
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const t = e.target as Element;
+      if (!t.closest("[data-print-popover]") && !t.closest("[data-print-trigger]")) onClose();
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const id = window.setTimeout(() => {
+      document.addEventListener("mousedown", handler);
+      document.addEventListener("keydown", onKey);
+    }, 50);
+    return () => {
+      window.clearTimeout(id);
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  const width = 280;
+  // popover 가 ▾ 버튼 위쪽으로 펼쳐지도록 — 트리거의 right 기준 정렬.
+  const left = Math.max(8, Math.min(rect.right - width, (window.innerWidth || 1200) - width - 8));
+  // 위쪽 펼침 — bottom 좌표 사용 + translate-Y(-100%)
+  const bottom = (window.innerHeight || 800) - rect.top + 6;
+
+  return createPortal(
+    <div
+      data-print-popover
+      style={{ left, bottom, width }}
+      className="fixed z-[9999] bg-white rounded-lg shadow-[0_4px_24px_rgba(0,0,0,0.18)] border border-[var(--line-default)] overflow-hidden"
+    >
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--line-default)] bg-[var(--bg-subtle)]">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-md font-bold text-[var(--text-main)]">자동 출력 설정</span>
+          <span className="text-xs text-[var(--text-tertiary)] tabular-nums">{selected.size}/{PRINT_ITEMS.length}</span>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-md leading-none"
+        >
+          ✕
+        </button>
+      </div>
+      <p className="text-xs text-[var(--text-tertiary)] px-3 pt-2 pb-1">
+        체크한 출력물은 <strong className="text-[var(--text-sub)]">저장전달</strong> 시 자동으로 인쇄됩니다.
+      </p>
+      <div className="py-1">
+        {PRINT_ITEMS.map(item => {
+          const checked = selected.has(item.id);
+          return (
+            <button
+              key={item.id}
+              onClick={() => onToggle(item.id)}
+              className="w-full flex items-start gap-2 px-3 py-1.5 hover:bg-[var(--bg-subtle)] text-left transition-colors"
+            >
+              {/* 체크박스 — 시각적으로만 (실제 input 은 button onClick 으로 처리) */}
+              <span
+                className={`mt-0.5 w-3.5 h-3.5 rounded-[3px] border flex items-center justify-center flex-shrink-0 transition-colors ${
+                  checked
+                    ? "bg-[var(--brand-primary)] border-[var(--brand-primary)]"
+                    : "bg-white border-[var(--line-default)]"
+                }`}
+              >
+                {checked && (
+                  <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                    <path d="M2.5 6L5 8.5L9.5 4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-medium ${checked ? "text-[var(--text-main)]" : "text-[var(--text-sub)]"}`}>{item.label}</p>
+                <p className="text-xs text-[var(--text-tertiary)] truncate">{item.desc}</p>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      <div className="px-3 py-2 border-t border-[var(--line-default)] flex items-center justify-end bg-[var(--bg-subtle)]">
+        <button
+          onClick={onClose}
+          className="h-7 px-3 text-xs font-medium text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-pressed)] rounded-md"
+        >
+          확인
+        </button>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function BannedDrugListPopover({
   rect,
   drugs,
@@ -597,6 +730,15 @@ function BannedDrugListPopover({
     document.body
   );
 }
+
+// ── 특정내역 한줄 입력의 상용구 quick-chips ─────────────────────────
+// 자주 쓰는 특정내역 표현을 chip 으로 빠르게 입력. 클릭 시 input 의 커서 위치에 삽입.
+// (전체 상용구 모달과 별개 — 가벼운 quick-access 용). 예시 슬롯 3개.
+const SPECIAL_DETAIL_SNIPPETS = [
+  { id: "s1", label: "상용 1", text: "상용구 1 본문" },
+  { id: "s2", label: "상용 2", text: "상용구 2 본문" },
+  { id: "s3", label: "상용 3", text: "상용구 3 본문" },
+];
 
 // ── 특정내역 (Specific Detail) — 처방 행에 첨부되는 청구 보조코드 + 평문 ──
 // JX999: 기타내역 (free text 필수), JT019/JS001 등: 사유 코드 (free text 옵션)
@@ -805,6 +947,177 @@ const addToTodayISO = (opt: { days?: number; months?: number }): string => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
+// ── 수행일 dropdown 컴포넌트 ──────────────────────────────────────────
+// 기본값 "다음에" (빈 문자열) + 1주/2주/1개월… 빠른 선택 + 직접선택(달력).
+// 예약처방 등록 모달의 각 행에서 사용.
+function ScheduledDateDropdown({
+  value,
+  onChange,
+}: {
+  value: string;             // "" = 다음에, "YYYY-MM-DD" = 지정 날짜
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  // 외부 클릭 닫기
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      const t = e.target as Element;
+      if (!t.closest("[data-sdd-popover]") && !t.closest("[data-sdd-trigger]")) setOpen(false);
+    };
+    const onScroll = () => setOpen(false);
+    const id = window.setTimeout(() => {
+      document.addEventListener("mousedown", handler);
+      // 스크롤 시 popover 위치가 어긋나므로 닫음 (모달 내부 스크롤 포함)
+      window.addEventListener("scroll", onScroll, true);
+    }, 30);
+    return () => {
+      window.clearTimeout(id);
+      document.removeEventListener("mousedown", handler);
+      window.removeEventListener("scroll", onScroll, true);
+    };
+  }, [open]);
+
+  // 현재 값이 어느 빠른 옵션과 매칭되는지 확인 → 라벨 결정
+  const matchedQuick = value ? QUICK_DATE_OPTIONS.find(opt => addToTodayISO(opt) === value) : null;
+  const label = !value
+    ? "다음에"
+    : matchedQuick
+      ? `${matchedQuick.label} (${value.slice(2).replace(/-/g, ".")})`
+      : value.slice(2).replace(/-/g, ".");
+
+  const toggleOpen = () => {
+    setOpen(o => {
+      if (o) return false;
+      // 열 때 현재 trigger 좌표 측정
+      const r = triggerRef.current?.getBoundingClientRect();
+      if (r) setRect(r);
+      return true;
+    });
+  };
+
+  const select = (next: string) => {
+    onChange(next);
+    setOpen(false);
+  };
+
+  const openCalendar = () => {
+    setOpen(false);
+    requestAnimationFrame(() => {
+      const inp = dateInputRef.current;
+      if (!inp) return;
+      // 최신 브라우저: showPicker() 로 네이티브 달력 즉시 노출
+      // (Safari 등 미지원 브라우저는 input click 으로 fallback)
+      if (typeof (inp as HTMLInputElement & { showPicker?: () => void }).showPicker === "function") {
+        (inp as HTMLInputElement & { showPicker: () => void }).showPicker();
+      } else {
+        inp.focus();
+        inp.click();
+      }
+    });
+  };
+
+  // popover 위치 계산 — 화면 우측·하단 경계 클램프
+  const popoverWidth = 200;
+  const popoverLeft = rect
+    ? Math.max(8, Math.min(rect.left, (window.innerWidth || 1200) - popoverWidth - 8))
+    : 0;
+  const popoverTop = rect ? rect.bottom + 4 : 0;
+
+  return (
+    <div className="relative w-full">
+      <button
+        ref={triggerRef}
+        data-sdd-trigger
+        type="button"
+        onClick={toggleOpen}
+        title={label}
+        className={`w-full h-7 px-2 inline-flex items-center justify-between gap-1 border rounded outline-none transition-colors ${
+          value
+            ? "border-[var(--brand-primary)] bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)]"
+            : "border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:border-[var(--brand-primary)]"
+        }`}
+      >
+        <span className="text-xs truncate font-medium tabular-nums">{label}</span>
+        <svg width="9" height="9" viewBox="0 0 12 12" fill="none" className={`flex-shrink-0 transition-transform ${open ? "rotate-180" : ""}`}>
+          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {/* popover 는 portal 로 document.body 에 렌더 — 표/모달 overflow 에 잘리지 않음.
+          위치는 trigger 의 getBoundingClientRect 기준 fixed 좌표 사용. */}
+      {open && rect && createPortal(
+        <div
+          data-sdd-popover
+          style={{
+            position: "fixed",
+            top: popoverTop,
+            left: popoverLeft,
+            width: popoverWidth,
+            zIndex: 10010,
+          }}
+          className="bg-white border border-[var(--line-default)] rounded-md shadow-[0_4px_16px_rgba(0,0,0,0.12)] py-1"
+        >
+          <button
+            type="button"
+            onClick={() => select("")}
+            className={`w-full text-left px-3 py-1 text-sm hover:bg-[var(--bg-subtle)] transition-colors ${
+              !value ? "text-[var(--brand-primary)] font-medium" : "text-[var(--text-main)]"
+            }`}
+          >
+            다음에
+          </button>
+          <div className="my-0.5 border-t border-[var(--line-subtle)]" />
+          {QUICK_DATE_OPTIONS.map(opt => {
+            const optDate = addToTodayISO(opt);
+            const active = matchedQuick?.label === opt.label;
+            return (
+              <button
+                key={opt.label}
+                type="button"
+                onClick={() => select(optDate)}
+                className={`w-full text-left px-3 py-1 text-sm hover:bg-[var(--bg-subtle)] transition-colors flex items-center justify-between gap-2 ${
+                  active ? "text-[var(--brand-primary)] font-medium" : "text-[var(--text-main)]"
+                }`}
+              >
+                <span>{opt.label} 후</span>
+                <span className="text-xs text-[var(--text-tertiary)] tabular-nums">{optDate.slice(2).replace(/-/g, ".")}</span>
+              </button>
+            );
+          })}
+          <div className="my-0.5 border-t border-[var(--line-subtle)]" />
+          <button
+            type="button"
+            onClick={openCalendar}
+            className="w-full text-left px-3 py-1 text-sm text-[var(--text-main)] hover:bg-[var(--bg-subtle)] transition-colors flex items-center gap-1.5"
+          >
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" className="text-[var(--text-sub)]">
+              <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+              <path d="M2 6h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+            직접선택…
+          </button>
+        </div>,
+        document.body,
+      )}
+      {/* 숨겨진 date input — 직접선택 시 showPicker() 로 네이티브 달력 트리거 */}
+      <input
+        ref={dateInputRef}
+        type="date"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        min={(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })()}
+        className="absolute opacity-0 pointer-events-none w-0 h-0 left-0 top-0"
+        tabIndex={-1}
+        aria-hidden="true"
+      />
+    </div>
+  );
+}
+
 // 예약처방 등록 모달 — 컨텍스트 메뉴 "예약처방 등록" 클릭 시 열림
 // 항목별로 수행일 / 메모를 다르게 지정 가능. 수행일 미지정 시 자동 "다음에"
 // 상단의 일괄 적용 버튼은 모든 항목에 동일한 날짜를 한번에 셋팅
@@ -859,7 +1172,7 @@ function ReservedRxRegisterModal({
     return match?.label ?? null;
   })();
 
-  // 등록 버튼 라벨 — 모든 항목이 "다음에" 면 "다음에 등록", 아니면 "예약 등록"
+  // 등록 버튼 라벨 — 모든 항목이 "다음에" 면 "등록", 아니면 "예약 등록"
   const allUnscheduled = items.every((_, i) => !dates[i]);
 
   return createPortal(
@@ -917,18 +1230,15 @@ function ReservedRxRegisterModal({
             <span className="ml-auto text-xs text-[var(--text-tertiary)]">항목별로 따로 지정 가능</span>
           </div>
 
-          {/* 예약할 처방 — 항목별 수행일 / 메모 입력 */}
+          {/* 예약할 처방 — 항목별 수행일 / 메모 입력. 안내 문구 제거, 처방 명칭이 가장 잘 보이도록 강조. */}
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-bold text-[var(--text-main)]">예약할 처방 <span className="text-xs text-[var(--text-tertiary)] font-normal">— 행마다 수행일 / 메모를 다르게 지정 가능</span></span>
+            <span className="text-sm font-bold text-[var(--text-main)]">예약할 처방</span>
             <div className="border border-[var(--line-default)] rounded-md overflow-hidden">
-              {/* 헤더 */}
+              {/* 헤더 — 처방 / 용량·일투·일수 / 단가 / 수행일 / 메모. 코드는 처방 셀로 통합. */}
               <div className="grid items-center px-2.5 py-1 bg-[var(--bg-subtle)] border-b border-[var(--line-default)] gap-2"
-                style={{ gridTemplateColumns: "56px 1.4fr 28px 28px 28px 60px 130px 1.4fr" }}>
-                <span className="text-micro font-medium text-[var(--text-tertiary)]">코드</span>
-                <span className="text-micro font-medium text-[var(--text-tertiary)]">명칭</span>
-                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center">용량</span>
-                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center">일투</span>
-                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center">일수</span>
+                style={{ gridTemplateColumns: "2fr 90px 70px 140px 1.4fr" }}>
+                <span className="text-micro font-medium text-[var(--text-tertiary)]">처방</span>
+                <span className="text-micro font-medium text-[var(--text-tertiary)] text-center">용량·일투·일수</span>
                 <span className="text-micro font-medium text-[var(--text-tertiary)] text-right">단가</span>
                 <span className="text-micro font-medium text-[var(--text-tertiary)]">수행일</span>
                 <span className="text-micro font-medium text-[var(--text-tertiary)]">메모</span>
@@ -938,40 +1248,20 @@ function ReservedRxRegisterModal({
                 {items.map((it, i) => {
                   const rowDate = dates[i] ?? "";
                   return (
-                    <div key={i} className="grid items-center px-2.5 py-1.5 border-b border-[var(--line-subtle)] last:border-b-0 gap-2"
-                      style={{ gridTemplateColumns: "56px 1.4fr 28px 28px 28px 60px 130px 1.4fr" }}>
-                      <span className="text-xs font-mono text-[var(--text-tertiary)] truncate">{it.code}</span>
-                      <span className="text-sm text-[var(--text-main)] truncate">{it.name}</span>
-                      <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{it.dose}</span>
-                      <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{it.freq}</span>
-                      <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">{it.days}</span>
-                      <span className="text-xs text-right tabular-nums text-[var(--text-main)]">{it.price.toLocaleString()}원</span>
-                      {/* 수행일 — 항목별 date input. 빈 값이면 회색으로 "다음에" 안내 */}
-                      <div className="flex items-center gap-0.5">
-                        <input
-                          type="date"
-                          value={rowDate}
-                          onChange={e => updateDate(i, e.target.value)}
-                          min={todayISO()}
-                          className={`flex-1 h-7 px-1.5 text-sm border rounded outline-none focus:border-[var(--brand-primary)] ${
-                            rowDate
-                              ? "border-[var(--line-default)] text-[var(--text-main)]"
-                              : "border-[var(--line-default)] text-[var(--text-tertiary)] bg-[var(--bg-base)]"
-                          }`}
-                          title={rowDate ? "" : "비워두면 '다음에' 로 등록됩니다"}
-                        />
-                        {rowDate && (
-                          <button
-                            onClick={() => updateDate(i, "")}
-                            title="날짜 지우기 → '다음에'"
-                            className="w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--red-500)] hover:bg-[var(--bg-subtle)] rounded"
-                          >
-                            <svg width="9" height="9" viewBox="0 0 16 16" fill="none">
-                              <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                            </svg>
-                          </button>
-                        )}
+                    <div key={i} className="grid items-center px-2.5 py-2 border-b border-[var(--line-subtle)] last:border-b-0 gap-2"
+                      style={{ gridTemplateColumns: "2fr 90px 70px 140px 1.4fr" }}>
+                      {/* 처방 — 명칭을 크게(text-md font-medium), 코드를 그 아래 작게 노출 */}
+                      <div className="flex flex-col min-w-0 gap-0.5">
+                        <span className="text-md font-medium text-[var(--text-main)] truncate leading-tight">{it.name}</span>
+                        <span className="text-micro font-mono text-[var(--text-tertiary)] truncate">{it.code}</span>
                       </div>
+                      {/* 용량·일투·일수 — 한 셀로 묶어 시각 단순화 (예: "1 × 3 × 7일") */}
+                      <span className="text-xs text-center tabular-nums text-[var(--text-sub)]">
+                        {it.dose} <span className="text-[var(--text-tertiary)]">×</span> {it.freq} <span className="text-[var(--text-tertiary)]">×</span> {it.days}일
+                      </span>
+                      <span className="text-xs text-right tabular-nums text-[var(--text-main)]">{it.price.toLocaleString()}원</span>
+                      {/* 수행일 — 다음에(default) + 1주·2주·1개월… + 직접선택 dropdown */}
+                      <ScheduledDateDropdown value={rowDate} onChange={v => updateDate(i, v)} />
                       <input
                         value={memos[i] ?? ""}
                         onChange={e => updateMemo(i, e.target.value)}
@@ -1001,7 +1291,7 @@ function ReservedRxRegisterModal({
             onClick={submit}
             className="h-8 px-4 text-md font-bold rounded-md text-white bg-[var(--brand-primary)] hover:opacity-90"
           >
-            {allUnscheduled ? "다음에 등록" : "예약 등록"}
+            {allUnscheduled ? "등록" : "예약 등록"}
           </button>
         </div>
       </div>
@@ -1309,6 +1599,11 @@ export function PanelD({
   isRecording = false,
   soap = { S: "", O: "", A: "", P: "" },
   onPasteSoap,
+  // 처방금지 약품 — EmrScreen 에서 lift up. PanelB 의 환자정보 칩과 동일 데이터 공유.
+  bannedDrugs,
+  onAddBannedDrug,
+  onUpdateBannedDrug,
+  onDeleteBannedDrug,
 }: {
   diagnoses: Diagnosis[];
   prescriptions: Prescription[];
@@ -1318,6 +1613,10 @@ export function PanelD({
   isRecording?: boolean;
   soap?: { S: string; O: string; A: string; P: string };
   onPasteSoap?: () => void;
+  bannedDrugs: BannedDrug[];
+  onAddBannedDrug: (data: Omit<BannedDrug, "id">) => void;
+  onUpdateBannedDrug: (id: string, patch: Partial<BannedDrug>) => void;
+  onDeleteBannedDrug: (id: string) => void;
 }) {
   // ── Local state (PanelD owns a working copy of chart data) ──────────────────
   const [localRx, setLocalRx] = useState<Prescription[]>(initPrescriptions);
@@ -1393,6 +1692,64 @@ export function PanelD({
   type D2Sub = typeof D2_SUB_PANELS[number];
   const [d2Active, setD2Active] = useState<Set<D2Sub>>(new Set(D2_SUB_PANELS));
   const [d2SettingsRect, setD2SettingsRect] = useState<DOMRect | null>(null);
+
+  // ── 특정내역 한줄 입력 — 상용구 chip 으로 빠른 삽입 가능 ──
+  // controlled input 으로 변경하여 chip 클릭 시 커서 위치에 텍스트 삽입.
+  // 빈 상태에서 chip 클릭 시 그대로 입력, 기존 텍스트가 있으면 공백 후 append.
+  const [specialDetailInput, setSpecialDetailInput] = useState("");
+  const specialDetailInputRef = useRef<HTMLInputElement>(null);
+  const insertSpecialDetailSnippet = (text: string) => {
+    const ta = specialDetailInputRef.current;
+    if (!ta) {
+      setSpecialDetailInput(prev => prev ? `${prev} ${text}` : text);
+      return;
+    }
+    const start = ta.selectionStart ?? specialDetailInput.length;
+    const end = ta.selectionEnd ?? specialDetailInput.length;
+    const before = specialDetailInput.substring(0, start);
+    const after = specialDetailInput.substring(end);
+    // 앞 글자가 공백/빈 문자열이 아니면 공백 자동 삽입
+    const sep = before.length > 0 && !before.endsWith(" ") ? " " : "";
+    const next = `${before}${sep}${text}${after}`;
+    setSpecialDetailInput(next);
+    requestAnimationFrame(() => {
+      const pos = before.length + sep.length + text.length;
+      ta.focus();
+      ta.setSelectionRange(pos, pos);
+    });
+  };
+
+  // ── 저장전달 — 자동 출력물 설정 ──
+  // 저장전달 버튼 우측 ▾ 클릭 → 출력물 체크박스 popover 가 버튼 위에 떠오름.
+  // 체크된 출력물은 저장전달 클릭 시 자동으로 출력됨. 기본값: 처방전 (가장 보편적).
+  // prototype: 실제 인쇄 wire-up 없음 — 상태만 관리.
+  const [selectedPrints, setSelectedPrints] = useState<Set<string>>(
+    new Set(["prescription"])
+  );
+  const [printSettingsRect, setPrintSettingsRect] = useState<DOMRect | null>(null);
+  const printChevronRef = useRef<HTMLButtonElement>(null);
+  const togglePrintItem = (id: string) => {
+    setSelectedPrints(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // ── 이미지 sub-panel — 업로드된 이미지 state. 기본은 빈 상태 (예시 X-ray 제거됨). ──
+  // prototype: 파일 선택 시 createObjectURL 로 미리보기. 실제 업로드 로직은 추후 wire-up.
+  const [chartImages, setChartImages] = useState<{ name: string; url: string }[]>([]);
+  const chartImageInputRef = useRef<HTMLInputElement>(null);
+  const handleImageUploadClick = () => chartImageInputRef.current?.click();
+  const handleImageFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const next = Array.from(files).map(f => ({ name: f.name, url: URL.createObjectURL(f) }));
+    setChartImages(prev => [...prev, ...next]);
+    // 같은 파일을 다시 선택할 수 있도록 input value reset
+    e.target.value = "";
+  };
   const d2SettingsBtnRef = useRef<HTMLButtonElement>(null);
 
   // ── D1 접수정보 — 드롭다운으로 선택 가능 ──────────────────────────
@@ -1414,23 +1771,16 @@ export function PanelD({
   // 임상메모 관련 state는 ClinicalNoteCard (PanelB) 로 이동됨
 
   // ── 처방금지 약품 ───────────────────────────────────────────────
-  // 환자별 등록 — 차트 처방 시 자동 경고 트리거
-  const [bannedDrugs, setBannedDrugs] = useState<BannedDrug[]>([]);
+  // bannedDrugs 는 EmrScreen 에서 lift 되어 props 로 주입됨. PanelB 의 환자정보 칩과 동일 데이터 공유.
   // 단일 처방 행에서 컨텍스트 메뉴로 등록 시 — 모달에 prefill 할 약품 정보
   const [bannedRegisterDrug, setBannedRegisterDrug] = useState<{ name: string; code: string; ingredientCode: string } | null>(null);
   // 하단바 처방금지 버튼 popover 위치
   const [bannedListRect, setBannedListRect] = useState<DOMRect | null>(null);
 
-  // 처방금지 약품 추가 (모달 또는 popover 검색에서 호출)
-  const addBannedDrug = (data: Omit<BannedDrug, "id">) => {
-    setBannedDrugs(prev => [...prev, { ...data, id: `ban-${Date.now()}` }]);
-  };
-  const updateBannedDrug = (id: string, patch: Partial<BannedDrug>) => {
-    setBannedDrugs(prev => prev.map(b => b.id === id ? { ...b, ...patch } : b));
-  };
-  const deleteBannedDrug = (id: string) => {
-    setBannedDrugs(prev => prev.filter(b => b.id !== id));
-  };
+  // local alias — 기존 코드 호환성 위해 동일 이름 유지
+  const addBannedDrug = onAddBannedDrug;
+  const updateBannedDrug = onUpdateBannedDrug;
+  const deleteBannedDrug = onDeleteBannedDrug;
 
   // ── 예약처방 ───────────────────────────────────────────────────
   // 샘플: 과거 등록 (수행일 미정 + 미래 일자 혼합) — 실제 시스템은 환자별 누적 데이터
@@ -1807,23 +2157,26 @@ export function PanelD({
   return (
     <div className="flex flex-col flex-1 min-w-0 h-full bg-[var(--bg-subtle)] gap-1 p-1 overflow-hidden">
 
-      {/* D1: 접수정보 바 (높이 고정 — PanelGroup 밖) */}
-      <div className="bg-[var(--bg-primary-subtle)] rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-2.5 py-1.5 flex items-center gap-3 flex-shrink-0 overflow-hidden">
-        {/* 날짜 */}
-        <span className="text-lg font-bold text-[var(--text-main)] whitespace-nowrap flex-shrink-0">2026.03.17 (화)</span>
+      {/* D1: 접수정보 바 (높이 고정 — PanelGroup 밖). gap 축소로 접수메모에 더 많은 공간 확보. */}
+      <div className="bg-[var(--bg-primary-subtle)] rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-2.5 py-1.5 flex items-center gap-2 flex-shrink-0 overflow-hidden">
+        {/* 날짜 — text-lg → text-md 로 폰트 축소 (옆 접수메모 영역 확장) */}
+        <span className="text-md font-bold text-[var(--text-main)] whitespace-nowrap flex-shrink-0">2026.03.17 (화)</span>
 
-        {/* 접수정보 — 보험구분·진료유형·초재진·청구·시간·진료과·담당의 (드롭다운) */}
+        {/* 접수정보 — 보험구분·초재진·청구·시간·담당의 (진료유형·진료과 숨김 처리).
+            상태에는 그대로 유지되지만 바에 노출하지 않아 접수메모에 더 많은 폭을 양보. */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          {INTAKE_FIELDS.map(field => (
-            <MiniDropdown
-              key={field.key}
-              value={intake[field.key]}
-              label={field.label}
-              options={field.options}
-              color={field.color}
-              onChange={setIntakeField(field.key)}
-            />
-          ))}
+          {INTAKE_FIELDS
+            .filter(field => field.key !== "visitType" && field.key !== "department")
+            .map(field => (
+              <MiniDropdown
+                key={field.key}
+                value={intake[field.key]}
+                label={field.label}
+                options={field.options}
+                color={field.color}
+                onChange={setIntakeField(field.key)}
+              />
+            ))}
         </div>
 
         {/* 접수메모 필드 (레이블 + 내용) */}
@@ -1959,24 +2312,59 @@ export function PanelD({
           )}
           {d2Active.has("이미지") && (
             // 이미지 영역 — 우측에 좁게 배치 (160px 고정폭). 증상 영역이 주 영역.
+            // 우상단 ⚙ 설정 버튼과 겹치지 않도록 추가 버튼은 헤더 텍스트 바로 옆에 위치.
             <div className="w-[160px] flex-shrink-0 p-2 overflow-y-auto flex flex-col">
-              <div className="flex items-center justify-between mb-1.5 flex-shrink-0">
-                <div className="flex items-center gap-1 min-w-0">
-                  <span className="text-sm font-bold text-[var(--text-main)] truncate">이미지</span>
-                  <span className="text-micro bg-[var(--brand-primary)] text-white rounded-full w-4 h-4 flex items-center justify-center font-bold flex-shrink-0">3</span>
-                </div>
-                <button title="이미지 업로드" className="w-5 h-5 flex items-center justify-center text-[var(--text-sub)] border border-[var(--line-default)] rounded-[3px] hover:bg-[var(--bg-subtle)] flex-shrink-0">
+              {/* hidden 파일 input — + 버튼이 click() 으로 트리거. multiple + image/* 만 허용. */}
+              <input
+                ref={chartImageInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageFilesSelected}
+                className="hidden"
+              />
+              <div className="flex items-center gap-1 mb-1.5 flex-shrink-0 min-w-0 pr-6">
+                <span className="text-sm font-bold text-[var(--text-main)]">이미지</span>
+                {/* + 추가 버튼 — 헤더 텍스트 바로 옆. 클릭 시 파일 탐색기 오픈. */}
+                <button
+                  onClick={handleImageUploadClick}
+                  title="이미지 추가 — 파일 탐색기에서 선택"
+                  className="w-5 h-5 flex items-center justify-center text-[var(--text-sub)] border border-[var(--line-default)] rounded-[3px] hover:bg-[var(--bg-subtle)] hover:text-[var(--brand-primary)] hover:border-[var(--brand-primary)] transition-colors flex-shrink-0"
+                >
                   <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
                     <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
                   </svg>
                 </button>
+                {/* 카운트 뱃지 — 업로드된 이미지가 있을 때만 노출 */}
+                {chartImages.length > 0 && (
+                  <span className="text-micro bg-[var(--brand-primary)] text-white rounded-full w-4 h-4 flex items-center justify-center font-bold flex-shrink-0">
+                    {chartImages.length}
+                  </span>
+                )}
               </div>
-              <div className="rounded-[4px] overflow-hidden relative flex-1 min-h-0">
-                <img src={medicalImages[0].url} alt={medicalImages[0].label} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/30 flex items-end p-1">
-                  <span className="text-micro text-white font-medium drop-shadow truncate">{medicalImages[0].label}</span>
+              {/* 본문 — 이미지 없으면 빈 상태 placeholder, 있으면 첫 이미지 미리보기 */}
+              {chartImages.length === 0 ? (
+                <button
+                  onClick={handleImageUploadClick}
+                  title="이미지 추가 — 클릭하여 파일 탐색기 열기"
+                  className="flex-1 min-h-0 flex flex-col items-center justify-center gap-1.5 rounded-[4px] border border-dashed border-[var(--line-default)] text-[var(--text-tertiary)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] hover:bg-[var(--bg-primary-subtle)] transition-colors"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span className="text-micro">이미지 없음</span>
+                  <span className="text-micro">+ 추가</span>
+                </button>
+              ) : (
+                <div className="rounded-[4px] overflow-hidden relative flex-1 min-h-0">
+                  <img src={chartImages[0].url} alt={chartImages[0].name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/30 flex items-end p-1">
+                    <span className="text-micro text-white font-medium drop-shadow truncate">{chartImages[0].name}</span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
           {/* 임상메모 sub-panel은 PanelB의 ClinicalNoteCard 로 이동됨 */}
@@ -2210,11 +2598,14 @@ export function PanelD({
                       <span className="text-sm text-[var(--text-main)] truncate">{p.name}</span>
                     </div>
                     {/* 용량 / 일투 / 일수 — 인라인 편집. 다중선택 시 일괄변경됨.
-                        stopPropagation 으로 행 클릭(선택 변경) 차단해서 multi-edit 유지. */}
+                        stopPropagation 으로 행 클릭(선택 변경) 차단해서 multi-edit 유지.
+                        onFocus={e.target.select()} — 클릭/포커스 시 기존 값 전체 선택. 다음 타이핑이 덮어쓰기.
+                        EMR 처방 입력 패턴: "1" 상태에서 "2" 누르면 "12"가 아닌 "2"로 즉시 교체. */}
                     <input
                       type="text"
                       inputMode="decimal"
                       value={p.dose}
+                      onFocus={e => e.target.select()}
                       onClick={e => e.stopPropagation()}
                       onMouseDown={e => e.stopPropagation()}
                       onContextMenu={e => e.stopPropagation()}
@@ -2226,6 +2617,7 @@ export function PanelD({
                       type="text"
                       inputMode="numeric"
                       value={p.freq}
+                      onFocus={e => e.target.select()}
                       onClick={e => e.stopPropagation()}
                       onMouseDown={e => e.stopPropagation()}
                       onContextMenu={e => e.stopPropagation()}
@@ -2237,6 +2629,7 @@ export function PanelD({
                       type="text"
                       inputMode="numeric"
                       value={p.days}
+                      onFocus={e => e.target.select()}
                       onClick={e => e.stopPropagation()}
                       onMouseDown={e => e.stopPropagation()}
                       onContextMenu={e => e.stopPropagation()}
@@ -2418,59 +2811,60 @@ export function PanelD({
                 </div>
               );
             })}
-              {/* ── 처방 표 sticky bottom 묶음 ──
-                   오늘 등록 예약처방 + 처방검색바 를 하나의 sticky 컨테이너로 묶어서
-                   둘 사이에 갭 없이 검색바 위에 바로 붙도록 함. ── */}
+              {/* ── 예약처방 (스크롤 영역 내 일반 행) ──
+                   sticky 가 아니라 처방 목록 끝에 일반 행으로 노출 → 여러 건 등록 시 자연스럽게 스크롤됨.
+                   처방 검색 바만 sticky bottom 유지. ── */}
+              {todaysReservations.length > 0 && (
+                <>
+                  {/* 상단 구분선 — 진한 violet 으로 섹션 시작 강조 */}
+                  <div className="h-[2px] bg-[var(--violet-500)]" />
+                  {todaysReservations.map(r => (
+                    <div
+                      key={r.id}
+                      title="오늘 등록한 예약처방 — 처방 목록 하단에 배치 (스크롤 함께)"
+                      className="grid items-center px-2 py-1.5 border-b border-[var(--line-default)] relative bg-[var(--gray-075)] hover:bg-[var(--gray-100)]"
+                      style={{ gridTemplateColumns: PRESC_COLS, minWidth: PRESC_MIN_WIDTH }}
+                    >
+                      <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--violet-500)]" />
+                      {/* 사용자코드 — 시계 아이콘 + 코드 */}
+                      <span className="flex items-center justify-center gap-1 text-xs text-[var(--violet-700)] truncate">
+                        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
+                          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
+                          <path d="M8 5v3l2 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                        </svg>
+                        <span className="truncate">{r.code}</span>
+                      </span>
+                      {/* 명칭 */}
+                      <span className="text-sm text-[var(--text-main)] truncate">{r.name}</span>
+                      {/* 용량 / 일투 / 일수 */}
+                      <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.dose}</span>
+                      <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.freq}</span>
+                      <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.days}</span>
+                      {/* 용법 */}
+                      <span className="text-xs text-[var(--text-main)] text-center truncate">{r.method ?? ""}</span>
+                      {/* 특정내역 — "다음에" / 수행일 */}
+                      <span className={`text-micro text-center truncate font-medium ${r.scheduledDate ? "text-[var(--violet-700)]" : "text-[var(--text-tertiary)]"}`}>
+                        {r.scheduledDate ? r.scheduledDate.slice(5).replace("-", ".") : "다음에"}
+                      </span>
+                      {/* 청구 / 수납방법 / 검체 — 예약은 비활성 */}
+                      <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                      <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                      <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                      {/* 단가 (보험가) */}
+                      <span className="text-sm text-[var(--text-main)] text-right tabular-nums">{r.insurancePrice.toLocaleString()}원</span>
+                      {/* 단위 / 청구코드 / 예외 / 가루 / 원내 — 예약은 비워둠 */}
+                      <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                      <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                      <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                      <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                      <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {/* ── 처방 검색만 sticky bottom — 항상 가장 아래 노출 ── */}
               <div className="sticky bottom-0 z-10 bg-white">
-                {todaysReservations.length > 0 && (
-                  <>
-                    {/* 상단 구분선 — 진한 violet 으로 섹션 시작 강조 */}
-                    <div className="h-[2px] bg-[var(--violet-500)]" />
-                    {todaysReservations.map(r => (
-                      <div
-                        key={r.id}
-                        title="오늘 등록한 예약처방 — 처방 검색 바로 위에 고정 노출"
-                        className="grid items-center px-2 py-1.5 border-b border-[var(--line-default)] relative bg-[var(--gray-075)] hover:bg-[var(--gray-100)]"
-                        style={{ gridTemplateColumns: PRESC_COLS, minWidth: PRESC_MIN_WIDTH }}
-                      >
-                        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[var(--violet-500)]" />
-                        {/* 사용자코드 — 시계 아이콘 + 코드 */}
-                        <span className="flex items-center justify-center gap-1 text-xs text-[var(--violet-700)] truncate">
-                          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
-                            <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.4" />
-                            <path d="M8 5v3l2 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-                          </svg>
-                          <span className="truncate">{r.code}</span>
-                        </span>
-                        {/* 명칭 */}
-                        <span className="text-sm text-[var(--text-main)] truncate">{r.name}</span>
-                        {/* 용량 / 일투 / 일수 */}
-                        <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.dose}</span>
-                        <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.freq}</span>
-                        <span className="text-sm text-[var(--text-main)] text-center tabular-nums">{r.days}</span>
-                        {/* 용법 */}
-                        <span className="text-xs text-[var(--text-main)] text-center truncate">{r.method ?? ""}</span>
-                        {/* 특정내역 — "다음에" / 수행일 */}
-                        <span className={`text-micro text-center truncate font-medium ${r.scheduledDate ? "text-[var(--violet-700)]" : "text-[var(--text-tertiary)]"}`}>
-                          {r.scheduledDate ? r.scheduledDate.slice(5).replace("-", ".") : "다음에"}
-                        </span>
-                        {/* 청구 / 수납방법 / 검체 — 예약은 비활성 */}
-                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
-                        {/* 단가 (보험가) */}
-                        <span className="text-sm text-[var(--text-main)] text-right tabular-nums">{r.insurancePrice.toLocaleString()}원</span>
-                        {/* 단위 / 청구코드 / 예외 / 가루 / 원내 — 예약은 비워둠 */}
-                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
-                        <span className="text-micro text-center text-[var(--text-tertiary)]">—</span>
-                      </div>
-                    ))}
-                  </>
-                )}
-                {/* 처방 검색 — 항상 가장 아래 */}
                 <PrescSearchRow />
               </div>
             </div>
@@ -2483,32 +2877,41 @@ export function PanelD({
 
       </PanelGroup>
 
-      {/* D3.5: 특정내역 — 가로로 길고 높이는 1줄로 컴팩트 */}
+      {/* D3.5: 특정내역 — 가로로 길고 높이는 1줄로 컴팩트.
+          순서: [라벨] [입력 input] [chip×3] [+]. MX999 제거. */}
       <div className="bg-white rounded-md shadow-[0_1px_3px_rgba(0,0,0,0.06)] px-2.5 py-1.5 flex items-center gap-2 flex-shrink-0">
         {/* 라벨 */}
         <span className="text-md font-bold text-[var(--text-main)] flex-shrink-0">특정내역</span>
-        <span className="text-xs text-[var(--text-tertiary)] flex-shrink-0">(MX999)</span>
-        {/* 설정 + 더보기 */}
-        <button title="특정내역 설정"
-          className="w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)] flex-shrink-0">
-          <svg width="12" height="12" viewBox="0 0 20 20" fill="none">
-            <path fill="currentColor" d="M11.5 1.5h-3l-.5 2.1a6.5 6.5 0 0 0-1.6.7L4.6 3.1 2.5 5.2 3.7 7a6.5 6.5 0 0 0-.7 1.6L1 9.1v3l2 .5c.2.6.4 1.1.7 1.6L2.5 16l2 2 1.8-1.2c.5.3 1 .5 1.6.7l.5 2h3l.5-2c.6-.2 1.1-.4 1.6-.7l1.8 1.2 2-2-1.2-1.8c.3-.5.5-1 .7-1.6l2-.5v-3l-2-.5a6.5 6.5 0 0 0-.7-1.6l1.2-1.8-2-2-1.8 1.2a6.5 6.5 0 0 0-1.6-.7l-.5-2zM10 13a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-          </svg>
-        </button>
-        <button title="더보기"
-          className="w-5 h-5 flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)] flex-shrink-0">
-          <span className="text-lg leading-none">···</span>
-        </button>
-        {/* 입력 영역 */}
+        {/* 입력 영역 — 가장 넓은 공간 차지 */}
         <input
+          ref={specialDetailInputRef}
           type="text"
+          value={specialDetailInput}
+          onChange={e => setSpecialDetailInput(e.target.value)}
           placeholder="영문(700자), 한글(350자) 이내 입력"
           className="flex-1 min-w-0 h-7 px-3 text-md bg-[var(--bg-subtle)] border border-[var(--line-default)] rounded-[6px] outline-none focus:border-[var(--brand-primary)] focus:bg-white placeholder:text-[var(--text-placeholder)]"
         />
-        {/* 추가 버튼 */}
+        {/* 상용구 quick chips — 입력 우측. 클릭 시 input 커서 위치에 삽입. */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {SPECIAL_DETAIL_SNIPPETS.map(s => (
+            <button
+              key={s.id}
+              onClick={() => insertSpecialDetailSnippet(s.text)}
+              title={`삽입: ${s.text}`}
+              className="text-xs px-1.5 h-6 rounded border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-primary-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)] transition-colors"
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        {/* 추가 버튼 — + 아이콘만 (텍스트 라벨 생략) */}
         <button
-          className="h-7 px-3 text-md font-medium text-[var(--brand-primary)] bg-white border border-[var(--brand-primary)] rounded-[6px] hover:bg-[var(--bg-primary-subtle)] flex-shrink-0">
-          특정내역 추가
+          title="특정내역 추가"
+          className="w-7 h-7 flex items-center justify-center text-[var(--brand-primary)] bg-white border border-[var(--brand-primary)] rounded-[6px] hover:bg-[var(--bg-primary-subtle)] flex-shrink-0"
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
         </button>
       </div>
 
@@ -2581,8 +2984,36 @@ export function PanelD({
               점검
             </button>
             <button className="h-7 px-3 border border-[var(--line-default)] rounded-md text-md font-medium text-[var(--text-main)] bg-white hover:bg-[var(--bg-subtle)]">저장</button>
-            <button className="h-7 px-3 border border-[var(--line-default)] rounded-md text-md font-medium text-[var(--text-main)] bg-white hover:bg-[var(--bg-subtle)]">저장전달</button>
-            <button className="h-7 px-3.5 rounded-md text-md font-bold text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-pressed)]">출력전달</button>
+            {/* 저장전달 — 파란색 primary split-button. 본체 + ▾ chevron 으로 분할.
+                ▾ 클릭 시 자동 출력물 설정 popover (체크박스). 본체 클릭 시 선택된 출력물 자동 인쇄. */}
+            <div className="inline-flex h-7 rounded-md overflow-hidden shadow-sm">
+              <button
+                title={
+                  selectedPrints.size === 0
+                    ? "저장 후 전달 (자동 출력 없음)"
+                    : `저장 후 전달 — 자동 출력: ${PRINT_ITEMS.filter(i => selectedPrints.has(i.id)).map(i => i.label).join(", ")}`
+                }
+                className="h-7 px-3 text-md font-bold text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-pressed)] inline-flex items-center"
+              >
+                저장전달
+              </button>
+              {/* 분할선 */}
+              <div className="w-px bg-white/30 self-stretch" />
+              {/* ▾ chevron — 자동 출력물 설정 popover 트리거 */}
+              <button
+                ref={printChevronRef}
+                data-print-trigger
+                onClick={() => setPrintSettingsRect(r => r ? null : printChevronRef.current?.getBoundingClientRect() ?? null)}
+                title="자동 출력물 설정"
+                aria-haspopup="true"
+                aria-expanded={!!printSettingsRect}
+                className="h-7 px-1.5 text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-pressed)] flex items-center"
+              >
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                  <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2590,6 +3021,16 @@ export function PanelD({
       {/* Settings Popover */}
       {settingsRect && (
         <SettingsPopover rect={settingsRect} onClose={() => setSettingsRect(null)} />
+      )}
+
+      {/* 저장전달 — 자동 출력물 설정 popover */}
+      {printSettingsRect && (
+        <PrintSettingsPopover
+          rect={printSettingsRect}
+          selected={selectedPrints}
+          onToggle={togglePrintItem}
+          onClose={() => setPrintSettingsRect(null)}
+        />
       )}
 
       {/* D2 Sub-panel Settings Popover */}

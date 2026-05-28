@@ -50,6 +50,8 @@ function InputArea({
             onChange={(e) => onChange?.(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && active && onSend?.()}
             placeholder={placeholder}
+            // 패널 열림 시 자동 포커스 — TopBar 의 ✦ AI 버튼 클릭 직후 바로 타이핑 가능.
+            autoFocus
             className="w-full text-lg text-[var(--text-main)] placeholder-[#999] outline-none bg-transparent"
           />
         )}
@@ -640,9 +642,11 @@ function UseMenuScreen({
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export function AIAssistant({
+  isOpen = true,
   onClose,
   onAddQuickMenu,
 }: {
+  isOpen?: boolean;
   onClose: () => void;
   onAddQuickMenu?: (label: string, category: "예약" | "CRM" | "일수변경" | "즐겨찾기") => void;
 }) {
@@ -653,6 +657,7 @@ export function AIAssistant({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const clearTimers = () => { timers.current.forEach(clearTimeout); timers.current = []; };
 
@@ -671,6 +676,27 @@ export function AIAssistant({
 
   useEffect(() => () => clearTimers(), []);
 
+  // ── 외부 클릭 시 패널 닫기 ────────────────────────────────────
+  // 패널 외부의 mousedown 이벤트 발생 시 onClose 호출.
+  // 단, TopBar 의 ✦ AI 토글 버튼([data-ai-trigger])은 자체 토글 로직이 있어 제외.
+  // 다른 모달/오버레이(z-index 가 더 높음) 위 클릭은 그 위로 올라가 있어 패널 외부로 판단되므로 닫힘.
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: MouseEvent) => {
+      const t = e.target as Element | null;
+      if (!t) return;
+      if (t.closest("[data-ai-trigger]")) return;
+      if (panelRef.current?.contains(t)) return;
+      onClose();
+    };
+    // 패널이 열린 직후 발생할 수 있는 동일 클릭 이벤트의 잔여 처리 방지를 위해 약간의 지연 후 attach.
+    const tid = window.setTimeout(() => document.addEventListener("mousedown", handler), 80);
+    return () => {
+      window.clearTimeout(tid);
+      document.removeEventListener("mousedown", handler);
+    };
+  }, [isOpen, onClose]);
+
   const handleSend = () => {
     const msg = inputValue.trim();
     if (!msg) return;
@@ -682,10 +708,18 @@ export function AIAssistant({
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-[9995] bg-white border border-[var(--line-default)] shadow-2xl flex flex-col overflow-hidden rounded-[12px] transition-all duration-300 ${
-        isUseMenu ? "w-[400px]" : "w-[440px] h-[720px]"
+      ref={panelRef}
+      aria-hidden={!isOpen}
+      // 우측 사이드 drawer — TopBar 아래(top-14) 부터 화면 하단(bottom-0)까지 꽉 채움.
+      // 우측 끝에 flush 로 붙도록 right-0 + 둥근 모서리 제거. 좌측 border 로 본문과 시각 구분.
+      // 닫힘 상태: translate-x-full 로 화면 밖으로 슬라이드 + pointer-events-none.
+      // 컴포넌트는 항상 mount 상태이므로 step/inputValue 등 내부 state 가 보존됨.
+      className={`fixed top-14 right-0 bottom-0 z-[9995] bg-white border-l border-[var(--line-default)] shadow-[-4px_0_20px_rgba(0,0,0,0.08)] flex flex-col overflow-hidden transition-all duration-300 ${
+        isOpen ? "translate-x-0" : "translate-x-full pointer-events-none"
+      } ${
+        isUseMenu ? "w-[360px]" : "w-[400px]"
       }`}
-      style={{ fontFamily: "'Noto Sans KR', sans-serif", ...(isUseMenu ? { height: "auto" } : {}) }}
+      style={{ fontFamily: "'Noto Sans KR', sans-serif" }}
     >
       {/* 공통 헤더 (use-menu 제외) */}
       {!isUseMenu && <PanelHeader onClose={onClose} />}

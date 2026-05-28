@@ -235,8 +235,9 @@ export function EMRExpandedHistory({
   const [filterClaim,   setFilterClaim]   = useState<"전체" | "청구" | "비청구">("전체");
   const [filterIns,     setFilterIns]     = useState<Set<string>>(new Set());
 
-  // View modes — 내원일 카드 내부 어떤 섹션을 보여줄지 (다중선택)
-  const VIEW_KEYS = ["증상", "진단", "처방", "이미지", "메모"] as const;
+  // View modes — 내원일 카드 내부 어떤 섹션을 보여줄지 (다중선택).
+  // 메모는 처방의 지시메모로 흡수되므로 별도 보기 필터 제거됨.
+  const VIEW_KEYS = ["증상", "진단", "처방", "이미지"] as const;
   type ViewKey = typeof VIEW_KEYS[number];
   const [viewModes, setViewModes] = useState<Set<ViewKey>>(new Set(VIEW_KEYS));
   const toggleViewMode = (k: ViewKey) => setViewModes(prev => {
@@ -708,7 +709,9 @@ export function EMRExpandedHistory({
             </div>
           ) : (
             <div className="p-2 bg-[var(--bg-subtle)]">
-              <div className="grid gap-2 items-start" style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}>
+              {/* 그리드 — items-stretch (default) 로 한 행의 카드들이 동일 높이로 늘어남.
+                  각 카드는 flex-col 이라 콘텐츠가 위쪽부터 채워지고 남는 공간은 카드 하단 흰 여백으로. */}
+              <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}>
               {localFiltered.map(v => {
                 const isActive  = activeDate === v.id;
                 const labs      = LAB_BY_PRESC[v.id] ?? {};
@@ -716,7 +719,7 @@ export function EMRExpandedHistory({
 
                 return (
                   <div key={v.id} ref={el => { cardRefs.current[v.id] = el; }}
-                    className="relative flex flex-col bg-white rounded-[10px] overflow-hidden shadow-sm border border-[var(--line-default)]"
+                    className="relative flex flex-col bg-white rounded-[6px] overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)] border border-[var(--line-default)]"
                     onClick={() => setActiveDate(v.id)}>
 
                     {/* Card Header — 클릭 시 전체 내원 추가 (증상+진단+처방) */}
@@ -785,8 +788,8 @@ export function EMRExpandedHistory({
                       </div>
                     )}
 
-                    {/* Symptom — 클릭 시 증상 텍스트 추가 */}
-                    {viewModes.has("증상") && (
+                    {/* Symptom — 클릭 시 증상 텍스트 추가. 빈 값일 때는 섹션 자체 미렌더 (흰 배경 유지). */}
+                    {viewModes.has("증상") && v.symptom && (
                       <div
                         onClick={e => { e.stopPropagation(); onAddSymptom(v.symptom); }}
                         title="클릭하면 증상에 추가"
@@ -796,8 +799,9 @@ export function EMRExpandedHistory({
                       </div>
                     )}
 
-                    {/* Diagnosis */}
-                    {viewModes.has("진단") && (
+                    {/* Diagnosis — 진단 데이터가 있을 때만 렌더링.
+                        오늘 차트(draft) 처럼 아직 입력 안 된 카드는 헤더도 안 보이고 빈 흰 배경만 유지. */}
+                    {viewModes.has("진단") && v.diagnoses.length > 0 && (
                     <div className="border-b border-[var(--line-subtle)]">
                       <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-subtle)] px-2 py-[3px] gap-1"
                         style={{ gridTemplateColumns: DX_COLS }}>
@@ -844,13 +848,7 @@ export function EMRExpandedHistory({
                       </div>
                     )}
 
-                    {/* Note */}
-                    {viewModes.has("메모") && v.note && (
-                      <div className="flex items-start gap-1 px-3 py-1.5">
-                        <span className="text-xs">📝</span>
-                        <span className="text-xs text-[var(--brand-primary)] leading-[15px]">{v.note}</span>
-                      </div>
-                    )}
+                    {/* 메모 (note) — 처방 자체의 지시메모로 흡수되어 카드 본문에서 제거됨. */}
                   </div>
                 );
               })}

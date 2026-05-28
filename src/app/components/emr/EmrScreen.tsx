@@ -7,9 +7,9 @@ import { DashboardScreen } from "./DashboardScreen";
 import { EndOfDayReport } from "./EndOfDayReport";
 import { PatientDetailModal, type PatientDetailTab } from "./PatientDetailModal";
 import { PanelA } from "./PanelA";
-import { PanelB, PatientInfoCard, AISummaryCard } from "./PanelB";
+import { PanelB, PatientInfoCard, AISummaryCard, RecentVitalsPanel } from "./PanelB";
 import { PanelC } from "./PanelC";
-import { PanelD } from "./PanelD";
+import { PanelD, DEFAULT_BANNED_DRUGS, type BannedDrug } from "./PanelD";
 import { ClinicalNoteCard } from "./ClinicalNoteCard";
 import { PanelE } from "./PanelE";
 import { LabViewer } from "./LabViewer";
@@ -142,12 +142,34 @@ export function EmrScreen() {
 
   // 환자 자세히보기 모달 — 진입점에 따라 첫 탭이 달라짐 (initialTab).
   //   - PanelA 환자명 클릭 → "기본정보"
-  //   - 내원이력 자세히보기 → "내원이력"  (추후 다른 진입점에서 추가)
-  const [detailPatient, setDetailPatient] = useState<{ id: string; initialTab: PatientDetailTab } | null>(null);
-  const openPatientDetail = (id: string, initialTab: PatientDetailTab = "기본정보") => {
-    setDetailPatient({ id, initialTab });
+  //   - 내원이력 자세히보기 → "내원이력"
+  //   - PanelB 편집 아이콘 → "기본정보" + 인적사항 자동 편집 모드 (personalEdit=true)
+  const [detailPatient, setDetailPatient] = useState<{
+    id: string;
+    initialTab: PatientDetailTab;
+    personalEdit?: boolean;
+  } | null>(null);
+  const openPatientDetail = (
+    id: string,
+    initialTab: PatientDetailTab = "기본정보",
+    options?: { personalEdit?: boolean },
+  ) => {
+    setDetailPatient({ id, initialTab, personalEdit: options?.personalEdit });
   };
   const closePatientDetail = () => setDetailPatient(null);
+
+  // 처방금지 약품 — 환자정보 카드(PanelB 칩) + 차트(PanelD 하단바·처방 우클릭) 셋이 공유하는 데이터.
+  // EmrScreen 에 lift up 해서 두 패널 모두 동일 상태 참조.
+  const [bannedDrugs, setBannedDrugs] = useState<BannedDrug[]>(DEFAULT_BANNED_DRUGS);
+  const addBannedDrug = (data: Omit<BannedDrug, "id">) => {
+    setBannedDrugs(prev => [...prev, { ...data, id: `ban-${Date.now()}` }]);
+  };
+  const updateBannedDrug = (id: string, patch: Partial<BannedDrug>) => {
+    setBannedDrugs(prev => prev.map(b => b.id === id ? { ...b, ...patch } : b));
+  };
+  const deleteBannedDrug = (id: string) => {
+    setBannedDrugs(prev => prev.filter(b => b.id !== id));
+  };
 
   // ── 진료 녹음 + STT SOAP 자동 작성 ──────────────────────────
   // 녹음 버튼 → setInterval 두 개 시작:
@@ -278,6 +300,8 @@ export function EmrScreen() {
             onToggleRecording={toggleRecording}
             layout={layout}
             onChangeLayout={setLayout}
+            onToggleAI={() => setShowAI(o => !o)}
+            aiOpen={showAI}
           />
         )}
         <div className="flex flex-1 overflow-hidden">
@@ -297,7 +321,12 @@ export function EmrScreen() {
                     <PanelGroup direction="horizontal" className="flex-1">
                       <Panel defaultSize={45} minSize={28}>
                         <div className="py-1 pl-1 h-full">
-                          <PanelB clinicalNote={todayClinicalNote} onChangeClinicalNote={setTodayClinicalNote} />
+                          <PanelB
+                            clinicalNote={todayClinicalNote}
+                            onChangeClinicalNote={setTodayClinicalNote}
+                            onPatientNameClick={(id, tab, opts) => openPatientDetail(id, tab ?? "기본정보", opts)}
+                            bannedDrugs={bannedDrugs}
+                          />
                         </div>
                       </Panel>
                       <PanelResizeHandle className="w-1 hover:bg-[var(--brand-primary)]/30 active:bg-[var(--brand-primary)]/50 transition-colors" />
@@ -321,9 +350,20 @@ export function EmrScreen() {
                        wrapper는 py-1 + pl-1만 (오른쪽 패딩 제거) — PanelD 사이 간격을 D-E 사이와 동일하게 8px로 맞춤 */
                     <div className="flex-1 py-1 pl-1 min-w-0 min-h-0 overflow-hidden">
                       <PanelGroup direction="vertical" className="w-full h-full">
-                        {/* 1단: 환자정보 (전체폭) — 푸터에 최근 바이탈 1줄 컴팩트 노출 */}
-                        <Panel defaultSize={20} minSize={14}>
-                          <PatientInfoCard onPatientNameClick={id => openPatientDetail(id, "기본정보")} />
+                        {/* 1단: 환자정보 (전체폭) — 최근 바이탈은 아래 별도 패널로 분리됨 */}
+                        <Panel defaultSize={18} minSize={12}>
+                          <PatientInfoCard
+                            onPatientNameClick={(id, tab, opts) => openPatientDetail(id, tab ?? "기본정보", opts)}
+                            bannedDrugs={bannedDrugs}
+                          />
+                        </Panel>
+                        <PanelResizeHandle className="h-1 hover:bg-[var(--brand-primary)]/30 active:bg-[var(--brand-primary)]/50 transition-colors" />
+                        {/* 1.5단: 바이탈 (전체폭, 표 형식 — 오늘 포함 최근 3건).
+                            더보기 → 환자(황미진, 100236) 자세히보기 모달의 바이탈 탭 오픈. */}
+                        <Panel defaultSize={14} minSize={8}>
+                          <div className="h-full pt-0.5">
+                            <RecentVitalsPanel onOpenDetail={() => openPatientDetail("100236", "바이탈")} />
+                          </div>
                         </Panel>
                         <PanelResizeHandle className="h-1 hover:bg-[var(--brand-primary)]/30 active:bg-[var(--brand-primary)]/50 transition-colors" />
                         {/* 2단: AI 요약 | 임상메모 (좌우) */}
@@ -360,9 +400,10 @@ export function EmrScreen() {
 
               <PanelResizeHandle className="w-1 hover:bg-[var(--brand-primary)]/30 active:bg-[var(--brand-primary)]/50 transition-colors" />
 
-              {/* D: 오늘의 차트 — 채도 낮은 얇은 outline 으로 영역만 시사 (강조 X) */}
+              {/* D: 오늘의 차트 — 채도 낮은 얇은 outline 으로 영역만 시사 (강조 X).
+                  좌우 padding 제거 (py-1 만) — C·E 와의 간격은 resize handle 1px 만으로. */}
               <Panel defaultSize={42} minSize={26}>
-                <div className="p-1 h-full">
+                <div className="py-1 h-full">
                   <div className="h-full rounded-md overflow-hidden shadow-sm"
                     style={{ border: "1px solid var(--blue-200)" }}>
                     <PanelD
@@ -373,6 +414,10 @@ export function EmrScreen() {
                       isRecording={isRecording}
                       soap={soap}
                       onPasteSoap={pasteSoapToSymptom}
+                      bannedDrugs={bannedDrugs}
+                      onAddBannedDrug={addBannedDrug}
+                      onUpdateBannedDrug={updateBannedDrug}
+                      onDeleteBannedDrug={deleteBannedDrug}
                     />
                   </div>
                 </div>
@@ -380,9 +425,9 @@ export function EmrScreen() {
 
               <PanelResizeHandle className="w-1 hover:bg-[var(--brand-primary)]/30 active:bg-[var(--brand-primary)]/50 transition-colors" />
 
-              {/* E: 도구모음 (세트처방 + 빠른메뉴) */}
+              {/* E: 도구모음 (세트처방 + 빠른메뉴) — D 와의 간격 최소화. 우측 화면 가장자리 패딩은 유지(pr-1). */}
               <Panel defaultSize={20} minSize={12}>
-                <div className="py-1 pr-1 h-full"><PanelE /></div>
+                <div className="py-1 pr-1 h-full"><PanelE layout={layout} /></div>
               </Panel>
             </PanelGroup>
           </div>
@@ -405,23 +450,13 @@ export function EmrScreen() {
         </div>
       )}
 
-      {/* AI 어시스턴트 패널 */}
-      {showAI && (
-        <AIAssistant
-          onClose={() => setShowAI(false)}
-        />
-      )}
-
-      {/* AI 플로팅 버튼 */}
-      {!showAI && (
-        <button
-          onClick={() => setShowAI(true)}
-          className="fixed bottom-6 right-6 z-[9994] w-[52px] h-[52px] bg-[var(--brand-primary-hover)] rounded-[24px] flex items-center justify-center shadow-lg hover:bg-[var(--brand-primary-pressed)] hover:scale-105 active:scale-95 transition-all duration-150"
-          title="AI 어시스턴트 열기 (⌘K)"
-        >
-          <span className="text-white text-[18px] font-bold leading-none">✦</span>
-        </button>
-      )}
+      {/* AI 어시스턴트 패널 — TopBar 의 ✦ AI 버튼으로 토글.
+          항상 mount 상태로 유지 → 채팅·step·입력값 등 내부 state 가 닫혀도 보존됨.
+          외부 클릭 시 onClose 가 호출되어 자동 닫힘. */}
+      <AIAssistant
+        isOpen={showAI}
+        onClose={() => setShowAI(false)}
+      />
 
       {/* 오늘의 리포트 모달 — 진료실에서만 노출 */}
       {lnbActive === "진료" && showReport && (
@@ -429,12 +464,24 @@ export function EmrScreen() {
       )}
       {/* 하단 플로팅 "오늘 내원 현황" 버튼 제거 — 상단 TopBar 의 동일 액션 버튼만 유지 */}
 
-      {/* 환자 자세히보기 모달 — 진입점에 따라 initialTab 결정 */}
+      {/* 환자 자세히보기 모달 — 진입점에 따라 initialTab 결정.
+          key={detailPatient.id} 로 환자 변경 시 모달이 remount 되어 activeTab 등 state 가 초기화됨.
+          repeatRx/Dx/All 주입 — 가족 환자(예: 김허나)의 내원이력에서 행 클릭 시
+          현재 차트(황미진)의 todayRx/Dx 에 추가. PanelC 의 내원이력과 동일한 동작.
+          currentChartName/No — 모달의 환자가 현재 차트와 다를 때 안내 배너용. */}
       {detailPatient && (
         <PatientDetailModal
+          key={detailPatient.id}
           patientId={detailPatient.id}
           initialTab={detailPatient.initialTab}
           onClose={closePatientDetail}
+          onJumpToPatient={(id, tab) => openPatientDetail(id, tab)}
+          onRepeatRx={repeatRx}
+          onRepeatDx={repeatDx}
+          onRepeatAll={repeatAll}
+          currentChartName="황미진"
+          currentChartNo="100236"
+          initialPersonalEdit={detailPatient.personalEdit}
         />
       )}
     </div>
