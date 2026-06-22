@@ -3,6 +3,8 @@
 // 닫으면 진료실 우하단에 "다시 보기" 플로팅 버튼이 노출된다.
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+// chart-prototype 의 SettledPatientsTable 이식본 — 좌측 환자 목록 표 영역.
+import { SettledPatientsTable } from "./today-report/SettledPatientsTable";
 
 // ╔══════════════════════════════════════════════════════════════════════════════
 // ║ 타입
@@ -80,7 +82,7 @@ const LAST_CHART_TIME = "18:24";
 // 컬럼: 차트번호, 환자정보(이름·성별·나이·신환·휴대폰·보험), 진료정보(시간·외래·초/재진·담당의·본인확인),
 //      진료비 산정내역(총액·공단·본인·비급여), 결제정보(카드·현금·미수·결제상태)
 // 결제상태: "수납대기" = 진료 끝났지만 결제 아직 / "수납완료" = 결제까지 완료. 미지정시 "수납완료" 로 간주.
-type SettledPatient = {
+export type SettledPatient = {
   chartNo: string;
   name: string;
   gender: "남" | "여";
@@ -105,9 +107,9 @@ type SettledPatient = {
 };
 
 // 병원 커스텀 환자 태그 — 실제 EMR 에서는 병원별로 등록·관리되는 마스터 데이터
-const PATIENT_TAGS = ["VIP", "만성질환", "임산부", "단골", "알러지주의", "보호자동반", "장기처방"];
+export const PATIENT_TAGS = ["VIP", "만성질환", "임산부", "단골", "알러지주의", "보호자동반", "장기처방"];
 
-const SETTLED_PATIENTS: SettledPatient[] = [
+export const SETTLED_PATIENTS: SettledPatient[] = [
   // ── 오전 (09~12시) ──
   { chartNo: "302", name: "윤태석", gender: "남", age: 58, isNew: false, phone: "010-7788-2233", insType: "건강보험",
     visitTime: "09:08", visitKind: "외래", isFirstVisit: false, doctor: "김다영", selfVerified: false,
@@ -868,7 +870,13 @@ function WidgetSettingsModal({
         onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--line-default)]">
           <h3 className="text-xl font-bold text-[var(--text-main)]">위젯 표시 설정</h3>
-          <button onClick={onClose} className="text-[var(--text-tertiary)] hover:text-[var(--text-main)] text-xl">✕</button>
+          {/* 우상단 ✕ — 팝업 정책 필수. */}
+          <button onClick={onClose} aria-label="닫기" title="닫기"
+            className="w-7 h-7 inline-flex items-center justify-center text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded transition-colors">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
         <div className="px-5 py-4 flex flex-col gap-2">
           {ITEMS.map(it => {
@@ -899,11 +907,8 @@ function WidgetSettingsModal({
             );
           })}
         </div>
+        {/* Footer — CTA 만 (정책 §4: [취소] 사용 안 함). 닫으려면 우상단 ✕. */}
         <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-[var(--line-default)]">
-          <button onClick={onClose}
-            className="h-9 px-4 text-lg border border-[var(--line-default)] rounded-md bg-white text-[var(--text-main)] hover:bg-[var(--bg-subtle)]">
-            취소
-          </button>
           <button onClick={() => onSave(draft)}
             className="h-9 px-5 text-lg font-bold text-white rounded-md hover:opacity-90"
             style={{ background: "var(--brand-primary)" }}>
@@ -1003,6 +1008,13 @@ export function EndOfDayReport({ onClose }: { onClose: () => void }) {
     return () => clearTimeout(t);
   }, []);
 
+  // ESC = 닫기 (정책 §4.5: 팝업 닫기 동작과 동일). 데이터 조회 팝업이라 미저장 이탈 없이 즉시 닫음.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
   const hide = (k: WidgetKey) => setHidden(prev => { const n = new Set(prev); n.add(k); return n; });
   const showAll = () => setHidden(new Set());
 
@@ -1077,24 +1089,16 @@ export function EndOfDayReport({ onClose }: { onClose: () => void }) {
         className="bg-[var(--bg-base)] rounded-2xl shadow-2xl w-[1440px] max-w-[97vw] max-h-[94vh] overflow-hidden flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        {/* ── 영역 1. 헤더 ── */}
+        {/* ── 영역 1. 헤더 — 카톡 발송·인쇄 버튼 제거됨. 출력은 좌측 표의 [출력] 액션이 대체. ── */}
         <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--line-default)] bg-white flex-shrink-0">
-          {/* 헤더 — 팝업 제목만. 날짜/진료환자 내역은 좌측 표 상단(SettledPatientsTable) 으로 이동. */}
-          <h2 className="text-[18px] font-bold text-[var(--text-main)]">오늘 내원 현황</h2>
-          <div className="flex items-center gap-1.5">
-            <button onClick={() => onAction("리포트를 인쇄합니다")}
-              className="h-8 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
-              🖨 인쇄
-            </button>
-            <button onClick={() => onAction("카카오톡 비즈메시지로 리포트가 발송됩니다")}
-              className="h-8 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
-              💬 카톡 발송
-            </button>
-            <button onClick={onClose}
-              className="h-8 w-8 text-xl text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded-md flex items-center justify-center">
-              ✕
-            </button>
-          </div>
+          <h2 className="text-[18px] font-bold text-[var(--text-main)]">내원 현황</h2>
+          {/* 우상단 ✕ — 팝업 정책 필수. SVG 통일. */}
+          <button onClick={onClose} aria-label="닫기" title="닫기"
+            className="h-8 w-8 text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded-md flex items-center justify-center transition-colors">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
 
         {/* ── 본문 — 좌(표 ~74%) / 우(리포트 ~26%) 좌우 분할 ── */}
@@ -1113,34 +1117,9 @@ export function EndOfDayReport({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {/* ── 영역 5. 하단 액션 ── */}
-        <div className="flex items-center justify-between gap-2 px-6 py-3 border-t border-[var(--line-default)] bg-white flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <button onClick={() => onAction("주간 진료 리포트 화면으로 이동")}
-              className="h-9 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
-              📊 주간 리포트 보기
-            </button>
-            <button onClick={() => setSettings(true)}
-              className="h-9 px-3 text-md font-medium rounded-md border border-[var(--line-default)] bg-white text-[var(--text-sub)] hover:bg-[var(--bg-subtle)]">
-              ⚙ 위젯 설정
-            </button>
-          </div>
-          <button onClick={onClose}
-            className="h-9 px-5 text-lg font-bold rounded-md text-white hover:opacity-90"
-            style={{ background: "var(--brand-primary)" }}>
-            확인
-          </button>
-        </div>
+        {/* 하단 액션 영역 제거 — 정책 §4: 팝업 하단의 [확인]/[닫기] 단독 버튼 사용 금지.
+            데이터 조회 팝업이므로 별도 CTA 가 없고, 닫기는 우상단 ✕ 또는 ESC 로 한다. */}
       </div>
-
-      {/* 위젯 표시 설정 모달 (모달 위에 모달) */}
-      {settings && (
-        <WidgetSettingsModal
-          hidden={hidden}
-          onClose={() => setSettings(false)}
-          onSave={next => { setHidden(next); setSettings(false); }}
-        />
-      )}
     </div>,
     document.body
   );
@@ -1200,7 +1179,9 @@ const computeDoctorSummary = (patients: SettledPatient[]): DoctorSummary[] => {
   return [all, ...Object.values(groups)];
 };
 
-function SettledPatientsTable() {
+// 기존 인라인 정의 — chart-prototype 버전(today-report/SettledPatientsTable.tsx) 으로 대체됨.
+// dead code 로 남겨두되 함수명을 `_DeprecatedSettledPatientsTable` 로 변경해서 이름 충돌 방지.
+function _DeprecatedSettledPatientsTable() {
   // ── 필터 state ─────────────────────────────────────────────
   const [search, setSearch] = useState("");
   const [visitKind, setVisitKind] = useState<VisitKindFilter>("전체");

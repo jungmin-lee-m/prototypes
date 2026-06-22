@@ -8,34 +8,39 @@
  * 우선 PanelD에 적용. 추후 다른 패널에 확대 적용 시 동일 토큰 재사용.
  */
 
-/* ── Typography Scale (6-tier, dense EMR layout 전용) ──────────────
- * 사용 규칙:
- *   [표] 컬럼 헤더 = text-xs, 행 본문 = text-sm
- *   [패널] 헤더 = text-md font-bold
- *   [라벨/값] 라벨 = text-xs, 값 = text-md
- *   [디스플레이] 환자명 = text-xl font-bold
- *   [마이크로 칩] 검/주/약/방 = text-micro (60px 폭 chip 컬럼 전용)
+/* ── Typography Scale (6-tier) — DESIGN.md §5 정합 ──────────────────
+ * DESIGN.md §5.1 Text Style 계층과 1:1 매핑 (tier 이름 유지, px 값만 spec 준수):
+ *   text-micro = caption-sm 11/14 — 메타데이터 전용 (타임스탬프·단위·보조 라벨)
+ *   text-xs    = label-sm    12/16 — 소형 라벨/배지
+ *   text-sm    = body-xs     13/18 — 본문 보조, 의료 데이터 최소 사이즈 (§13.4)
+ *   text-md    = body-sm     14/20 — 본문 기본
+ *   text-lg    = body-md     15/21 — 본문 표준 / 강조 텍스트
+ *   text-xl    = body-lg     16/22 — 섹션 제목 / 디스플레이
+ *
+ * ⚠ DESIGN.md §13.4 의료 데이터 최소 사이즈:
+ *   환자 이름·차트 번호·복약 정보 → text-sm (13px) 이상 필수
+ *   text-micro (11px) 은 메타데이터에만 — 환자 식별·임상 데이터 사용 금지
  *
  * Tailwind v4 의 @theme 블록 — text-{tier} 유틸이 자동 생성됨.
  */
 @theme {
-  --text-micro: 9px;
-  --text-micro--line-height: 13px;
+  --text-micro: 11px;
+  --text-micro--line-height: 14px;
 
-  --text-xs: 10px;
-  --text-xs--line-height: 14px;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
 
-  --text-sm: 11px;
-  --text-sm--line-height: 15px;
+  --text-sm: 13px;
+  --text-sm--line-height: 18px;
 
-  --text-md: 12px;
-  --text-md--line-height: 17px;
+  --text-md: 14px;
+  --text-md--line-height: 20px;
 
-  --text-lg: 13px;
-  --text-lg--line-height: 18px;
+  --text-lg: 15px;
+  --text-lg--line-height: 21px;
 
   --text-xl: 16px;
-  --text-xl--line-height: 24px;
+  --text-xl--line-height: 22px;
 }
 
 :root {
@@ -174,21 +179,107 @@
   --brand-primary-pressed: var(--blue-700);
   --brand-secondary: var(--blue-800);
 
-  /* ── Radius (DS spec) ── */
+  /* ── Radius (mediai-ds.md §7.3) ── */
+  --radius-none: 0;
   --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 16px;
+  --radius-sm: 4px;     /* Button xs, Tag, Badge */
+  --radius-md: 6px;     /* Button sm/md/lg, Input */
+  --radius-lg: 8px;     /* Card, Modal body */
+  --radius-xl: 12px;    /* Modal 외곽, Toast */
+  --radius-2xl: 16px;   /* 특수 카드 */
   --radius-full: 9999px;
 
-  /* ── Spacing (DS spec) ── */
-  --space-xs: 2px;
-  --space-sm: 4px;
-  --space-md: 8px;
-  --space-lg: 12px;
-  --space-xl: 16px;
-  --space-2xl: 24px;
-  --space-3xl: 32px;
+  /* ── Spacing — primitives 17단 (mediai-ds.md §7.1) ── */
+  --space-0: 0;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-56: 56px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+
+  /* ── Spacing — semantic (mediai-ds.md §7.2) ── */
+  --space-none: 0;
+  --space-xs: 2px;       /* 아이콘-텍스트 최소 갭 */
+  --space-sm: 4px;       /* 컴팩트 컴포넌트 내부 */
+  --space-md: 8px;       /* 기본 내부 간격 */
+  --space-lg: 12px;      /* 버튼 padding-x */
+  --space-xl: 16px;      /* 카드 내부, 컬럼 gap */
+  --space-2xl: 24px;     /* 섹션 간 */
+  --space-3xl: 32px;     /* 큰 섹션 */
+  --space-4xl: 48px;     /* 페이지 영역 */
+  --space-5xl: 64px;     /* 드물게 */
+
+  /* ── Size — component heights (mediai-ds.md §7.4) ── */
+  --size-xs: 24px;
+  --size-sm: 32px;       /* row height default — Default density */
+  --size-md: 40px;
+  --size-lg: 48px;
+  --size-xl: 56px;
+  --size-dense: 28px;    /* Compact/Dense density */
+  --size-comfortable: 40px;
+
+  /* ── Border width (mediai-ds.md §8.2) ── */
+  --border-width-thin: 1px;        /* 기본 모든 보더 */
+  --border-width-medium: 2px;      /* 포커스 링, 강조 */
+  --border-width-thick: 3px;       /* 드물게 (지양) */
+
+  /* ── Z-index — system layers (mediai-ds.md §8.4) ── */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-internal: 10;       /* component-internal lists (menu items, tree nodes) */
+  --z-inline: 100;        /* inline tooltip (anchored absolute) */
+  --z-modal: 9000;        /* modal/drawer backdrop AND content */
+  --z-modal-above: 9001;  /* drawer panel (backdrop 위) */
+  --z-popover: 9500;      /* popover (click-triggered floating) */
+  --z-select: 9700;       /* select dropdown popup */
+  --z-toast: 10000;       /* toast notification (최상위) */
+
+  /* ── Motion — duration primitives (mediai-ds.md §10) ── */
+  --duration-instant: 0ms;
+  --duration-quick: 80ms;       /* press feedback */
+  --duration-fast: 120ms;       /* hover/focus 색 변화 */
+  --duration-moderate: 160ms;   /* transform, rotation */
+  --duration-snap: 200ms;       /* modal pop, toast in */
+  --duration-base: 240ms;       /* modal/dropdown/drawer open */
+  --duration-slow: 320ms;       /* drawer slide */
+  --duration-slower: 480ms;     /* page transition */
+  --duration-loop-fast: 1000ms; /* spinner */
+  --duration-loop-slow: 1500ms; /* skeleton shimmer */
+
+  /* ── Motion — easing primitives ── */
+  --easing-linear: linear;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);     /* 기본 in-out */
+  --easing-emphasized: cubic-bezier(0.3, 0, 0, 1);   /* 큰 변화 강조 */
+  --easing-decelerate: cubic-bezier(0, 0, 0, 1);     /* entrance */
+  --easing-accelerate: cubic-bezier(0.3, 0, 1, 1);   /* exit */
+  --easing-spring: cubic-bezier(0.5, 1.5, 0.5, 1);   /* overshoot */
+
+  /* ── Motion — semantic (CSS-only derived, mediai-ds.md §10) ── */
+  --motion-hover: 120ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-press: 80ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-modal-enter: 240ms cubic-bezier(0, 0, 0, 1);
+  --motion-modal-exit: 80ms cubic-bezier(0.3, 0, 1, 1);
+  --motion-drawer: 320ms cubic-bezier(0.3, 0, 0, 1);
+  --motion-tooltip: 160ms cubic-bezier(0, 0, 0, 1);
+  --motion-toast: 240ms cubic-bezier(0, 0, 0, 1);
+
+  /* ── Layout — responsive (mediai-ds.md §7.7) ── */
+  --layout-sidebar-width: 180px;          /* LNB expanded — v2.1 240 예정 */
+  --layout-sidebar-collapsed: 48px;
+  --layout-header-height: 48px;
+  --layout-tab-bar-height: 40px;
+  --layout-content-padding: 32px;
+  --layout-grid-snap: 8px;
+  --layout-column-gap: 16px;
 }

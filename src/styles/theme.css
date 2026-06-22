@@ -1,181 +1,143 @@
-@custom-variant dark (&:is(.dark *));
+/*
+ * theme.css — mediai-ds.md 정렬 (v2.5)
+ * 이전: shadcn/ui 기본 토큰 + Tailwind base reset.
+ * 변경: mediai-ds.md 색·타입 토큰을 base 로. shadcn 의 oklch·#030213 등 충돌 토큰은
+ *       토큰 alias 로 재바인딩하거나 제거. tokens.css 가 single source of truth.
+ */
 
 :root {
   --font-size: 16px;
-  --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
-  --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #030213;
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
-  --muted: #ececf0;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
-  --accent-foreground: #030213;
-  --destructive: #d4183d;
-  --destructive-foreground: #ffffff;
-  --border: rgba(0, 0, 0, 0.1);
-  --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-input-background: var(--input-background);
-  --color-switch-background: var(--switch-background);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--bg-base);
+    color: var(--text-main);
   }
 
   /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
+   * Default typography — mediai-ds.md §5 매핑.
+   * Tailwind 유틸 (text-sm/text-lg 등) 이 자동으로 override.
+   * 기본 본문 = body-md (15/21).
+   */
 
   html {
     font-size: var(--font-size);
   }
 
+  /* Display & Heading — mediai-ds.md §5.2 */
   h1 {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-size: 28px;       /* heading-md → page title 용 (display 는 마케팅 페이지 전용) */
+    line-height: 34px;
+    font-weight: 700;      /* Bold */
   }
-
   h2 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-size: 24px;       /* heading-md */
+    line-height: 31px;
+    font-weight: 700;
   }
-
   h3 {
-    font-size: var(--text-lg);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-size: 20px;       /* heading-sm */
+    line-height: 26px;
+    font-weight: 600;      /* SemiBold */
   }
-
   h4 {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-size: 16px;       /* body-lg */
+    line-height: 22px;
+    font-weight: 500;      /* Medium */
   }
 
-  label {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
-
+  /* UI 요소 — Label/label-md (13/18) 기본 */
+  label,
   button {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 500;
   }
 
-  input {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-normal);
-    line-height: 1.5;
+  /* 입력 — body-md (15/21) Regular */
+  input,
+  textarea {
+    font-size: 15px;
+    line-height: 21px;
+    font-weight: 400;
   }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   전역 스크롤바 — 실용적 최소 폭 (2px).
+
+   ⚠ Chrome 121+ 의 새 표준 (scrollbar-width/scrollbar-color) 은
+     legacy ::-webkit-scrollbar 보다 우선 적용됨.
+     scrollbar-width: thin 을 쓰면 webkit 의 2px 가 무시되어 Chrome 의 기본
+     "thin" 렌더링(약 8~10px) 만 노출됨. → 더 가는 폭을 원하면 scrollbar-width 를
+     설정하지 않고 webkit 만 사용해야 함.
+
+   - WebKit (Chrome/Edge/Safari): ::-webkit-scrollbar 로 정확한 width 제어 가능
+   - Firefox: webkit 미지원 — 별도 @supports 로 scrollbar-width:thin 만 적용
+     (Firefox 는 더 가늘게는 못함, 그래도 OS 기본보단 슬림)
+   ────────────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 2px !important;
+  height: 2px !important;
+  background: transparent !important;
+}
+::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.22) !important;
+  border-radius: 1px !important;
+  border: none !important;
+}
+::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.45) !important;
+}
+::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Firefox 전용 — webkit 미지원이라 별도로 scrollbar-width 지정.
+   @-moz-document 는 Firefox 만 파싱하므로 Chrome 에서는 무시됨 → Chrome 의
+   webkit 2px 규칙이 그대로 살아남. */
+@-moz-document url-prefix() {
+  *, *::before, *::after {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.22) transparent;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   .chip-scroll — chip strip 의 가로 스크롤바 숨김.
+   전역 2px 스크롤바도 chip strip 에서는 노이즈가 되므로 완전히 숨김.
+   기능 자체는 살아 있음(드래그·swipe·shift+wheel 으로 스크롤 가능).
+   ────────────────────────────────────────────────────────────────────── */
+.chip-scroll {
+  scrollbar-width: none; /* Firefox */
+}
+.chip-scroll::-webkit-scrollbar {
+  height: 0 !important;
+  width: 0 !important;
+  display: none !important;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   Global focus-visible — mediai-ds.md §8.3
+   키보드 Tab 한정. 마우스 클릭에는 ring 표시 ❌.
+   Input/Textarea/Select 계열은 caret + border-color 변화로 시그널 (제외).
+   ────────────────────────────────────────────────────────────────────── */
+*:focus-visible:not(input):not(textarea):not(select) {
+  outline: var(--border-width-medium) solid var(--line-focus-ring);
+  outline-offset: 1px;
 }

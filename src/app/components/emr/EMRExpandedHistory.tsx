@@ -1,8 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { Alert } from "./Alert";
 import type { HistoryDx, HistoryRx } from "./chartTypes";
+import { labResultFor, rxSignalFor, isProcedure } from "./historyResult";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-export type PrescType = "주" | "물" | "방" | "검";
+// 내원이력 처방 분류 — PanelA 검사 동선과 일관성 유지 (물리치료는 타겟 밖이라 제거).
+//   주 = 주사  ·  영 = 영상 (X선·CT·MRI)  ·  초 = 초음파
+//   내 = 내시경  ·  혈 = 검체 (혈액·소변)  ·  기 = 기능검사 (EKG·폐기능·골밀도)
+export type PrescType = "주" | "영" | "초" | "내" | "혈" | "기";
 
 export interface VisitRecord {
   id: string;
@@ -67,31 +72,31 @@ const visitImageLabels: Record<string, string[]> = {
   "25-07-31": ["흉부 X-ray", "인후 내시경", "편도 촬영", "비강 내시경"],
 };
 
-// ── Prescription type chips ───────────────────────────────────────────────────
+// ── Prescription type chips ─ 주영초내혈기 + 처치/투약 ──────────────────────
 interface PrescTagCfg { name: string; bg: string; text: string; activeBg: string; activeText: string }
 const PRESC_TAGS: PrescTagCfg[] = [
-  { name: "주사",     bg: "var(--status-error-bg-subtle)", text: "var(--red-500)", activeBg: "var(--red-500)", activeText: "#fff" },
-  { name: "물리치료", bg: "var(--bg-primary-subtle)", text: "var(--brand-primary)", activeBg: "var(--brand-primary)", activeText: "#fff" },
-  { name: "방사선",   bg: "var(--status-warning-bg-subtle)", text: "var(--orange-500)", activeBg: "var(--orange-500)", activeText: "#fff" },
-  { name: "초음파",   bg: "var(--bg-primary-subtle)", text: "var(--brand-primary)", activeBg: "var(--brand-primary)", activeText: "#fff" },
-  { name: "혈액검사", bg: "var(--status-success-bg-subtle)", text: "var(--green-500)", activeBg: "var(--green-500)", activeText: "#fff" },
-  { name: "소변검사", bg: "var(--green-050)", text: "var(--green-500)", activeBg: "var(--green-500)", activeText: "#fff" },
-  { name: "심전도",   bg: "var(--status-success-bg-subtle)", text: "var(--green-700)", activeBg: "var(--green-700)", activeText: "#fff" },
-  { name: "내시경",   bg: "var(--bg-primary-subtle)", text: "var(--blue-700)", activeBg: "var(--blue-700)", activeText: "#fff" },
-  { name: "처치",     bg: "var(--red-050)", text: "var(--red-500)", activeBg: "var(--red-500)", activeText: "#fff" },
-  { name: "투약",     bg: "var(--status-warning-bg-subtle)", text: "var(--orange-500)", activeBg: "var(--orange-500)", activeText: "#fff" },
+  { name: "주사",     bg: "var(--status-error-bg-subtle)",   text: "var(--red-500)",       activeBg: "var(--red-500)",       activeText: "#fff" },
+  { name: "영상",     bg: "var(--status-warning-bg-subtle)", text: "var(--orange-700)",    activeBg: "var(--orange-500)",    activeText: "#fff" },
+  { name: "초음파",   bg: "var(--bg-primary-subtle)",        text: "var(--brand-primary)", activeBg: "var(--brand-primary)", activeText: "#fff" },
+  { name: "내시경",   bg: "var(--violet-050)",               text: "var(--violet-500)",    activeBg: "var(--violet-500)",    activeText: "#fff" },
+  { name: "검체",     bg: "var(--status-error-bg-subtle)",   text: "var(--red-700)",       activeBg: "var(--red-700)",       activeText: "#fff" },
+  { name: "기능검사", bg: "var(--status-success-bg-subtle)", text: "var(--green-700)",     activeBg: "var(--green-700)",     activeText: "#fff" },
+  { name: "처치",     bg: "var(--red-050)",                  text: "var(--red-500)",       activeBg: "var(--red-500)",       activeText: "#fff" },
+  { name: "투약",     bg: "var(--status-warning-bg-subtle)", text: "var(--orange-500)",    activeBg: "var(--orange-500)",    activeText: "#fff" },
 ];
 
 const prescTagMatches = (v: VisitRecord, tag: string): boolean => {
   switch (tag) {
     case "주사":     return v.prescTypes.includes("주");
-    case "물리치료": return v.prescTypes.includes("물");
-    case "방사선":   return v.prescTypes.includes("방");
+    case "영상":
+    case "방사선":   return v.prescTypes.includes("영");
+    case "초음파":   return v.prescTypes.includes("초");
+    case "내시경":   return v.prescTypes.includes("내");
     case "혈액검사":
     case "소변검사":
+    case "검체":     return v.prescTypes.includes("혈");
     case "심전도":
-    case "내시경":
-    case "초음파":   return v.prescTypes.includes("검");
+    case "기능검사": return v.prescTypes.includes("기");
     case "투약":     return v.prescriptions.some(p => p.method !== "-");
     case "처치":     return v.tags.includes("처치");
     default:         return false;
@@ -112,9 +117,11 @@ const DX_OPTIONS = [
 
 const PT_BADGE: Record<PrescType, { label: string; cls: string }> = {
   주: { label: "주사",     cls: "bg-[var(--status-error-bg-subtle)] text-[var(--red-500)]" },
-  물: { label: "물리치료", cls: "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)]" },
-  방: { label: "방사선",   cls: "bg-[var(--status-warning-bg-subtle)] text-[var(--orange-500)]" },
-  검: { label: "검사",     cls: "bg-[var(--status-success-bg-subtle)] text-[var(--green-500)]" },
+  영: { label: "영상",     cls: "bg-[var(--status-warning-bg-subtle)] text-[var(--orange-700)]" },
+  초: { label: "초음파",   cls: "bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)]" },
+  내: { label: "내시경",   cls: "bg-[var(--violet-050)] text-[var(--violet-500)]" },
+  혈: { label: "검체",     cls: "bg-[var(--status-error-bg-subtle)] text-[var(--red-700)]" },
+  기: { label: "기능검사", cls: "bg-[var(--status-success-bg-subtle)] text-[var(--green-700)]" },
 };
 
 const TODAY_DX = [
@@ -136,8 +143,10 @@ const sColor = (s: "N" | "H" | "L") =>
 const sArrow = (s: "N" | "H" | "L") =>
   s === "H" ? " ↑" : s === "L" ? " ↓" : "";
 
-// 처방 컬럼 (펼쳐보기 — 컴팩트): 사용자코드 / 명칭 / 용량 / 일투 / 일수
-const PRESC_COLS = "44px 1fr 28px 24px 28px";
+// 처방 컬럼 (펼쳐보기) — PanelC 접힌 상태와 동일 컬럼:
+//   사용자코드 / 명칭 / 용량 / 일투 / 일수 / 용법 / 특정 / 청 / 결과
+// 펼쳐보기는 공간이 더 넓어 폭을 약간씩 키움. 코드·명칭은 컴팩트하게.
+const PRESC_COLS = "48px minmax(90px,1fr) 28px 26px 28px 32px 34px 20px 78px";
 // 진단 컬럼 (펼쳐보기 — 컴팩트): 상병코드 / 명칭
 const DX_COLS    = "52px 1fr";
 
@@ -218,7 +227,18 @@ interface Props {
   onRepeatRx: (items: HistoryRx[]) => void;
   onRepeatAll: (dxItems: HistoryDx[], rxItems: HistoryRx[]) => void;
   onAddSymptom: (text: string) => void;
+  // 검사 처방 호버 시 검사결과 보기 버튼 — LabViewer 팝업 (자동 필터링).
+  //   PanelC 와 동일 시그니처. 수치 클릭·소견 결과보기 모두 같은 핸들러.
+  onOpenLabViewer?: (entry?: { date?: string; testName?: string }) => void;
+  // 영상검사 결과보기 → PACS 팝업.
+  onOpenPACS?: (entry: { date: string; testName: string }) => void;
+  // 검사결과 직접 입력 (pending) — 클릭 시 PanelC 의 입력 모달 오픈.
+  //   PanelC 가 모달과 enteredResults 맵을 소유, 펼쳐보기는 콜백·맵 read 만.
+  enteredResults?: Record<string, string>;
+  onOpenResultInput?: (key: string, testName: string, visitDate: string) => void;
 }
+
+// 검사 처방 판별·결과 분류는 PanelC 에서 import (isLabRx / labResultFor / rxSignalFor / isProcedure).
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export function EMRExpandedHistory({
@@ -227,6 +247,7 @@ export function EMRExpandedHistory({
   filterPrescTypes, togglePrescType, filterDiagnoses, applyDiagnoses,
   resetFilters, hasActiveFilters, onClose,
   onRepeatDx, onRepeatRx, onRepeatAll, onAddSymptom,
+  onOpenLabViewer, onOpenPACS, enteredResults = {}, onOpenResultInput,
 }: Props) {
   const [show,         setShow]         = useState(false);
   const [search,       setSearch]       = useState("");
@@ -235,8 +256,9 @@ export function EMRExpandedHistory({
   const [filterClaim,   setFilterClaim]   = useState<"전체" | "청구" | "비청구">("전체");
   const [filterIns,     setFilterIns]     = useState<Set<string>>(new Set());
 
-  // View modes — 내원일 카드 내부 어떤 섹션을 보여줄지 (다중선택)
-  const VIEW_KEYS = ["증상", "진단", "처방", "이미지", "메모"] as const;
+  // View modes — 내원일 카드 내부 어떤 섹션을 보여줄지 (다중선택).
+  // 메모는 처방의 지시메모로 흡수되므로 별도 보기 필터 제거됨.
+  const VIEW_KEYS = ["증상", "진단", "처방", "이미지"] as const;
   type ViewKey = typeof VIEW_KEYS[number];
   const [viewModes, setViewModes] = useState<Set<ViewKey>>(new Set(VIEW_KEYS));
   const toggleViewMode = (k: ViewKey) => setViewModes(prev => {
@@ -280,7 +302,7 @@ export function EMRExpandedHistory({
     { id: "fav",  name: "★ 즐겨찾기", filters: { search: "", favorite: true, tags: [], diagnoses: [], visitType: "전체", claim: "전체", insType: [] } },
     { id: "dm",   name: "당뇨", filters: { search: "", favorite: false, tags: [], diagnoses: ["E11.9"], visitType: "전체", claim: "전체", insType: [] } },
     { id: "htn",  name: "고혈압", filters: { search: "", favorite: false, tags: [], diagnoses: ["I10"], visitType: "전체", claim: "전체", insType: [] } },
-    { id: "lab",  name: "검사", filters: { search: "", favorite: false, tags: ["검"], diagnoses: [], visitType: "전체", claim: "전체", insType: [] } },
+    { id: "lab",  name: "검체", filters: { search: "", favorite: false, tags: ["혈액검사"], diagnoses: [], visitType: "전체", claim: "전체", insType: [] } },
   ];
 
   const PRESETS_STORAGE_KEY = "nextemr.charting.history.presets";
@@ -331,10 +353,16 @@ export function EMRExpandedHistory({
     setActivePresetId(id);
   };
 
+  // 프리셋 삭제 확인 — 정책 §3 안내+행동유도 알럿. window.confirm 대신 커스텀.
+  const [deletePresetId, setDeletePresetId] = useState<string | null>(null);
   const deletePreset = (id: string) => {
-    if (!window.confirm("이 프리셋을 삭제하시겠습니까?")) return;
-    setPresets(prev => prev.filter(p => p.id !== id));
-    if (activePresetId === id) setActivePresetId("all");
+    setDeletePresetId(id);
+  };
+  const confirmDeletePreset = () => {
+    if (!deletePresetId) return;
+    setPresets(prev => prev.filter(p => p.id !== deletePresetId));
+    if (activePresetId === deletePresetId) setActivePresetId("all");
+    setDeletePresetId(null);
   };
 
   // 사용자가 필터를 직접 변경하면 활성 프리셋과 mismatch 표시
@@ -708,7 +736,9 @@ export function EMRExpandedHistory({
             </div>
           ) : (
             <div className="p-2 bg-[var(--bg-subtle)]">
-              <div className="grid gap-2 items-start" style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}>
+              {/* 그리드 — items-stretch (default) 로 한 행의 카드들이 동일 높이로 늘어남.
+                  각 카드는 flex-col 이라 콘텐츠가 위쪽부터 채워지고 남는 공간은 카드 하단 흰 여백으로. */}
+              <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}>
               {localFiltered.map(v => {
                 const isActive  = activeDate === v.id;
                 const labs      = LAB_BY_PRESC[v.id] ?? {};
@@ -716,7 +746,7 @@ export function EMRExpandedHistory({
 
                 return (
                   <div key={v.id} ref={el => { cardRefs.current[v.id] = el; }}
-                    className="relative flex flex-col bg-white rounded-[10px] overflow-hidden shadow-sm border border-[var(--line-default)]"
+                    className="relative flex flex-col bg-white rounded-[6px] overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)] border border-[var(--line-default)]"
                     onClick={() => setActiveDate(v.id)}>
 
                     {/* Card Header — 클릭 시 전체 내원 추가 (증상+진단+처방) */}
@@ -737,8 +767,17 @@ export function EMRExpandedHistory({
                       <span className="text-micro rounded-[3px] px-1 py-0.5 flex-shrink-0 bg-white border border-[var(--line-default)] text-[var(--text-sub)]">{v.visitType[0]}</span>
                       <span className="text-micro bg-[var(--line-subtle)] text-[var(--text-sub)] rounded-[3px] px-1 py-0.5 flex-shrink-0">{v.insType}</span>
                       {v.special && <span className="text-micro bg-[var(--status-success-bg-subtle)] text-[var(--green-500)] rounded-[3px] px-1 py-0.5 flex-shrink-0">{v.special}</span>}
+                      {/* 주물방검 — 과거 차트는 모두 수행 완료 → 회색. 오늘 차트(draft) 만 컬러. */}
                       {v.prescTypes.map(pt => (
-                        <span key={pt} className={`text-micro font-bold rounded-[2px] px-1 py-0.5 flex-shrink-0 ${PT_BADGE[pt].cls}`}>{PT_BADGE[pt].label[0]}</span>
+                        <span
+                          key={pt}
+                          title={v.isDraft ? `${PT_BADGE[pt].label} — 수행 예정` : `${PT_BADGE[pt].label} — 수행 완료`}
+                          className={`text-micro font-bold rounded-[2px] px-1 py-0.5 flex-shrink-0 ${
+                            v.isDraft
+                              ? PT_BADGE[pt].cls
+                              : "bg-[var(--bg-subtle)] text-[var(--text-tertiary)]"
+                          }`}
+                        >{PT_BADGE[pt].label[0]}</span>
                       ))}
                       {viewModes.has("이미지") && v.imageCount && v.imageCount > 0 ? (
                         <span className="text-micro text-[var(--blue-700)] bg-[var(--blue-050)] border border-[var(--blue-200)] rounded-[3px] px-1 py-0.5 flex-shrink-0">📷 {v.imageCount}</span>
@@ -785,8 +824,8 @@ export function EMRExpandedHistory({
                       </div>
                     )}
 
-                    {/* Symptom — 클릭 시 증상 텍스트 추가 */}
-                    {viewModes.has("증상") && (
+                    {/* Symptom — 클릭 시 증상 텍스트 추가. 빈 값일 때는 섹션 자체 미렌더 (흰 배경 유지). */}
+                    {viewModes.has("증상") && v.symptom && (
                       <div
                         onClick={e => { e.stopPropagation(); onAddSymptom(v.symptom); }}
                         title="클릭하면 증상에 추가"
@@ -796,8 +835,9 @@ export function EMRExpandedHistory({
                       </div>
                     )}
 
-                    {/* Diagnosis */}
-                    {viewModes.has("진단") && (
+                    {/* Diagnosis — 진단 데이터가 있을 때만 렌더링.
+                        오늘 차트(draft) 처럼 아직 입력 안 된 카드는 헤더도 안 보이고 빈 흰 배경만 유지. */}
+                    {viewModes.has("진단") && v.diagnoses.length > 0 && (
                     <div className="border-b border-[var(--line-subtle)]">
                       <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-subtle)] px-2 py-[3px] gap-1"
                         style={{ gridTemplateColumns: DX_COLS }}>
@@ -820,37 +860,142 @@ export function EMRExpandedHistory({
                     </div>
                     )}
 
-                    {/* Prescriptions */}
+                    {/* Prescriptions — PanelC 접힌 상태와 동일 컬럼: 코드/명칭/용량/일투/일수/용법/특정/청/결과.
+                        결과 컬럼은 PanelC 와 동일한 4-tier 분류 + 약·처치 신호 사용. */}
                     {viewModes.has("처방") && v.prescriptions.length > 0 && (
                       <div className="border-b border-[var(--line-subtle)]">
                         <div className="grid bg-[var(--bg-subtle)] border-b border-[var(--line-subtle)] px-2 py-[3px] gap-1"
                           style={{ gridTemplateColumns: PRESC_COLS }}>
-                          {[["사용자코드","left"],["명칭","left"],["용량","center"],["일투","center"],["일수","center"]].map(([label, align]) => (
+                          {[["코드","left"],["명칭","left"],["용량","center"],["일투","center"],["일수","center"],["용법","center"],["특정","left"],["청","center"],["결과","left"]].map(([label, align]) => (
                             <span key={label} className={`text-micro font-medium text-[var(--text-tertiary)] text-${align} truncate`}>{label}</span>
                           ))}
                         </div>
-                        {v.prescriptions.map((p, i) => (
-                          <div key={p.name + i}
-                            className="grid items-center px-2 py-[3px] border-b border-[var(--line-subtle)] last:border-b-0 hover:bg-[var(--status-success-bg-subtle)] cursor-pointer relative group/rxrow gap-1"
-                            style={{ gridTemplateColumns: PRESC_COLS }}
-                            onClick={e => { e.stopPropagation(); onRepeatRx([p]); }}>
-                            <span className="text-micro text-[var(--text-tertiary)] truncate">{p.code ?? ""}</span>
-                            <span className="text-xs text-[var(--text-main)] truncate">{p.name}</span>
-                            <span className="text-micro text-[var(--text-sub)] text-center">{p.dose}</span>
-                            <span className="text-micro text-[var(--text-sub)] text-center">{p.freq}</span>
-                            <span className="text-micro text-[var(--text-sub)] text-center">{p.days}</span>
-                          </div>
-                        ))}
+                        {v.prescriptions.map((p, i) => {
+                          const labResult = labResultFor(p, v.date);
+                          const resultKey = `${p.code ?? p.name}@${v.date}`;
+                          const enteredVal = enteredResults[resultKey];
+                          const rxSig = labResult ? null : rxSignalFor(p, v.date);
+                          return (
+                            <div key={p.name + i}
+                              className="grid items-center px-2 py-[3px] border-b border-[var(--line-subtle)] last:border-b-0 hover:bg-[var(--status-success-bg-subtle)] cursor-pointer relative group/rxrow gap-1"
+                              style={{ gridTemplateColumns: PRESC_COLS }}
+                              onClick={e => { e.stopPropagation(); onRepeatRx([p]); }}>
+                              <span className="text-micro font-mono text-[var(--text-sub)] truncate" title={p.code ?? ""}>{p.code ?? ""}</span>
+                              <span className="text-xs text-[var(--text-main)] truncate" title={p.name}>{p.name}</span>
+                              <span className="text-micro text-[var(--text-sub)] text-center tabular-nums">{p.dose}</span>
+                              <span className="text-micro text-[var(--text-sub)] text-center tabular-nums">{p.freq}</span>
+                              <span className="text-micro text-[var(--text-sub)] text-center tabular-nums">{p.days}</span>
+                              <span className="text-micro text-center text-[var(--text-sub)] truncate">{p.method ?? "경구"}</span>
+                              <span className="text-micro text-[var(--orange-700)] truncate">{p.special ?? ""}</span>
+                              <span className="text-xs text-center text-[var(--text-sub)]">{p.claim === false ? "" : "✓"}</span>
+                              {/* 결과 컬럼 — PanelC 와 동일 로직 (numeric/finding/imaging/pending + 약·처치 신호) */}
+                              {(() => {
+                                if (labResult) {
+                                  const fullDate = v.date.length === 8
+                                    ? `20${v.date}`.replace(/-/g, ".")
+                                    : v.date.replace(/-/g, ".");
+                                  if (enteredVal) {
+                                    return (
+                                      <button
+                                        onClick={e => { e.stopPropagation(); onOpenLabViewer?.({ date: fullDate, testName: p.name }); }}
+                                        title={`${enteredVal} (직접 입력) — 클릭하여 ${p.name} 추세 보기`}
+                                        className="text-xs text-[var(--text-main)] tabular-nums truncate text-left hover:text-[var(--brand-primary)] hover:underline transition-colors w-full inline-flex items-center gap-0.5">
+                                        <span className="w-1 h-1 rounded-full bg-[var(--green-500)] flex-shrink-0" />
+                                        {enteredVal}
+                                      </button>
+                                    );
+                                  }
+                                  if (labResult.kind === "numeric") {
+                                    return (
+                                      <button
+                                        onClick={e => { e.stopPropagation(); onOpenLabViewer?.({ date: fullDate, testName: p.name }); }}
+                                        title={`${labResult.display} — 클릭하여 ${p.name} 결과 추세 보기`}
+                                        className="text-xs text-[var(--text-main)] tabular-nums truncate text-left hover:text-[var(--brand-primary)] hover:underline transition-colors w-full">
+                                        {labResult.display}
+                                      </button>
+                                    );
+                                  }
+                                  if (labResult.kind === "finding") {
+                                    return (
+                                      <button
+                                        onClick={e => { e.stopPropagation(); onOpenLabViewer?.({ date: fullDate, testName: p.name }); }}
+                                        title={`${p.name} 결과 보기`}
+                                        className="h-5 px-1.5 text-micro font-bold rounded border border-[var(--brand-primary)] text-[var(--brand-primary)] bg-white hover:bg-[var(--bg-primary-subtle)] inline-flex items-center justify-center whitespace-nowrap">
+                                        결과보기
+                                      </button>
+                                    );
+                                  }
+                                  if (labResult.kind === "imaging") {
+                                    return (
+                                      <button
+                                        onClick={e => { e.stopPropagation(); onOpenPACS?.({ date: fullDate, testName: p.name }); }}
+                                        title={`${p.name} PACS 뷰어 열기`}
+                                        className="h-5 px-1.5 text-micro font-bold rounded border border-[var(--violet-500)] text-[var(--violet-500)] bg-white hover:bg-[var(--violet-050)] inline-flex items-center gap-0.5 justify-center whitespace-nowrap">
+                                        <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                                          <rect x="1.5" y="2" width="9" height="8" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+                                          <path d="M3 6.5l1.5-1.5 1.5 1L8 4l1 1" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                        결과보기
+                                      </button>
+                                    );
+                                  }
+                                  // pending
+                                  return (
+                                    <button
+                                      onClick={e => { e.stopPropagation(); onOpenResultInput?.(resultKey, p.name, v.date); }}
+                                      title={`${p.name} 결과 미입력 — 클릭하여 직접 입력`}
+                                      className="h-5 px-1.5 text-micro font-bold rounded border border-[var(--orange-500)] text-[var(--orange-700)] bg-[var(--status-warning-bg-subtle)] hover:bg-[var(--orange-100)] inline-flex items-center gap-0.5 justify-center whitespace-nowrap">
+                                      <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+                                        <path d="M2 10 L4 8 L8.5 3.5 L10.5 5.5 L6 10 L2 10 Z" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinejoin="round"/>
+                                      </svg>
+                                      결과 입력
+                                    </button>
+                                  );
+                                }
+                                // 약·처치 신호 — 배경 없이 텍스트만
+                                if (rxSig?.kind === "dur") {
+                                  return (
+                                    <span title={`DUR ${rxSig.flavor} 금기`}
+                                      className="text-micro font-bold text-[var(--red-700)] inline-flex items-center gap-0.5 whitespace-nowrap">
+                                      <span>⚠</span>
+                                      <span>{rxSig.flavor}</span>
+                                    </span>
+                                  );
+                                }
+                                if (rxSig?.kind === "new") {
+                                  const isProc = isProcedure(p);
+                                  return (
+                                    <span title={isProc ? "이 환자에게 처음 진행하는 시술" : "이 환자에게 처음 처방하는 약"}
+                                      className="text-micro font-medium text-[var(--text-sub)] whitespace-nowrap">
+                                      {isProc ? "첫 시술" : "첫 처방"}
+                                    </span>
+                                  );
+                                }
+                                if (rxSig?.kind === "changed") {
+                                  return (
+                                    <span title={`이전 처방 대비 변경: ${rxSig.label}`}
+                                      className="text-micro font-bold text-[var(--orange-700)] whitespace-nowrap truncate">
+                                      {rxSig.label}
+                                    </span>
+                                  );
+                                }
+                                if (rxSig?.kind === "procRound") {
+                                  return (
+                                    <span title={`이 시술의 누적 ${rxSig.round}회차`}
+                                      className="text-micro font-bold text-[var(--brand-primary)] whitespace-nowrap">
+                                      {rxSig.round}회차
+                                    </span>
+                                  );
+                                }
+                                return <span />;
+                              })()}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
 
-                    {/* Note */}
-                    {viewModes.has("메모") && v.note && (
-                      <div className="flex items-start gap-1 px-3 py-1.5">
-                        <span className="text-xs">📝</span>
-                        <span className="text-xs text-[var(--brand-primary)] leading-[15px]">{v.note}</span>
-                      </div>
-                    )}
+                    {/* 메모 (note) — 처방 자체의 지시메모로 흡수되어 카드 본문에서 제거됨. */}
                   </div>
                 );
               })}
@@ -859,6 +1004,19 @@ export function EMRExpandedHistory({
           )}
         </div>
       </div>
+
+      {/* 프리셋 삭제 확인 — 정책 §3 안내+행동유도 알럿. */}
+      {deletePresetId && (
+        <Alert
+          type="action"
+          actionVerb="삭제"
+          title="프리셋 삭제"
+          message="이 프리셋을 삭제하시겠습니까?"
+          description="삭제한 프리셋은 복구할 수 없습니다."
+          onAbstain={() => setDeletePresetId(null)}
+          onAct={confirmDeletePreset}
+        />
+      )}
     </div>
   );
 }

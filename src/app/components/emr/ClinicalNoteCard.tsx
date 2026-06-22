@@ -21,13 +21,15 @@ import {
 export function ClinicalNoteCard({
   clinicalNote = "",
   onChangeClinicalNote,
+  embedded = false,
 }: {
   clinicalNote?: string;
   onChangeClinicalNote?: (v: string) => void;
+  embedded?: boolean;
 }) {
-  // 고정된 문구 — 자주 보는 임상 정보 (탈모 상담 사유, 가족력 등)
+  // 고정된 문구 — 자주 보는 임상 정보 (다음 방문 시 처리할 일, 가족력 등)
   const [pinnedNotes, setPinnedNotes] = useState<{ id: string; text: string }[]>([
-    { id: "p-init-1", text: "S>\n탈모 관련 상담 위해 방문" },
+    { id: "p-init-1", text: "다음 방문 시 HbA1c 재검 요청" },
   ]);
   const [editingPinId, setEditingPinId] = useState<string | null>(null);
   const [editingPinDraft, setEditingPinDraft] = useState("");
@@ -96,19 +98,47 @@ export function ClinicalNoteCard({
   };
   const cancelPinEdit = () => { setEditingPinId(null); setEditingPinDraft(""); };
 
+  // ── 빠른 입력 도구 ────────────────────────────────────────────────
+  // 오늘날짜 — 클릭 시 yyyy-mm-dd 형식으로 현재 커서 위치에 삽입.
+  // 선택 텍스트가 있으면 그 영역을 교체. textarea ref 가 없으면 끝에 append.
+  const insertAtCursor = (snippet: string) => {
+    const ta = noteTextareaRef.current;
+    if (!ta) {
+      onChangeClinicalNote?.(clinicalNote ? `${clinicalNote}${snippet}` : snippet);
+      return;
+    }
+    const start = ta.selectionStart ?? clinicalNote.length;
+    const end = ta.selectionEnd ?? clinicalNote.length;
+    const before = clinicalNote.substring(0, start);
+    const after = clinicalNote.substring(end);
+    const next = before + snippet + after;
+    onChangeClinicalNote?.(next);
+    // 커서를 삽입된 텍스트 끝으로 이동 — state 반영 후 다음 frame 에 setSelectionRange.
+    requestAnimationFrame(() => {
+      const pos = start + snippet.length;
+      ta.focus();
+      ta.setSelectionRange(pos, pos);
+    });
+  };
+  const insertTodayDate = () => {
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    insertAtCursor(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`);
+  };
+
   return (
     <div className="bg-white rounded-md flex flex-col h-full overflow-hidden relative">
-      {/* 헤더 — 환자 단위 누적 메모임을 명시하는 서브타이틀 */}
-      <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-[var(--line-default)] flex-shrink-0">
-        <div className="flex items-center gap-1.5">
-          <span className="text-md font-bold text-[var(--text-main)]">임상메모</span>
-          <span className="text-micro text-[var(--text-tertiary)]">환자 누적</span>
-        </div>
+      {/* 헤더 — 임상메모. embedded 면 dock 탭 라벨로 식별되어 숨김. */}
+      {!embedded && (
+      <div className="flex items-center px-2 py-0.5 border-b border-[var(--line-default)] flex-shrink-0">
+        <span className="text-sm font-medium text-[var(--text-main)]">임상메모</span>
       </div>
+      )}
 
-      {/* 고정된 문구 — 공유메모 공지와 동일한 orange tone (status-warning) */}
+      {/* 고정된 문구 — 공유메모 공지와 동일한 orange tone (status-warning).
+          하단 padding/gap 축소: 공지(고정문구) ↔ 메모 사이 간격을 더 좁게. */}
       {pinnedNotes.length > 0 && (
-        <div className="px-2 pt-2 pb-1 flex flex-col gap-1.5 flex-shrink-0">
+        <div className="px-2 pt-1.5 pb-0 flex flex-col gap-1 flex-shrink-0">
           {pinnedNotes.map(p => (
             <div key={p.id} className="relative bg-[var(--status-warning-bg-subtle)] rounded-md px-3 py-2 group">
               {editingPinId === p.id ? (
@@ -158,7 +188,8 @@ export function ClinicalNoteCard({
         </div>
       )}
 
-      {/* 편집 가능 textarea */}
+      {/* 편집 가능 textarea — 공지(고정문구)와 가까이 붙도록 상단 padding 축소 (pt-1.5).
+          좌우·하단은 원래 p-3 유지. */}
       <textarea
         ref={noteTextareaRef}
         value={clinicalNote}
@@ -168,13 +199,27 @@ export function ClinicalNoteCard({
         onKeyUp={handleNoteSelection}
         onBlur={() => setTimeout(() => setNoteSelection(null), 150)}
         placeholder="임상메모를 입력해주세요. ('/' 입력하여 상용구 검색, 텍스트를 선택하면 서식·상용구·고정 도구가 나타납니다)"
-        className="flex-1 p-3 text-sm text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent overflow-y-auto"
+        className="flex-1 px-3 pt-1.5 pb-3 text-sm text-[var(--text-main)] leading-[17px] resize-none outline-none placeholder:text-[var(--text-tertiary)] bg-transparent overflow-y-auto"
       />
 
-      {/* 즐겨찾기 상용구 — preset + 사용자 등록 */}
+      {/* 즐겨찾기 상용구 — preset + 사용자 등록.
+          leading 슬롯: "오늘날짜" 빠른 입력 버튼 (헤더에서 이 위치로 이동). */}
       <SnippetChips
         snippets={[...NOTE_SNIPPETS, ...userNoteSnippets]}
         onInsert={t => onChangeClinicalNote?.(clinicalNote ? `${clinicalNote}\n${t}` : t)}
+        leadingElements={
+          <button
+            onClick={insertTodayDate}
+            title="오늘 날짜 (yyyy-mm-dd) 를 커서 위치에 삽입"
+            className="inline-flex items-center gap-0.5 text-sm px-2 py-0.5 rounded border border-[var(--brand-primary)] bg-[var(--bg-primary-subtle)] text-[var(--brand-primary)] font-medium hover:bg-[var(--brand-primary)] hover:text-white transition-colors"
+          >
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+              <path d="M2 6h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+            </svg>
+            오늘날짜
+          </button>
+        }
       />
 
       {/* 선택 시 floating 서식 툴바 */}
