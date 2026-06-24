@@ -383,7 +383,7 @@ export function EMRExpandedHistory({
 
   const gridRef  = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const dateRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const dateRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const dateStripRef = useRef<HTMLDivElement>(null);
   const [visibleDates, setVisibleDates] = useState<Set<string>>(new Set());
 
