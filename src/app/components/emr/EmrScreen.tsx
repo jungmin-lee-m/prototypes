@@ -1,5 +1,6 @@
 // 진료실 메인 화면 (App.tsx에서 분리, 라우팅 적용)
 import { useState, useRef, useEffect } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import { Panel, PanelGroup, PanelResizeHandle, type ImperativePanelHandle } from "react-resizable-panels";
 import { LNB, type LNBItem } from "./LNB";
 import { TopBar } from "./TopBar";
@@ -297,10 +298,65 @@ export function EmrScreen() {
   // 각 PanelGroup 에 layout-aware autoSaveId 를 부여하여 레이아웃별로 패널 사이즈를 localStorage 에 영구 저장.
   const layoutKey = String(layout);
   const [lnbActive, setLnbActive] = useState<LNBItem>("진료");
-  // 오늘 내원 현황 모달 — 진료실에서만 노출. 상단 TopBar 의 버튼으로만 열림.
-  const [showReport, setShowReport] = useState(false);
-  const openReport  = () => { setShowReport(true); };
-  const closeReport = () => { setShowReport(false); };
+  // 오늘 내원 현황 — 별도 브라우저 창(window.open) 으로 띄움. 모달 아님 — 뒤 차팅 화면과 별도 윈도우 인터렉션.
+  // 진료실에서만 노출. 상단 TopBar 의 버튼으로만 열림.
+  const reportPopupRef = useRef<Window | null>(null);
+  const reportRootRef  = useRef<Root | null>(null);
+  const openReport = () => {
+    if (lnbActive !== "진료") return;
+    // 이미 열린 popup 이 있으면 focus 만
+    if (reportPopupRef.current && !reportPopupRef.current.closed) {
+      reportPopupRef.current.focus();
+      return;
+    }
+    const popup = window.open("", "nextemrTodayReport", "width=1440,height=900,scrollbars=yes,resizable=yes");
+    if (!popup) {
+      alert("팝업이 차단됐어요. 브라우저의 팝업 차단을 해제한 뒤 다시 시도해주세요.");
+      return;
+    }
+    // 새 창의 head — viewport meta + 부모창 stylesheet 복사 (Tailwind / CSS variables 그대로 적용).
+    popup.document.title = "내원 현황 — NextEMR";
+    const viewport = popup.document.createElement("meta");
+    viewport.name = "viewport";
+    viewport.content = "width=device-width, initial-scale=1";
+    popup.document.head.appendChild(viewport);
+    Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).forEach(el => {
+      popup.document.head.appendChild(el.cloneNode(true));
+    });
+    // 부모창의 html className (dark 모드 등) 동기화
+    popup.document.documentElement.className = document.documentElement.className;
+    popup.document.body.className = "h-screen overflow-hidden antialiased bg-[var(--bg-base)] text-[var(--text-main)]";
+
+    const container = popup.document.createElement("div");
+    container.className = "h-screen flex flex-col";
+    popup.document.body.appendChild(container);
+
+    const root = createRoot(container);
+    reportRootRef.current  = root;
+    reportPopupRef.current = popup;
+    root.render(<EndOfDayReport onClose={() => popup.close()} />);
+
+    popup.addEventListener("beforeunload", () => {
+      reportRootRef.current?.unmount();
+      reportRootRef.current  = null;
+      reportPopupRef.current = null;
+    });
+  };
+
+  // 진료실 외 메뉴로 이동하거나 EmrScreen 자체가 unmount 되면 popup 도 정리.
+  useEffect(() => {
+    if (lnbActive !== "진료" && reportPopupRef.current && !reportPopupRef.current.closed) {
+      reportPopupRef.current.close();
+    }
+  }, [lnbActive]);
+  useEffect(() => {
+    return () => {
+      if (reportPopupRef.current && !reportPopupRef.current.closed) {
+        reportPopupRef.current.close();
+      }
+      reportRootRef.current?.unmount();
+    };
+  }, []);
 
   // ── 현재 차트 환자 / 직전차트 보기 모드 ─────────────────────────
   //   기본 환자는 황미진(PanelB 의 PATIENT_PROFILE) — undefined 일 때 PanelB 가 default 사용.
@@ -1055,10 +1111,7 @@ export function EmrScreen() {
         onClose={() => setShowAI(false)}
       />
 
-      {/* 오늘의 리포트 모달 — 진료실에서만 노출 */}
-      {lnbActive === "진료" && showReport && (
-        <EndOfDayReport onClose={closeReport} />
-      )}
+      {/* 오늘의 리포트 — 별도 브라우저 창(window.open) 으로 띄움. 본문 트리에 모달이 mount 되지 않음. */}
 
       {/* dock 레이아웃 저장 모달 — TopBar 의 "새 레이아웃 저장" 클릭 시. */}
       {dockSaveModalOpen && (

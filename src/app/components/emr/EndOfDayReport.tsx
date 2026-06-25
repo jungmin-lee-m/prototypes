@@ -1,8 +1,7 @@
-// 오늘의 진료 리포트 — 진료실 마감 시점 모달
+// 오늘의 진료 리포트 — 별도 브라우저 창(window.open) 으로 띄우는 페이지 컴포넌트.
+// 모달이 아님: 부모창의 차팅 화면과는 완전히 분리된 OS-level 새 창에 마운트된다.
 // 진료한 명세서를 자동 검토해 매출 / 매출 기회 / 실사 위험 / 환자 액션 4축으로 요약.
-// 닫으면 진료실 우하단에 "다시 보기" 플로팅 버튼이 노출된다.
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
 // chart-prototype 의 SettledPatientsTable 이식본 — 좌측 환자 목록 표 영역.
 import { SettledPatientsTable } from "./today-report/SettledPatientsTable";
 
@@ -864,7 +863,9 @@ function WidgetSettingsModal({
     next.has(id) ? next.delete(id) : next.add(id);
     return next;
   });
-  return createPortal(
+  // popup window 안에서 마운트되므로 createPortal 불필요 — 새 창 viewport 위에 fixed inset-0 로 직접 띄움.
+  // (createPortal(.., document.body) 는 부모창 document 를 가리켜서 popup 외부에 mount 되는 버그를 일으킴.)
+  return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-[480px] max-w-[92vw]"
         onClick={e => e.stopPropagation()}>
@@ -916,8 +917,7 @@ function WidgetSettingsModal({
           </button>
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }
 
@@ -997,18 +997,10 @@ const DEFAULT_REPORT_ORDER: WidgetKey[] = ["revenue", "missed", "risk", "action"
 const ALL_REPORT_WIDGETS: WidgetKey[] = ["revenue", "missed", "risk", "action", "distribution", "precheck"];
 
 export function EndOfDayReport({ onClose }: { onClose: () => void }) {
-  const [hidden,   setHidden]   = useState<Set<WidgetKey>>(new Set());
-  const [order,    setOrder]    = useState<WidgetKey[]>(DEFAULT_REPORT_ORDER);
-  const [settings, setSettings] = useState(false);
-  const [show,     setShow]     = useState(false);
+  const [hidden, setHidden] = useState<Set<WidgetKey>>(new Set());
+  const [order,  setOrder]  = useState<WidgetKey[]>(DEFAULT_REPORT_ORDER);
 
-  // 페이드인
-  useEffect(() => {
-    const t = setTimeout(() => setShow(true), 10);
-    return () => clearTimeout(t);
-  }, []);
-
-  // ESC = 닫기 (정책 §4.5: 팝업 닫기 동작과 동일). 데이터 조회 팝업이라 미저장 이탈 없이 즉시 닫음.
+  // ESC = 새 창 닫기 (정책 §4.5: 팝업 닫기 동작과 동일). popup window 의 document 에 binding.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", handler);
@@ -1081,47 +1073,37 @@ export function EndOfDayReport({ onClose }: { onClose: () => void }) {
 
   const visible = order.filter(id => !hidden.has(id));
 
-  return createPortal(
-    <div className={`fixed inset-0 z-[9990] flex items-center justify-center bg-black/40 transition-opacity duration-150 ${
-      show ? "opacity-100" : "opacity-0"
-    }`} onClick={onClose}>
-      <div
-        className="bg-[var(--bg-base)] rounded-2xl shadow-2xl w-[1440px] max-w-[97vw] max-h-[94vh] overflow-hidden flex flex-col"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* ── 영역 1. 헤더 — 카톡 발송·인쇄 버튼 제거됨. 출력은 좌측 표의 [출력] 액션이 대체. ── */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--line-default)] bg-white flex-shrink-0">
-          <h2 className="text-[18px] font-bold text-[var(--text-main)]">내원 현황</h2>
-          {/* 우상단 ✕ — 팝업 정책 필수. SVG 통일. */}
-          <button onClick={onClose} aria-label="닫기" title="닫기"
-            className="h-8 w-8 text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded-md flex items-center justify-center transition-colors">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-
-        {/* ── 본문 — 좌(표 ~74%) / 우(리포트 ~26%) 좌우 분할 ── */}
-        <div className="flex-1 flex min-h-0 overflow-hidden">
-          {/* ── LEFT: 수납완료 환자 목록 표 ── */}
-          <div className="flex-[2.8] flex flex-col min-w-0 border-r border-[var(--line-default)]">
-            <SettledPatientsTable />
-          </div>
-
-          {/* ── RIGHT: 리포트 (간략) ── */}
-          <div className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[var(--bg-subtle)]">
-            <CompactReportPanel
-              visible={visible}
-              renderWidget={renderWidget}
-            />
-          </div>
-        </div>
-
-        {/* 하단 액션 영역 제거 — 정책 §4: 팝업 하단의 [확인]/[닫기] 단독 버튼 사용 금지.
-            데이터 조회 팝업이므로 별도 CTA 가 없고, 닫기는 우상단 ✕ 또는 ESC 로 한다. */}
+  // 별도 브라우저 창에 마운트되는 페이지 컴포넌트 — backdrop / 모달 wrapper 없음. 새 창 viewport 를 그대로 채움.
+  return (
+    <div className="h-screen flex flex-col bg-[var(--bg-base)] overflow-hidden">
+      {/* ── 영역 1. 헤더 — 카톡 발송·인쇄 버튼 제거됨. 출력은 좌측 표의 [출력] 액션이 대체. ── */}
+      <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--line-default)] bg-white flex-shrink-0">
+        <h2 className="text-[18px] font-bold text-[var(--text-main)]">내원 현황</h2>
+        {/* 우상단 ✕ — 새 창 자체를 닫음. 브라우저 OS-level ✕ 와 동등. */}
+        <button onClick={onClose} aria-label="닫기" title="닫기"
+          className="h-8 w-8 text-[var(--text-tertiary)] hover:text-[var(--text-main)] hover:bg-[var(--bg-subtle)] rounded-md flex items-center justify-center transition-colors">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
-    </div>,
-    document.body
+
+      {/* ── 본문 — 좌(표 ~74%) / 우(리포트 ~26%) 좌우 분할 ── */}
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        {/* ── LEFT: 수납완료 환자 목록 표 ── */}
+        <div className="flex-[2.8] flex flex-col min-w-0 border-r border-[var(--line-default)]">
+          <SettledPatientsTable />
+        </div>
+
+        {/* ── RIGHT: 리포트 (간략) ── */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[var(--bg-subtle)]">
+          <CompactReportPanel
+            visible={visible}
+            renderWidget={renderWidget}
+          />
+        </div>
+      </div>
+    </div>
   );
 }
 
