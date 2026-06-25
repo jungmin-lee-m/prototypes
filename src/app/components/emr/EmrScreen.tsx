@@ -316,12 +316,24 @@ export function EmrScreen() {
     }
     // 새 창의 head — viewport meta + 부모창 stylesheet 복사 (Tailwind / CSS variables 그대로 적용).
     popup.document.title = "내원 현황 — NextEMR";
+    // <base> — about:blank 의 baseURI 를 부모창 baseURI 로 강제. 상대 경로(/_next/... 등) 해석 위해 필수.
+    const base = popup.document.createElement("base");
+    base.href = document.baseURI;
+    popup.document.head.appendChild(base);
     const viewport = popup.document.createElement("meta");
     viewport.name = "viewport";
     viewport.content = "width=device-width, initial-scale=1";
     popup.document.head.appendChild(viewport);
+    // stylesheet · inline style 모두 복사 — link 의 경우 .href property 가 항상 absolute URL 이라 그대로 재사용.
     Array.from(document.querySelectorAll('style, link[rel="stylesheet"]')).forEach(el => {
-      popup.document.head.appendChild(el.cloneNode(true));
+      if (el instanceof HTMLLinkElement && el.href) {
+        const link = popup.document.createElement("link");
+        link.rel  = "stylesheet";
+        link.href = el.href;
+        popup.document.head.appendChild(link);
+      } else {
+        popup.document.head.appendChild(el.cloneNode(true));
+      }
     });
     // 부모창의 html className (dark 모드 등) 동기화
     popup.document.documentElement.className = document.documentElement.className;
