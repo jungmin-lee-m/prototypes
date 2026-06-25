@@ -24,6 +24,9 @@ export interface VisitRecord {
   note?: string;
   special?: string;
   imageCount?: number;
+  /** 오늘 편집중인 차트 (draft) 여부 — true 면 내원이력 최상단에 "편집중" 배지로 노출.
+   *  PanelC 의 todayDraftVisit, getMockPatientChart 의 visit 항목에서 사용. */
+  isDraft?: boolean;
   /** 삭감 기록 (있을 때만) */
   deduction?: {
     reason: string;
